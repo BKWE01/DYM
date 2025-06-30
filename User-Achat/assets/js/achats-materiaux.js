@@ -114,8 +114,11 @@ const CONFIG = {
 let materialsTable = null;
 let orderedMaterialsTable = null;
 let partialOrdersTable = null;
-let receivedMaterialsTable = null;
+let recentPurchasesTable = null;
+let canceledOrdersTable = null;
 let supplierReturnsTable = null;
+let recentPurchasesTable = null;
+let canceledOrdersTable = null;
 
 // Variables pour la gestion des données
 let allMaterials = [];
@@ -239,22 +242,31 @@ function initializeDataTables() {
     // Table des commandes partielles
     initializePartialOrdersTable();
 
-    // Table des matériaux reçus
-    initializeReceivedMaterialsTable();
+    // Table des achats récents
+    initializeRecentPurchasesTable();
+
+    // Table des commandes annulées
+    initializeCanceledOrdersTable();
 
     // Table des retours fournisseurs
     initializeSupplierReturnsTable();
+
+    // Table des achats récents
+    initializeRecentPurchasesTable();
+
+    // Table des commandes annulées
+    initializeCanceledOrdersTable();
 }
 
 /**
  * Initialisation de la table des matériaux en attente
  */
 function initializeMaterialsTable() {
-    if ($.fn.DataTable.isDataTable('#materialsTable')) {
-        $('#materialsTable').DataTable().destroy();
+    if ($.fn.DataTable.isDataTable('#pendingMaterialsTable')) {
+        $('#pendingMaterialsTable').DataTable().destroy();
     }
 
-    materialsTable = $('#materialsTable').DataTable({
+    materialsTable = $('#pendingMaterialsTable').DataTable({
         language: {
             url: CONFIG.DATATABLES.LANGUAGE_URL
         },
@@ -282,12 +294,6 @@ function initializeMaterialsTable() {
                 }
             },
             {
-                targets: [7], // Colonne prix
-                render: function (data, type, row) {
-                    return data ? formatCurrency(data) : 'Non défini';
-                }
-            },
-            {
                 targets: [-1], // Dernière colonne (Actions)
                 orderable: false,
                 render: function (data, type, row) {
@@ -295,7 +301,7 @@ function initializeMaterialsTable() {
                 }
             }
         ],
-        order: [[9, 'desc']], // Trier par date de création
+        order: [[8, 'desc']], // Trier par date de création
         initComplete: function () {
             debugLog('✅ Table des matériaux en attente initialisée');
             setupTableFilters(this.api());
@@ -395,14 +401,14 @@ function initializePartialOrdersTable() {
 }
 
 /**
- * Initialisation de la table des matériaux reçus
+ * Initialisation de la table des achats récents
  */
-function initializeReceivedMaterialsTable() {
-    if ($.fn.DataTable.isDataTable('#receivedMaterialsTable')) {
-        $('#receivedMaterialsTable').DataTable().destroy();
+function initializeRecentPurchasesTable() {
+    if ($.fn.DataTable.isDataTable('#recentPurchasesTable')) {
+        $('#recentPurchasesTable').DataTable().destroy();
     }
 
-    receivedMaterialsTable = $('#receivedMaterialsTable').DataTable({
+    recentPurchasesTable = $('#recentPurchasesTable').DataTable({
         language: {
             url: CONFIG.DATATABLES.LANGUAGE_URL
         },
@@ -420,9 +426,38 @@ function initializeReceivedMaterialsTable() {
                 }
             }
         ],
-        order: [[5, 'desc']], // Trier par date de réception
+        order: [[8, 'desc']], // Trier par date de réception
         initComplete: function () {
-            debugLog('✅ Table des matériaux reçus initialisée');
+            console.log('✅ Table des achats récents initialisée');
+        }
+    });
+}
+
+/**
+ * Initialisation de la table des commandes annulées
+ */
+function initializeCanceledOrdersTable() {
+    if ($.fn.DataTable.isDataTable('#canceledOrdersTable')) {
+        $('#canceledOrdersTable').DataTable().destroy();
+    }
+
+    canceledOrdersTable = $('#canceledOrdersTable').DataTable({
+        language: {
+            url: CONFIG.DATATABLES.LANGUAGE_URL
+        },
+        dom: CONFIG.DATATABLES.DOM,
+        buttons: CONFIG.DATATABLES.BUTTONS,
+        responsive: true,
+        processing: true,
+        pageLength: 25,
+        columnDefs: [
+            {
+                targets: [-1], // Actions
+                orderable: false
+            }
+        ],
+        order: [[6, 'desc']], // Trier par date d'annulation
+        initComplete: function () {
         }
     });
 }
@@ -455,6 +490,115 @@ function initializeSupplierReturnsTable() {
         ],
         initComplete: function () {
             debugLog('✅ Table des retours fournisseurs initialisée');
+        }
+    });
+}
+
+/**
+ * Initialisation de la table des achats récents
+ */
+function initializeRecentPurchasesTable() {
+    if ($.fn.DataTable.isDataTable('#recentPurchasesTable')) {
+        $('#recentPurchasesTable').DataTable().destroy();
+    }
+
+    recentPurchasesTable = $('#recentPurchasesTable').DataTable({
+        language: {
+            url: CONFIG.DATATABLES.LANGUAGE_URL
+        },
+        dom: CONFIG.DATATABLES.DOM,
+        buttons: CONFIG.DATATABLES.BUTTONS,
+        responsive: true,
+        processing: true,
+        pageLength: 25,
+        columnDefs: [
+            {
+                targets: [8],
+                type: 'date-fr'
+            },
+            {
+                targets: [9],
+                orderable: false,
+                render: function (data, type, row) {
+                    const expressionId = row[10] || '';
+                    const orderId = row[11] || '';
+                    let designation = row[2] || '';
+                    designation = designation.replace(/<[^>]*>/g, '');
+                    const cleanDesignation = designation.replace(/[\\'\"]/g, '\\$&');
+                    return `
+                        <button onclick="generateBonCommande('${expressionId}')" class="btn-action text-green-600 hover:text-green-800 mr-2" title="Générer bon de commande">
+                            <span class="material-icons">receipt</span>
+                        </button>
+                        <button onclick="viewOrderDetails('${orderId}', '${expressionId}', '${cleanDesignation}')" class="btn-action text-blue-600 hover:text-blue-800 mr-2" title="Voir les détails">
+                            <span class="material-icons">visibility</span>
+                        </button>
+                        <button onclick="viewStockDetails('${cleanDesignation}')" class="btn-action text-purple-600 hover:text-purple-800" title="Voir dans le stock">
+                            <span class="material-icons">inventory_2</span>
+                        </button>
+                    `;
+                }
+            }
+        ],
+        order: [[8, 'desc']],
+        initComplete: function () {
+            console.log('✅ Table des achats récents initialisée');
+        }
+    });
+}
+
+/**
+ * Initialisation de la table des commandes annulées
+ */
+function initializeCanceledOrdersTable() {
+    if ($.fn.DataTable.isDataTable('#canceledOrdersTable')) {
+        $('#canceledOrdersTable').DataTable().destroy();
+    }
+
+    canceledOrdersTable = $('#canceledOrdersTable').DataTable({
+        language: {
+            url: CONFIG.DATATABLES.LANGUAGE_URL
+        },
+        dom: CONFIG.DATATABLES.DOM,
+        buttons: CONFIG.DATATABLES.BUTTONS,
+        responsive: true,
+        processing: true,
+        pageLength: 25,
+        ajax: {
+            url: 'api_canceled/api_getCanceledOrders.php',
+            dataSrc: function (json) {
+                return json.data || [];
+            }
+        },
+        columns: [
+            { data: 'code_projet' },
+            { data: 'nom_client' },
+            { data: 'designation' },
+            { data: 'original_status', orderable: false },
+            { data: 'quantity' },
+            { data: 'fournisseur' },
+            { data: 'canceled_at' },
+            { data: 'cancel_reason' },
+            {
+                data: 'id',
+                orderable: false,
+                render: function (data) {
+                    return `
+                        <button onclick="viewCanceledOrderDetails(${data})" class="text-blue-600 hover:text-blue-800">
+                            <span class="material-icons text-sm">visibility</span>
+                        </button>
+                    `;
+                }
+            }
+        ],
+        columnDefs: [
+            {
+                type: 'date-fr',
+                targets: 6
+            }
+        ],
+        order: [[6, 'desc']],
+        initComplete: function () {
+            console.log('✅ Table des commandes annulées initialisée');
         }
     });
 }
@@ -512,7 +656,7 @@ function setupFilterHandlers() {
  */
 function setupBulkActionHandlers() {
     // Sélection de tous les matériaux
-    $('#select-all-materials').on('change', function () {
+    $('#select-all-pending-materials').on('change', function () {
         const isChecked = $(this).is(':checked');
         $('.material-checkbox').prop('checked', isChecked).trigger('change');
     });
@@ -842,7 +986,7 @@ function updatePaymentMethodInfo(paymentMethodId) {
  */
 function setupBulkActionHandlers() {
     // Sélection de tous les matériaux
-    $('#select-all-materials').on('change', function () {
+    $('#select-all-pending-materials').on('change', function () {
         const isChecked = $(this).is(':checked');
         $('.material-checkbox').prop('checked', isChecked).trigger('change');
     });
@@ -2634,9 +2778,9 @@ function applyDateFilters() {
         // Appliquer le filtre de date aux tableaux
         if (materialsTable) {
             $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
-                if (settings.nTable.id !== 'materialsTable') return true;
+                if (settings.nTable.id !== 'pendingMaterialsTable') return true;
 
-                const date = new Date(data[9]); // Colonne de date
+                const date = new Date(data[8]); // Colonne de date
                 const debut = dateDebut ? new Date(dateDebut) : null;
                 const fin = dateFin ? new Date(dateFin) : null;
 
@@ -2668,7 +2812,7 @@ function filterMaterialsByClient(client) {
  */
 function filterMaterialsByFournisseur(fournisseur) {
     if (materialsTable && fournisseur) {
-        materialsTable.column(8).search(fournisseur).draw(); // Colonne fournisseur
+        materialsTable.column(7).search(fournisseur).draw(); // Colonne fournisseur
     }
 
     currentFilters.fournisseur = fournisseur;
@@ -2843,9 +2987,8 @@ function getMaterialDataFromRow(row) {
         qt_acheter: $(cells[4]).text().trim(),
         unit: $(cells[5]).text().trim(),
         valide_achat: $(cells[6]).find('span').text().trim(),
-        prix_unitaire: $(cells[7]).text().replace(/[^0-9.,]/g, ''),
-        fournisseur: $(cells[8]).text().trim(),
-        created_at: $(cells[9]).text().trim()
+        fournisseur: $(cells[7]).text().trim(),
+        created_at: $(cells[8]).text().trim()
     };
 }
 
@@ -2857,7 +3000,7 @@ function updateMaterialSelection() {
     const checkedCheckboxes = $('.material-checkbox:checked').length;
 
     // Mise à jour de la checkbox "Tout sélectionner"
-    const $selectAll = $('#select-all-materials');
+    const $selectAll = $('#select-all-pending-materials');
     if (checkedCheckboxes === 0) {
         $selectAll.prop('indeterminate', false).prop('checked', false);
     } else if (checkedCheckboxes === totalCheckboxes) {
@@ -2902,7 +3045,7 @@ function updatePartialOrderSelection() {
  */
 function clearSelection() {
     $('.material-checkbox, .ordered-material-checkbox, .partial-order-checkbox').prop('checked', false);
-    $('#select-all-materials, #select-all-ordered-materials').prop('checked', false).prop('indeterminate', false);
+    $('#select-all-pending-materials, #select-all-ordered-materials').prop('checked', false).prop('indeterminate', false);
     updateMaterialSelection();
     updateOrderedMaterialSelection();
     updatePartialOrderSelection();
@@ -3146,7 +3289,8 @@ function refreshDataTables() {
     if (materialsTable) materialsTable.ajax.reload(null, false);
     if (orderedMaterialsTable) orderedMaterialsTable.ajax.reload(null, false);
     if (partialOrdersTable) partialOrdersTable.ajax.reload(null, false);
-    if (receivedMaterialsTable) receivedMaterialsTable.ajax.reload(null, false);
+    if (recentPurchasesTable) recentPurchasesTable.ajax.reload(null, false);
+    if (canceledOrdersTable) canceledOrdersTable.ajax.reload(null, false);
     if (supplierReturnsTable) supplierReturnsTable.ajax.reload(null, false);
 }
 
@@ -3569,13 +3713,13 @@ window.ButtonStateManager = ButtonStateManager;
 
 // Fonction pour debug (utile en développement)
 window.debugAchatsModule = function () {
-    const info = {
         initialized: achatsModuleInitialized,
         tables: {
             materials: !!materialsTable,
             ordered: !!orderedMaterialsTable,
             partial: !!partialOrdersTable,
-            received: !!receivedMaterialsTable,
+            recent: !!recentPurchasesTable,
+            canceled: !!canceledOrdersTable,
             returns: !!supplierReturnsTable
         },
         data: {
@@ -3647,7 +3791,8 @@ window.AchatsMateriaux = {
             materials: materialsTable,
             ordered: orderedMaterialsTable,
             partial: partialOrdersTable,
-            received: receivedMaterialsTable,
+            recent: recentPurchasesTable,
+            canceled: canceledOrdersTable,
             returns: supplierReturnsTable
         };
     },
@@ -3997,7 +4142,8 @@ window.AchatsMateriaux = {
             materials: materialsTable,
             ordered: orderedMaterialsTable,
             partial: partialOrdersTable,
-            received: receivedMaterialsTable,
+            recent: recentPurchasesTable,
+            canceled: canceledOrdersTable,
             returns: supplierReturnsTable
         };
     },
