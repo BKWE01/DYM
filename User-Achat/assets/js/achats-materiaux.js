@@ -105,7 +105,8 @@ const CONFIG = {
 let materialsTable = null;
 let orderedMaterialsTable = null;
 let partialOrdersTable = null;
-let receivedMaterialsTable = null;
+let recentPurchasesTable = null;
+let canceledOrdersTable = null;
 let supplierReturnsTable = null;
 
 // Variables pour la gestion des données
@@ -230,8 +231,11 @@ function initializeDataTables() {
     // Table des commandes partielles
     initializePartialOrdersTable();
 
-    // Table des matériaux reçus
-    initializeReceivedMaterialsTable();
+    // Table des achats récents
+    initializeRecentPurchasesTable();
+
+    // Table des commandes annulées
+    initializeCanceledOrdersTable();
 
     // Table des retours fournisseurs
     initializeSupplierReturnsTable();
@@ -241,11 +245,11 @@ function initializeDataTables() {
  * Initialisation de la table des matériaux en attente
  */
 function initializeMaterialsTable() {
-    if ($.fn.DataTable.isDataTable('#materialsTable')) {
-        $('#materialsTable').DataTable().destroy();
+    if ($.fn.DataTable.isDataTable('#pendingMaterialsTable')) {
+        $('#pendingMaterialsTable').DataTable().destroy();
     }
 
-    materialsTable = $('#materialsTable').DataTable({
+    materialsTable = $('#pendingMaterialsTable').DataTable({
         language: {
             url: CONFIG.DATATABLES.LANGUAGE_URL
         },
@@ -386,14 +390,14 @@ function initializePartialOrdersTable() {
 }
 
 /**
- * Initialisation de la table des matériaux reçus
+ * Initialisation de la table des achats récents
  */
-function initializeReceivedMaterialsTable() {
-    if ($.fn.DataTable.isDataTable('#receivedMaterialsTable')) {
-        $('#receivedMaterialsTable').DataTable().destroy();
+function initializeRecentPurchasesTable() {
+    if ($.fn.DataTable.isDataTable('#recentPurchasesTable')) {
+        $('#recentPurchasesTable').DataTable().destroy();
     }
 
-    receivedMaterialsTable = $('#receivedMaterialsTable').DataTable({
+    recentPurchasesTable = $('#recentPurchasesTable').DataTable({
         language: {
             url: CONFIG.DATATABLES.LANGUAGE_URL
         },
@@ -411,9 +415,39 @@ function initializeReceivedMaterialsTable() {
                 }
             }
         ],
-        order: [[5, 'desc']], // Trier par date de réception
+        order: [[8, 'desc']], // Trier par date de réception
         initComplete: function () {
-            console.log('✅ Table des matériaux reçus initialisée');
+            console.log('✅ Table des achats récents initialisée');
+        }
+    });
+}
+
+/**
+ * Initialisation de la table des commandes annulées
+ */
+function initializeCanceledOrdersTable() {
+    if ($.fn.DataTable.isDataTable('#canceledOrdersTable')) {
+        $('#canceledOrdersTable').DataTable().destroy();
+    }
+
+    canceledOrdersTable = $('#canceledOrdersTable').DataTable({
+        language: {
+            url: CONFIG.DATATABLES.LANGUAGE_URL
+        },
+        dom: CONFIG.DATATABLES.DOM,
+        buttons: CONFIG.DATATABLES.BUTTONS,
+        responsive: true,
+        processing: true,
+        pageLength: 25,
+        columnDefs: [
+            {
+                targets: [-1], // Actions
+                orderable: false
+            }
+        ],
+        order: [[6, 'desc']], // Trier par date d'annulation
+        initComplete: function () {
+            console.log('✅ Table des commandes annulées initialisée');
         }
     });
 }
@@ -2625,7 +2659,7 @@ function applyDateFilters() {
         // Appliquer le filtre de date aux tableaux
         if (materialsTable) {
             $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
-                if (settings.nTable.id !== 'materialsTable') return true;
+                if (settings.nTable.id !== 'pendingMaterialsTable') return true;
 
                 const date = new Date(data[9]); // Colonne de date
                 const debut = dateDebut ? new Date(dateDebut) : null;
@@ -3137,7 +3171,8 @@ function refreshDataTables() {
     if (materialsTable) materialsTable.ajax.reload(null, false);
     if (orderedMaterialsTable) orderedMaterialsTable.ajax.reload(null, false);
     if (partialOrdersTable) partialOrdersTable.ajax.reload(null, false);
-    if (receivedMaterialsTable) receivedMaterialsTable.ajax.reload(null, false);
+    if (recentPurchasesTable) recentPurchasesTable.ajax.reload(null, false);
+    if (canceledOrdersTable) canceledOrdersTable.ajax.reload(null, false);
     if (supplierReturnsTable) supplierReturnsTable.ajax.reload(null, false);
 }
 
@@ -3566,7 +3601,8 @@ window.debugAchatsModule = function () {
         materials: !!materialsTable,
         ordered: !!orderedMaterialsTable,
         partial: !!partialOrdersTable,
-        received: !!receivedMaterialsTable,
+        recent: !!recentPurchasesTable,
+        canceled: !!canceledOrdersTable,
         returns: !!supplierReturnsTable
     });
     console.log('- Fournisseurs chargés:', FournisseursModule.fournisseurs.length);
@@ -3580,7 +3616,8 @@ window.debugAchatsModule = function () {
             materials: !!materialsTable,
             ordered: !!orderedMaterialsTable,
             partial: !!partialOrdersTable,
-            received: !!receivedMaterialsTable,
+            recent: !!recentPurchasesTable,
+            canceled: !!canceledOrdersTable,
             returns: !!supplierReturnsTable
         },
         data: {
@@ -3646,7 +3683,8 @@ window.AchatsMateriaux = {
             materials: materialsTable,
             ordered: orderedMaterialsTable,
             partial: partialOrdersTable,
-            received: receivedMaterialsTable,
+            recent: recentPurchasesTable,
+            canceled: canceledOrdersTable,
             returns: supplierReturnsTable
         };
     },
@@ -3996,7 +4034,8 @@ window.AchatsMateriaux = {
             materials: materialsTable,
             ordered: orderedMaterialsTable,
             partial: partialOrdersTable,
-            received: receivedMaterialsTable,
+            recent: recentPurchasesTable,
+            canceled: canceledOrdersTable,
             returns: supplierReturnsTable
         };
     },
