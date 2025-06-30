@@ -1,0 +1,12 @@
+/DYM MANUFACTURE/expressions_besoins/
+└── documents/
+    ├── bureau_etudes/
+    │   ├── expressions/            # PDF des expressions de besoins
+    │   └── retours/                # Retours de produits non utilisés
+    ├── achats/
+    │   ├── bons_commande/          # Bons de commande 
+    │   └── factures/               # Factures fournisseurs
+    └── stock/
+        ├── bons_reception/         # Bons de réception
+        ├── fiches_produits/        # Fiches techniques des produits
+        └── mouvements/             # Documents liés aux mouvements de stock

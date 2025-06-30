@@ -1,0 +1,1 @@
+[2025-04-09 14:51:06] CORRECTION MANUELLE: Mouvement de stock #1136 créé pour le reste non dispatché de 6 unités de produitA, lié au mouvement d'origine #1131

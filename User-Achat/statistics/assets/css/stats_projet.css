@@ -1,0 +1,624 @@
+/* 
+   style.css - Styles personnalisés pour les pages de statistiques des projets 
+   Version: 2.0.0
+   Date: 24/04/2025
+*/
+
+/* Styles généraux */
+:root {
+    --primary-color: #4361ee;
+    --secondary-color: #7209b7;
+    --success-color: #10b981;
+    --warning-color: #f59e0b;
+    --danger-color: #ef4444;
+    --info-color: #3b82f6;
+    --light-color: #f3f4f6;
+    --dark-color: #1f2937;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    background-color: #f1f5f9;
+    color: #334155;
+    min-height: 100vh;
+}
+
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* Cartes statistiques */
+.dashboard-card,
+.stats-card {
+    transition: all 0.3s ease;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.dashboard-card:hover,
+.stats-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Icônes statistiques */
+.stats-icon {
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+}
+
+/* Conteneurs de graphiques */
+.chart-container {
+    position: relative;
+    height: 300px;
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+.radar-chart-container {
+    position: relative;
+    height: 400px;
+    width: 100%;
+}
+
+.mini-chart-container {
+    position: relative;
+    height: 80px;
+    width: 120px;
+}
+
+/* Badges de statut */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 9999px;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.status-badge.commandé {
+    background-color: #EBF8FF;
+    color: #2B6CB0;
+}
+
+.status-badge.en_attente {
+    background-color: #FFFBEB;
+    color: #D97706;
+}
+
+.status-badge.reçu {
+    background-color: #F0FFF4;
+    color: #2F855A;
+}
+
+.status-badge.annulé {
+    background-color: #FEF2F2;
+    color: #DC2626;
+}
+
+/* Badges génériques */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.badge-success {
+    background-color: #d1fae5;
+    color: #047857;
+}
+
+.badge-warning {
+    background-color: #fef3c7;
+    color: #b45309;
+}
+
+.badge-danger {
+    background-color: #fee2e2;
+    color: #b91c1c;
+}
+
+.badge-info {
+    background-color: #dbeafe;
+    color: #1d4ed8;
+}
+
+/* Animation de chargement */
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+.pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Affichage de la date et heure */
+.date-time {
+    display: flex;
+    align-items: center;
+    font-weight: 500;
+    background-color: white;
+    border-radius: 0.5rem;
+    padding: 0.5rem 1rem;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
+
+.date-time .material-icons {
+    margin-right: 12px;
+    font-size: 20px;
+    color: #475569;
+}
+
+/* Barres de progression */
+.progress-bar {
+    width: 100%;
+    background-color: #E2E8F0;
+    border-radius: 9999px;
+    height: 0.5rem;
+    overflow: hidden;
+}
+
+.progress-value {
+    height: 100%;
+    border-radius: 9999px;
+}
+
+.progress-value.blue {
+    background-color: var(--primary-color);
+}
+
+.progress-value.green {
+    background-color: var(--success-color);
+}
+
+.progress-value.yellow {
+    background-color: var(--warning-color);
+}
+
+.progress-value.red {
+    background-color: var(--danger-color);
+}
+
+/* Indicateurs de tendance */
+.trend-up {
+    color: var(--success-color);
+}
+
+.trend-down {
+    color: var(--danger-color);
+}
+
+.trend-neutral {
+    color: #9CA3AF;
+}
+
+/* Cartes d'informations */
+.info-card {
+    border-left: 4px solid;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
+
+.info-card.info {
+    border-left-color: var(--info-color);
+    background-color: #eff6ff;
+}
+
+.info-card.success {
+    border-left-color: var(--success-color);
+    background-color: #ecfdf5;
+}
+
+.info-card.warning {
+    border-left-color: var(--warning-color);
+    background-color: #fffbeb;
+}
+
+.info-card.danger {
+    border-left-color: var(--danger-color);
+    background-color: #fef2f2;
+}
+
+/* KPI Cards */
+.kpi-card {
+    text-align: left;
+    padding: 1.25rem;
+    border-radius: 1rem;
+    background-color: white;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.kpi-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.kpi-card .title {
+    font-size: 0.875rem;
+    color: #64748b;
+    margin-bottom: 0.5rem;
+}
+
+.kpi-card .value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #1e293b;
+    line-height: 1.2;
+}
+
+.kpi-card .trend {
+    display: flex;
+    align-items: center;
+    font-size: 0.75rem;
+    font-weight: 500;
+    margin-top: 0.5rem;
+}
+
+.kpi-card .trend.up {
+    color: var(--success-color);
+}
+
+.kpi-card .trend.down {
+    color: var(--danger-color);
+}
+
+.kpi-card .trend.neutral {
+    color: #64748b;
+}
+
+.kpi-card .icon {
+    position: absolute;
+    right: 1.25rem;
+    top: 1.25rem;
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.kpi-card .icon.blue {
+    background-color: #dbeafe;
+    color: var(--info-color);
+}
+
+.kpi-card .icon.green {
+    background-color: #d1fae5;
+    color: var(--success-color);
+}
+
+.kpi-card .icon.amber {
+    background-color: #fef3c7;
+    color: var(--warning-color);
+}
+
+.kpi-card .icon.purple {
+    background-color: #ede9fe;
+    color: #8b5cf6;
+}
+
+.kpi-card .icon.red {
+    background-color: #fee2e2;
+    color: var(--danger-color);
+}
+
+.kpi-card .icon.pink {
+    background-color: #fce7f3;
+    color: #ec4899;
+}
+
+.kpi-card .icon .material-icons {
+    font-size: 1.5rem;
+}
+
+/* Chart Cards */
+.chart-card {
+    border-radius: 1rem;
+    background-color: white;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    padding: 1.5rem;
+    height: 100%;
+    transition: all 0.3s ease;
+}
+
+.chart-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.chart-title {
+    font-weight: 600;
+    font-size: 1rem;
+    color: #334155;
+    margin-bottom: 1rem;
+}
+
+/* Action Buttons */
+.action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.action-btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.action-btn-primary:hover {
+    background-color: #2d4ed8;
+}
+
+.action-btn-secondary {
+    background-color: white;
+    color: var(--dark-color);
+    border: 1px solid #e2e8f0;
+}
+
+.action-btn-secondary:hover {
+    background-color: #f8fafc;
+}
+
+.action-btn .material-icons {
+    margin-right: 0.5rem;
+    font-size: 1.25rem;
+}
+
+/* Dashboard header */
+.dashboard-header {
+    background-color: white;
+    border-radius: 1rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    padding: 1.25rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.dashboard-header h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+    display: flex;
+    align-items: center;
+}
+
+.dashboard-header h1 .material-icons {
+    margin-right: 0.75rem;
+    color: var(--primary-color);
+}
+
+/* Animations pour les éléments */
+.fadeIn {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.scaleIn {
+    animation: scaleIn 0.3s ease-in-out;
+}
+
+@keyframes scaleIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Styles pour les tableaux améliorés */
+.enhanced-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background-color: white;
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+.enhanced-table thead th {
+    background-color: #f8fafc;
+    padding: 1rem;
+    font-weight: 600;
+    color: #475569;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    text-align: left;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.enhanced-table tbody td {
+    padding: 0.875rem 1rem;
+    white-space: nowrap;
+    font-size: 0.875rem;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.enhanced-table tbody tr:hover {
+    background-color: #f1f5f9;
+}
+
+.enhanced-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Styles spécifiques pour filtres avancés */
+.filter-container {
+    padding: 1rem;
+    background-color: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1.5rem;
+}
+
+.filter-group {
+    margin-bottom: 1rem;
+}
+
+.filter-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: #4B5563;
+}
+
+.filter-select, .filter-input {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #E5E7EB;
+    border-radius: 0.375rem;
+    background-color: white;
+    font-size: 0.875rem;
+    color: #1F2937;
+    transition: border-color 0.15s ease-in-out;
+}
+
+.filter-select:focus, .filter-input:focus {
+    outline: none;
+    border-color: #3B82F6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.filter-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: white;
+    background-color: #3B82F6;
+    border: none;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    transition: background-color 0.15s;
+}
+
+.filter-button:hover {
+    background-color: #2563EB;
+}
+
+.filter-button .material-icons {
+    font-size: 1rem;
+    margin-right: 0.25rem;
+}
+
+/* Styles responsifs */
+@media (max-width: 768px) {
+    .dashboard-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .dashboard-header .date-time {
+        align-self: flex-start;
+    }
+    
+    .kpi-card .icon {
+        position: relative;
+        top: auto;
+        right: auto;
+        margin-bottom: 0.5rem;
+    }
+    
+    .chart-container {
+        height: 250px;
+    }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* Styles d'impression pour PDF */
+@media print {
+    .no-print {
+        display: none !important;
+    }
+    
+    body {
+        background-color: white;
+        color: black;
+        font-size: 12pt;
+    }
+    
+    .chart-container {
+        height: 400px;
+        page-break-inside: avoid;
+    }
+    
+    .kpi-card, .chart-card {
+        box-shadow: none;
+        border: 1px solid #e2e8f0;
+        break-inside: avoid;
+    }
+    
+    .dashboard-header {
+        background-color: transparent;
+        box-shadow: none;
+        border-bottom: 1px solid #e2e8f0;
+    }
+}

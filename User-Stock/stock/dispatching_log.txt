@@ -1,0 +1,1637 @@
+[2025-04-06 18:32:04] Projet prioritaire spécifié: Aucun
+[2025-04-06 18:32:04] Facture enregistrée avec ID: 47, Fichier: facture.jpg
+[2025-04-06 18:32:04] Entrée de produit: produitB (ID: 2048, Code-barres: ELEC-00947), Quantité: 1, Type d'entrée: commande, Fournisseur/Provenance: OutilMax
+[2025-04-06 18:32:04] 1 unités de produitB ajoutées au stock général
+[2025-04-06 18:32:04] Mouvement de stock #1111 enregistré pour produitB, quantité totale: 1, provenance: OutilMax
+[2025-04-06 18:32:04] Recherche de commandes en attente pour 'produitB', 2 trouvées.
+[2025-04-06 18:32:04] Traitement de la commande #282 pour le projet DYM (bureau d'étude), Quantité commandée: 2
+[2025-04-06 18:32:04] Commande #282 PARTIELLEMENT satisfaite, nouvelle quantité restante: 1
+[2025-04-06 18:32:04] Fournisseur mis à jour pour la commande #282: OutilMax
+[2025-04-06 18:32:04] Fin du traitement du mouvement #1111
+[2025-04-06 18:32:04] Entrée de produit: produitA (ID: 2047, Code-barres: ACC-00946), Quantité: 1, Type d'entrée: commande, Fournisseur/Provenance: OutilMax
+[2025-04-06 18:32:04] 1 unités de produitA ajoutées au stock général
+[2025-04-06 18:32:04] Mouvement de stock #1112 enregistré pour produitA, quantité totale: 1, provenance: OutilMax
+[2025-04-06 18:32:04] Recherche de commandes en attente pour 'produitA', 2 trouvées.
+[2025-04-06 18:32:04] Traitement de la commande #281 pour le projet 2405101 (M.COULIBALY), Quantité commandée: 1
+[2025-04-06 18:32:04] Commande #281 COMPLETÉE et marquée comme 'reçu'
+[2025-04-06 18:32:04] Fournisseur mis à jour pour la commande #282: OutilMax
+[2025-04-06 18:32:04] Fournisseur mis à jour pour la commande #281: OutilMax
+[2025-04-06 18:32:04] Fin du traitement du mouvement #1112
+[2025-04-06 18:32:04] Entrée de produit: Jeu de clé douille 3/8 mitools (ID: 2037, Code-barres: ACC-00940), Quantité: 1, Type d'entrée: commande, Fournisseur/Provenance: Fournisseur teste
+[2025-04-06 18:32:04] 1 unités de Jeu de clé douille 3/8 mitools ajoutées au stock général
+[2025-04-06 18:32:04] Mouvement de stock #1113 enregistré pour Jeu de clé douille 3/8 mitools, quantité totale: 1, provenance: Fournisseur teste
+[2025-04-06 18:32:04] Recherche de commandes en attente pour 'Jeu de clé douille 3/8 mitools', 1 trouvées.
+[2025-04-06 18:32:04] Traitement de la commande #284 pour le projet 2404090 (DYM ZONE 4), Quantité commandée: 3
+[2025-04-06 18:32:04] Commande #284 PARTIELLEMENT satisfaite, nouvelle quantité restante: 2
+[2025-04-06 18:32:04] Fournisseur mis à jour pour la commande #282: Fournisseur teste
+[2025-04-06 18:32:04] Fournisseur mis à jour pour la commande #281: Fournisseur teste
+[2025-04-06 18:32:04] Fournisseur mis à jour pour la commande #284: Fournisseur teste
+[2025-04-06 18:32:04] Fin du traitement du mouvement #1113
+[2025-04-06 18:32:04] Entrée de produit: Buse eclectrode de decoupe plasma  (ID: 2024, Code-barres: ACC-00935), Quantité: 1, Type d'entrée: autre, Fournisseur/Provenance: CGI
+[2025-04-06 18:32:04] 1 unités de Buse eclectrode de decoupe plasma  ajoutées au stock général
+[2025-04-06 18:32:04] Mouvement de stock #1114 enregistré pour Buse eclectrode de decoupe plasma , quantité totale: 1, provenance: CGI
+[2025-04-06 18:32:04] Recherche de commandes en attente pour 'Buse eclectrode de decoupe plasma ', 0 trouvées.
+[2025-04-06 18:32:04] Fin du traitement du mouvement #1114
+[2025-04-06 18:32:04] Transaction VALIDÉE avec succès
+[2025-04-06 19:41:04] Projet prioritaire spécifié: Aucun
+[2025-04-06 19:41:04] Facture enregistrée avec ID: 48, Fichier: facture.jpg
+[2025-04-06 19:41:04] Entrée de produit: produitB (ID: 2048, Code-barres: ELEC-00947), Quantité: 5, Type d'entrée: commande, Fournisseur/Provenance: OutilMax
+[2025-04-06 19:41:04] 5 unités de produitB ajoutées au stock général
+[2025-04-06 19:41:04] Mouvement de stock #1116 enregistré pour produitB, quantité totale: 5, provenance: OutilMax
+[2025-04-06 19:41:04] Recherche de commandes en attente pour 'produitB', 2 trouvées.
+[2025-04-06 19:41:04] Traitement de la commande #282 pour le projet DYM (bureau d'étude), Quantité commandée: 1
+[2025-04-06 19:41:04] Commande #282 COMPLETÉE et marquée comme 'reçu'
+[2025-04-06 19:41:04] Traitement de la commande #285 pour le projet 2405101 (M.COULIBALY), Quantité commandée: 1
+[2025-04-06 19:41:04] Commande #285 COMPLETÉE et marquée comme 'reçu'
+[2025-04-06 19:41:04] Fournisseur mis à jour pour la commande #282: OutilMax
+[2025-04-06 19:41:04] Fournisseur mis à jour pour la commande #285: OutilMax
+[2025-04-06 19:41:04] Fin du traitement du mouvement #1116
+[2025-04-06 19:41:04] Transaction VALIDÉE avec succès
+[2025-04-06 22:05:52] Projet prioritaire spécifié: 2405101
+[2025-04-06 22:05:52] Facture enregistrée avec ID: 49, Fichier: facture.jpg
+[2025-04-06 22:05:52] Entrée de produit: Griffe fer a beton (ID: 2041, Code-barres: MAFE-00947), Quantité: 5, Type d'entrée: commande, Fournisseur/Provenance: PeintPro
+[2025-04-06 22:05:52] 5 unités de Griffe fer a beton ajoutées au stock général
+[2025-04-06 22:05:52] Mouvement de stock #1118 enregistré pour Griffe fer a beton, quantité totale: 5, provenance: PeintPro
+[2025-04-06 22:05:52] Requête modifiée pour prioriser le projet: 2405101
+[2025-04-06 22:05:52] Recherche de commandes en attente pour 'Griffe fer a beton', 1 trouvées.
+[2025-04-06 22:05:52] Traitement de la commande #289 pour le projet 2403045 (MME. DIAKITE), Quantité commandée: 1
+[2025-04-06 22:05:52] Commande #289 COMPLETÉE et marquée comme 'reçu'
+[2025-04-06 22:05:52] Fournisseur mis à jour pour la commande #289: PeintPro
+[2025-04-06 22:05:52] Fin du traitement du mouvement #1118
+[2025-04-06 22:05:52] Entrée de produit: produitB (ID: 2048, Code-barres: ELEC-00947), Quantité: 2, Type d'entrée: commande, Fournisseur/Provenance: QuincPro
+[2025-04-06 22:05:52] 2 unités de produitB ajoutées au stock général
+[2025-04-06 22:05:52] Mouvement de stock #1119 enregistré pour produitB, quantité totale: 2, provenance: QuincPro
+[2025-04-06 22:05:52] Requête modifiée pour prioriser le projet: 2405101
+[2025-04-06 22:05:52] Recherche de commandes en attente pour 'produitB', 0 trouvées.
+[2025-04-06 22:05:52] Fournisseur mis à jour pour la commande #289: QuincPro
+[2025-04-06 22:05:52] Fin du traitement du mouvement #1119
+[2025-04-06 22:05:52] Transaction VALIDÉE avec succès
+[2025-04-07 07:50:10] Projet prioritaire spécifié: 2303023
+[2025-04-07 07:50:10] Facture enregistrée avec ID: 50, Fichier: facture.jpg
+[2025-04-07 07:50:10] Entrée de produit: produitB (ID: 2048, Code-barres: ELEC-00947), Quantité: 1, Type d'entrée: commande, Fournisseur/Provenance: OutilMax
+[2025-04-07 07:50:10] 1 unités de produitB ajoutées au stock général
+[2025-04-07 07:50:10] Mouvement de stock #1120 enregistré pour produitB, quantité totale: 1, provenance: OutilMax
+[2025-04-07 07:50:10] Requête modifiée pour prioriser le projet: 2303023
+[2025-04-07 07:50:10] Recherche de commandes en attente pour 'produitB', 0 trouvées.
+[2025-04-07 07:50:10] Fin du traitement du mouvement #1120
+[2025-04-07 07:50:10] Transaction VALIDÉE avec succès
+[2025-04-07 07:54:46] Projet prioritaire spécifié: 2303023
+[2025-04-07 07:54:46] Facture enregistrée avec ID: 51, Fichier: images.jpg
+[2025-04-07 07:54:46] Entrée de produit: produitA (ID: 2047, Code-barres: ACC-00946), Quantité: 4, Type d'entrée: commande, Fournisseur/Provenance: fofana
+[2025-04-07 07:54:46] 4 unités de produitA ajoutées au stock général
+[2025-04-07 07:54:46] Mouvement de stock #1121 enregistré pour produitA, quantité totale: 4, provenance: fofana
+[2025-04-07 07:54:46] Requête modifiée pour prioriser le projet: 2303023
+[2025-04-07 07:54:46] Recherche de commandes en attente pour 'produitA', 2 trouvées.
+[2025-04-07 07:54:46] Traitement de la commande #286 pour le projet 2403045 (MME. DIAKITE), Quantité commandée: 3
+[2025-04-07 07:54:46] Commande #286 COMPLETÉE et marquée comme 'reçu'
+[2025-04-07 07:54:46] Traitement de la commande #291 pour le projet DYM (bureau d'étude), Quantité commandée: 2
+[2025-04-07 07:54:46] Commande #291 PARTIELLEMENT satisfaite, nouvelle quantité restante: 1
+[2025-04-07 07:54:46] Fournisseur mis à jour pour la commande #286: fofana
+[2025-04-07 07:54:46] Fournisseur mis à jour pour la commande #291: fofana
+[2025-04-07 07:54:46] Fin du traitement du mouvement #1121
+[2025-04-07 07:54:46] Entrée de produit: Connecteur RJ45 male,Cat6 (ID: 2004, Code-barres: ACC-00911), Quantité: 2, Type d'entrée: commande, Fournisseur/Provenance: Métaux Express
+[2025-04-07 07:54:46] 2 unités de Connecteur RJ45 male,Cat6 ajoutées au stock général
+[2025-04-07 07:54:46] Mouvement de stock #1122 enregistré pour Connecteur RJ45 male,Cat6, quantité totale: 2, provenance: Métaux Express
+[2025-04-07 07:54:46] Requête modifiée pour prioriser le projet: 2303023
+[2025-04-07 07:54:46] Recherche de commandes en attente pour 'Connecteur RJ45 male,Cat6', 2 trouvées.
+[2025-04-07 07:54:46] Traitement de la commande #288 pour le projet 2303023 (COOPERATION ALLEMANDE AU DEVELOPPEMENT), Quantité commandée: 4
+[2025-04-07 07:54:46] Commande #288 PARTIELLEMENT satisfaite, nouvelle quantité restante: 2
+[2025-04-07 07:54:46] Fournisseur mis à jour pour la commande #286: Métaux Express
+[2025-04-07 07:54:46] Fournisseur mis à jour pour la commande #291: Métaux Express
+[2025-04-07 07:54:46] Fournisseur mis à jour pour la commande #288: Métaux Express
+[2025-04-07 07:54:46] Fin du traitement du mouvement #1122
+[2025-04-07 07:54:46] Transaction VALIDÉE avec succès
+[2025-04-07 08:03:48] Projet prioritaire spécifié: 2404090
+[2025-04-07 08:03:48] Facture enregistrée avec ID: 52, Fichier: facture.jpg
+[2025-04-07 08:03:48] Entrée de produit: fil de courant en rouleau (ID: 2044, Code-barres: ELEC-00946), Quantité: 1, Type d'entrée: autre, Fournisseur/Provenance: fournisseur teste
+[2025-04-07 08:03:48] 1 unités de fil de courant en rouleau ajoutées au stock général
+[2025-04-07 08:03:48] Mouvement de stock #1123 enregistré pour fil de courant en rouleau, quantité totale: 1, provenance: fournisseur teste
+[2025-04-07 08:03:48] Requête modifiée pour prioriser le projet: 2404090
+[2025-04-07 08:03:48] Recherche de commandes en attente pour 'fil de courant en rouleau', 0 trouvées.
+[2025-04-07 08:03:48] Fin du traitement du mouvement #1123
+[2025-04-07 08:03:48] Transaction VALIDÉE avec succès
+[2025-04-07 15:57:41] Projet prioritaire spécifié: Aucun
+[2025-04-07 15:57:41] Facture enregistrée avec ID: 53, Fichier: facture.jpg
+[2025-04-07 15:57:41] Entrée de produit: produitB (ID: 2048, Code-barres: ELEC-00947), Quantité: 30, Type d'entrée: commande, Fournisseur/Provenance: fofana
+[2025-04-07 15:57:41] 30 unités de produitB ajoutées au stock général
+[2025-04-07 15:57:41] Mouvement de stock #1125 enregistré pour produitB, quantité totale: 30, provenance: fofana
+[2025-04-07 15:57:41] Recherche de commandes en attente pour 'produitB', 2 trouvées.
+[2025-04-07 15:57:41] Traitement de la commande #295 pour le projet 2404090 (DYM ZONE 4), Quantité commandée: 1
+[2025-04-07 15:57:42] Commande #295 COMPLETÉE et marquée comme 'reçu'
+[2025-04-07 15:57:42] Traitement de la commande #315 pour le projet 2411196 (DYM YOPOUGON), Quantité commandée: 28
+[2025-04-07 15:57:42] Commande #315 COMPLETÉE et marquée comme 'reçu'
+[2025-04-07 15:57:42] Fournisseur mis à jour pour la commande #295: fofana
+[2025-04-07 15:57:42] Fournisseur mis à jour pour la commande #315: fofana
+[2025-04-07 15:57:42] Fin du traitement du mouvement #1125
+[2025-04-07 15:57:42] Transaction VALIDÉE avec succès
+[2025-04-07 16:16:32] Projet prioritaire spécifié: Aucun
+[2025-04-07 16:16:32] Entrée de produit: produitB (ID: 2048, Code-barres: ELEC-00947), Quantité: 1, Type d'entrée: autre, Fournisseur/Provenance: retour
+[2025-04-07 16:16:33] 1 unités de produitB ajoutées au stock général
+[2025-04-07 16:16:33] Mouvement de stock #1126 enregistré pour produitB, quantité totale: 1, provenance: retour
+[2025-04-07 16:16:33] Recherche de commandes en attente pour 'produitB', 0 trouvées.
+[2025-04-07 16:16:33] Fin du traitement du mouvement #1126
+[2025-04-07 16:16:33] Transaction VALIDÉE avec succès
+[2025-04-07 18:09:31] Projet prioritaire spécifié: Aucun
+[2025-04-07 18:09:31] Facture enregistrée avec ID: 54, Fichier: facture.jpg
+[2025-04-07 18:09:31] Entrée de produit: produitB (ID: 2048, Code-barres: ELEC-00947), Quantité: 8450, Type d'entrée: commande, Fournisseur/Provenance: fofana
+[2025-04-07 18:09:31] 8450 unités de produitB ajoutées au stock général
+[2025-04-07 18:09:31] Mouvement de stock #1127 enregistré pour produitB, quantité totale: 8450, provenance: fofana
+[2025-04-07 18:09:31] Recherche de commandes en attente pour 'produitB', 2 trouvées.
+[2025-04-07 18:09:31] Traitement de la commande #317 pour le projet 2408143 (DYM BINGERVILLE), Quantité commandée: 449
+[2025-04-07 18:09:31] Commande #317 COMPLETÉE et marquée comme 'reçu'
+[2025-04-07 18:09:31] Traitement de la commande #319 pour le projet 2303023 (COOPERATION ALLEMANDE AU DEVELOPPEMENT), Quantité commandée: 2
+[2025-04-07 18:09:31] Commande #319 COMPLETÉE et marquée comme 'reçu'
+[2025-04-07 18:09:31] Fournisseur mis à jour pour la commande #317: fofana
+[2025-04-07 18:09:31] Fournisseur mis à jour pour la commande #319: fofana
+[2025-04-07 18:09:31] Fin du traitement du mouvement #1127
+[2025-04-07 18:09:31] Transaction VALIDÉE avec succès
+[2025-04-08 15:40:19] Projet prioritaire spécifié: 2404090
+[2025-04-08 15:40:19] Facture enregistrée avec ID: 55, Fichier: facture.jpg
+[2025-04-08 15:40:19] Entrée de produit: produitA (ID: 2047, Code-barres: ACC-00946), Quantité: 5, Type d'entrée: commande, Fournisseur/Provenance: QuincPro
+[2025-04-08 15:40:19] 5 unités de produitA ajoutées au stock général
+[2025-04-08 15:40:19] Mouvement de stock #1128 enregistré pour produitA, quantité totale: 5, provenance: QuincPro
+[2025-04-08 15:40:19] Requête modifiée pour prioriser le projet: 2404090
+[2025-04-08 15:40:19] Recherche de commandes en attente pour 'produitA', 3 trouvées.
+[2025-04-08 15:40:19] Traitement de la commande #331 pour le projet 2404090 (DYM MANUFACTURE), Quantité commandée: 2
+[2025-04-08 15:40:19] Commande #331 COMPLETÉE et marquée comme 'reçu'
+[2025-04-08 15:40:19] Traitement de la commande #332 pour le projet 2404090 (DYM MANUFACTURE), Quantité commandée: 3
+[2025-04-08 15:40:19] Commande #332 COMPLETÉE et marquée comme 'reçu'
+[2025-04-08 15:40:19] Fournisseur mis à jour pour la commande #331: QuincPro
+[2025-04-08 15:40:19] Fournisseur mis à jour pour la commande #332: QuincPro
+[2025-04-08 15:40:19] Fin du traitement du mouvement #1128
+[2025-04-08 15:40:19] Entrée de produit: produitB (ID: 2048, Code-barres: ELEC-00947), Quantité: 10, Type d'entrée: commande, Fournisseur/Provenance: Métaux Express
+[2025-04-08 15:40:19] 10 unités de produitB ajoutées au stock général
+[2025-04-08 15:40:19] Mouvement de stock #1129 enregistré pour produitB, quantité totale: 10, provenance: Métaux Express
+[2025-04-08 15:40:19] Requête modifiée pour prioriser le projet: 2404090
+[2025-04-08 15:40:19] Recherche de commandes en attente pour 'produitB', 2 trouvées.
+[2025-04-08 15:40:19] Traitement de la commande #330 pour le projet 2404090 (DYM MANUFACTURE), Quantité commandée: 6
+[2025-04-08 15:40:19] Commande #330 COMPLETÉE et marquée comme 'reçu'
+[2025-04-08 15:40:19] Traitement de la commande #329 pour le projet 2410177 (Mme FADIGA), Quantité commandée: 6
+[2025-04-08 15:40:19] Commande #329 PARTIELLEMENT satisfaite, nouvelle quantité restante: 2
+[2025-04-08 15:40:19] Fournisseur mis à jour pour la commande #331: Métaux Express
+[2025-04-08 15:40:19] Fournisseur mis à jour pour la commande #332: Métaux Express
+[2025-04-08 15:40:19] Fournisseur mis à jour pour la commande #330: Métaux Express
+[2025-04-08 15:40:19] Fournisseur mis à jour pour la commande #329: Métaux Express
+[2025-04-08 15:40:19] Fin du traitement du mouvement #1129
+[2025-04-08 15:40:19] Transaction VALIDÉE avec succès
+[2025-04-08 21:04:03] Projet prioritaire spécifié: Aucun
+[2025-04-08 21:04:03] Facture enregistrée avec ID: 56, Fichier: facture.jpg
+[2025-04-08 21:04:03] Entrée de produit: produitA (ID: 2047, Code-barres: ACC-00946), Quantité: 7, Type d'entrée: commande, Fournisseur/Provenance: fofana
+[2025-04-08 21:04:03] 7 unités de produitA ajoutées au stock général
+[2025-04-08 21:04:03] Mouvement de stock #1130 enregistré pour produitA, quantité totale: 7, provenance: fofana
+[2025-04-08 21:04:03] Recherche de commandes en attente pour 'produitA', 2 trouvées.
+[2025-04-08 21:04:03] Traitement de la commande #334 pour le projet 2303023 (COOPERATION ALLEMANDE AU DEVELOPPEMENT), Quantité commandée: 2
+[2025-04-08 21:04:03] Commande #334 COMPLETÉE et marquée comme 'reçu'
+[2025-04-08 21:04:03] Traitement de la commande #335 pour le projet 2404090 (DYM ZONE 3), Quantité commandée: 5
+[2025-04-08 21:04:03] Commande #335 COMPLETÉE et marquée comme 'reçu'
+[2025-04-08 21:04:03] Fournisseur mis à jour pour la commande #334: fofana
+[2025-04-08 21:04:03] Fournisseur mis à jour pour la commande #335: fofana
+[2025-04-08 21:04:03] Fin du traitement du mouvement #1130
+[2025-04-08 21:04:03] Transaction VALIDÉE avec succès
+[2025-04-09 10:10:02] Projet prioritaire spécifié: Aucun
+[2025-04-09 10:10:02] Facture enregistrée avec ID: 57, Fichier: images.jpg
+[2025-04-09 10:10:02] Entrée de produit: produitA (ID: 2047, Code-barres: ACC-00946), Quantité: 10, Type d'entrée: commande, Fournisseur/Provenance: Métaux Express
+[2025-04-09 10:10:02] 10 unités de produitA ajoutées au stock général
+[2025-04-09 10:10:02] Mouvement de stock #1131 enregistré pour produitA, quantité totale: 10, provenance: Métaux Express
+[2025-04-09 10:10:02] Recherche de commandes en attente pour 'produitA', 2 trouvées.
+[2025-04-09 10:10:02] Traitement de la commande #336 pour le projet 2410175 (CORLAY), Quantité commandée: 1
+[2025-04-09 10:10:02] Commande #336 COMPLETÉE et marquée comme 'reçu'
+[2025-04-09 10:10:02] Traitement de la commande #337 pour le projet 2303023 (COOPERATION ALLEMANDE AU DEVELOPPEMENT), Quantité commandée: 3
+[2025-04-09 10:10:02] Commande #337 COMPLETÉE et marquée comme 'reçu'
+[2025-04-09 10:10:02] Fournisseur mis à jour pour la commande #336: Métaux Express
+[2025-04-09 10:10:02] Fournisseur mis à jour pour la commande #337: Métaux Express
+[2025-04-09 10:10:02] Fin du traitement du mouvement #1131
+[2025-04-09 10:10:02] Transaction VALIDÉE avec succès
+[2025-04-09 11:34:57] Projet prioritaire spécifié: Aucun
+[2025-04-09 11:34:57] Facture enregistrée avec ID: 58, Fichier: images.jpg
+[2025-04-09 11:34:57] Entrée de produit: produitA (ID: 2047, Code-barres: ACC-00946), Quantité: 1, Type d'entrée: commande, Fournisseur/Provenance: PlombExpert
+[2025-04-09 11:34:57] 1 unités de produitA ajoutées au stock général
+[2025-04-09 11:34:57] Mouvement de stock #1132 enregistré pour produitA, quantité totale: 1, provenance: PlombExpert
+[2025-04-09 11:34:57] Recherche de commandes en attente pour 'produitA', 1 trouvées.
+[2025-04-09 11:34:57] Traitement de la commande #339 pour le projet 2405101 (M.COULIBALY), Quantité commandée: 6
+[2025-04-09 11:34:57] Commande #339 PARTIELLEMENT satisfaite, nouvelle quantité restante: 5
+[2025-04-09 11:34:57] Fournisseur mis à jour pour la commande #339: PlombExpert
+[2025-04-09 11:34:57] Fin du traitement du mouvement #1132
+[2025-04-09 11:34:57] Transaction VALIDÉE avec succès
+[2025-04-09 11:53:33] Projet prioritaire spécifié: Aucun
+[2025-04-09 11:53:33] Facture enregistrée avec ID: 59, Fichier: images.jpg
+[2025-04-09 11:53:33] Entrée de produit: produitA (ID: 2047, Code-barres: ACC-00946), Quantité: 1, Type d'entrée: commande, Fournisseur/Provenance: PlombExpert
+[2025-04-09 11:53:33] 1 unités de produitA ajoutées au stock général
+[2025-04-09 11:53:33] Mouvement de stock #1133 enregistré pour produitA, quantité totale: 1, provenance: PlombExpert
+[2025-04-09 11:53:33] Recherche de commandes en attente pour 'produitA', 1 trouvées.
+[2025-04-09 11:53:33] Traitement de la commande #339 pour le projet 2405101 (M.COULIBALY), Quantité commandée: 5
+[2025-04-09 11:53:33] Commande #339 PARTIELLEMENT satisfaite, nouvelle quantité restante: 4
+[2025-04-09 11:53:33] Fournisseur mis à jour pour la commande #339: PlombExpert
+[2025-04-09 11:53:33] Fin du traitement du mouvement #1133
+[2025-04-09 11:53:33] Transaction VALIDÉE avec succès
+[2025-04-09 14:12:25] Projet prioritaire spécifié: Aucun
+[2025-04-09 14:12:25] Facture enregistrée avec ID: 60, Fichier: facture.jpg
+[2025-04-09 14:12:25] Entrée de produit: produitB (ID: 2048, Code-barres: ELEC-00947), Quantité: 1, Type d'entrée: commande, Fournisseur/Provenance: PlombExpert
+[2025-04-09 14:12:25] 1 unités de produitB ajoutées au stock général
+[2025-04-09 14:12:25] Mouvement de stock #1134 enregistré pour produitB, quantité totale: 1, provenance: PlombExpert
+[2025-04-09 14:12:25] Recherche de commandes en attente pour 'produitB', 1 trouvées.
+[2025-04-09 14:12:25] Traitement de la commande #341 pour le projet 2303023 (COOPERATION ALLEMANDE AU DEVELOPPEMENT), Quantité commandée: 5
+[2025-04-09 14:12:25] Commande #341 PARTIELLEMENT satisfaite, nouvelle quantité restante: 4
+[2025-04-09 14:12:25] Fournisseur mis à jour pour la commande #341: PlombExpert
+[2025-04-09 14:12:25] Fin du traitement du mouvement #1134
+[2025-04-09 14:12:25] Transaction VALIDÉE avec succès
+[2025-04-09 14:30:50] Projet prioritaire spécifié: Aucun
+[2025-04-09 14:30:50] Facture enregistrée avec ID: 61, Fichier: images.jpg
+[2025-04-09 14:30:50] Entrée de produit: produitB (ID: 2048, Code-barres: ELEC-00947), Quantité: 1, Type d'entrée: commande, Fournisseur/Provenance: PlombExpert
+[2025-04-09 14:30:50] 1 unités de produitB ajoutées au stock général
+[2025-04-09 14:30:50] Mouvement de stock #1135 enregistré pour produitB, quantité totale: 1, provenance: PlombExpert
+[2025-04-09 14:30:50] Recherche de commandes en attente pour 'produitB', 1 trouvées.
+[2025-04-09 14:30:50] Traitement de la commande #341 pour le projet 2303023 (COOPERATION ALLEMANDE AU DEVELOPPEMENT), Quantité commandée: 4
+[2025-04-09 14:30:50] Commande #341 PARTIELLEMENT satisfaite, nouvelle quantité restante: 3
+[2025-04-09 14:30:50] Aucun reste après dispatching pour produitB (quantité: 1, dispatché: 1)
+[2025-04-09 14:30:50] Fournisseur mis à jour pour la commande #341: PlombExpert
+[2025-04-09 14:30:50] Fin du traitement du mouvement #1135
+[2025-04-09 14:30:50] Transaction VALIDÉE avec succès
+[2025-04-09 15:05:29] Projet prioritaire spécifié: Aucun
+[2025-04-09 15:05:29] Facture enregistrée avec ID: 62, Fichier: facture.jpg
+[2025-04-09 15:05:29] Entrée de produit: produitA (ID: 2047, Code-barres: ACC-00946), Quantité: 1, Type d'entrée: commande, Fournisseur/Provenance: PlombExpert
+[2025-04-09 15:05:29] 1 unités de produitA ajoutées au stock général
+[2025-04-09 15:05:29] Mouvement de stock #1137 enregistré pour produitA, quantité totale: 1, provenance: PlombExpert
+[2025-04-09 15:05:29] Recherche de commandes en attente pour 'produitA', 1 trouvées.
+[2025-04-09 15:05:29] Traitement de la commande #339 pour le projet 2405101 (M.COULIBALY), Quantité commandée: 4
+[2025-04-09 15:05:29] Commande #339 PARTIELLEMENT satisfaite, nouvelle quantité restante: 3
+[2025-04-09 15:05:29] Aucun reste après dispatching pour produitA (quantité: 1, dispatché: 1)
+[2025-04-09 15:05:29] Fournisseur mis à jour pour la commande #339: PlombExpert
+[2025-04-09 15:05:29] Fin du traitement du mouvement #1137
+[2025-04-09 15:05:29] Transaction VALIDÉE avec succès
+[2025-04-09 15:09:00] Projet prioritaire spécifié: Aucun
+[2025-04-09 15:09:00] Facture enregistrée avec ID: 63, Fichier: images.jpg
+[2025-04-09 15:09:00] Entrée de produit: Roue de portail grand (ID: 2042, Code-barres: DIV-00945), Quantité: 5, Type d'entrée: commande, Fournisseur/Provenance: PlombExpert
+[2025-04-09 15:09:00] 5 unités de Roue de portail grand ajoutées au stock général
+[2025-04-09 15:09:00] Mouvement de stock #1138 enregistré pour Roue de portail grand, quantité totale: 5, provenance: PlombExpert
+[2025-04-09 15:09:00] Recherche de commandes en attente pour 'Roue de portail grand', 1 trouvées.
+[2025-04-09 15:09:00] Traitement de la commande #340 pour le projet 2405101 (M.COULIBALY), Quantité commandée: 1
+[2025-04-09 15:09:01] Commande #340 COMPLETÉE et marquée comme 'reçu'
+[2025-04-09 15:09:01] Mouvement de stock #1139 créé pour le reste non dispatché: 4 unités de Roue de portail grand (réussi à la tentative 1)
+[2025-04-09 15:09:01] Fournisseur mis à jour pour la commande #340: PlombExpert
+[2025-04-09 15:09:01] Fin du traitement du mouvement #1138
+[2025-04-09 15:09:01] Transaction VALIDÉE avec succès
+[2025-04-09 22:26:45] Projet prioritaire spécifié: 2405101
+[2025-04-09 22:26:45] Facture enregistrée avec ID: 64, Fichier: facture.jpg
+[2025-04-09 22:26:45] Entrée de produit: fil de courant en rouleau (ID: 2044, Code-barres: ELEC-00946), Quantité: 1, Type d'entrée: commande, Fournisseur/Provenance: CHEZ BEN
+[2025-04-09 22:26:45] 1 unités de fil de courant en rouleau ajoutées au stock général
+[2025-04-09 22:26:45] Mouvement de stock #1141 enregistré pour fil de courant en rouleau, quantité totale: 1, provenance: CHEZ BEN
+[2025-04-09 22:26:45] Requête modifiée pour prioriser le projet: 2405101
+[2025-04-09 22:26:45] Recherche de commandes en attente pour 'fil de courant en rouleau', 0 trouvées.
+[2025-04-09 22:26:45] Mouvement de stock #1142 créé pour le reste non dispatché: 1 unités de fil de courant en rouleau (réussi à la tentative 1)
+[2025-04-09 22:26:45] Fin du traitement du mouvement #1141
+[2025-04-09 22:26:45] Transaction VALIDÉE avec succès
+[2025-04-10 22:59:22] Projet prioritaire spécifié: Aucun
+[2025-04-10 22:59:22] Facture enregistrée avec ID: 65, Fichier: facture.jpg
+[2025-04-10 22:59:22] Entrée de produit: produitA (ID: 2047, Code-barres: ACC-00946), Quantité: 2, Type d'entrée: commande, Fournisseur/Provenance: CHEZ BEN
+[2025-04-10 22:59:22] 2 unités de produitA ajoutées au stock général
+[2025-04-10 22:59:22] Mouvement de stock #1144 enregistré pour produitA, quantité totale: 2, provenance: CHEZ BEN
+[2025-04-10 22:59:22] Recherche de commandes en attente pour 'produitA', 0 trouvées.
+[2025-04-10 22:59:22] Mouvement de stock #1145 créé pour le reste non dispatché: 2 unités de produitA (réussi à la tentative 1)
+[2025-04-10 22:59:22] Fin du traitement du mouvement #1144
+[2025-04-10 22:59:22] Transaction VALIDÉE avec succès
+[2025-04-12 11:32:18] Projet prioritaire spécifié: Aucun
+[2025-04-12 11:32:18] Gestion des commandes partielles: Activée
+[2025-04-12 11:32:18] Facture enregistrée avec ID: 66, Fichier: facture.jpg
+[2025-04-12 11:32:18] Entrée de produit: Buse conique WMS01 (ID: 2039, Code-barres: ACC-00942), Quantité: 1, Type d'entrée: commande, Fournisseur/Provenance: CHEZ BEN
+[2025-04-12 11:32:18] 1 unités de Buse conique WMS01 ajoutées au stock général
+[2025-04-12 11:32:18] Mouvement de stock #1150 enregistré pour Buse conique WMS01, quantité totale: 1, provenance: CHEZ BEN
+[2025-04-12 11:32:18] Vérification des commandes partielles pour Buse conique WMS01
+[2025-04-12 11:32:18] Nombre de commandes partielles trouvées pour Buse conique WMS01: 1
+[2025-04-12 11:32:18] Traitement de la commande partielle #5964 pour le projet 2410177 (Mme FADIGA), Quantité restante: 12
+[2025-04-12 11:32:18] Commande partielle #5964 partiellement satisfaite, nouvelle quantité restante: 11
+[2025-04-12 11:32:18] Commande partielle #410 créée pour 1 unités
+[2025-04-12 11:32:18] Recherche de commandes en attente pour 'Buse conique WMS01', 0 trouvées.
+[2025-04-12 11:32:18] Aucun reste après dispatching pour Buse conique WMS01 (quantité: 1, dispatché: 0)
+[2025-04-12 11:32:18] Fin du traitement du mouvement #1150
+[2025-04-12 11:32:18] Entrée de produit: Lincoln 8.0 (ID: 2036, Code-barres: ACC-00939), Quantité: 1, Type d'entrée: commande, Fournisseur/Provenance: Elec Plus
+[2025-04-12 11:32:18] 1 unités de Lincoln 8.0 ajoutées au stock général
+[2025-04-12 11:32:18] Mouvement de stock #1151 enregistré pour Lincoln 8.0, quantité totale: 1, provenance: Elec Plus
+[2025-04-12 11:32:18] Vérification des commandes partielles pour Lincoln 8.0
+[2025-04-12 11:32:18] Nombre de commandes partielles trouvées pour Lincoln 8.0: 0
+[2025-04-12 11:32:18] Recherche de commandes en attente pour 'Lincoln 8.0', 4 trouvées.
+[2025-04-12 11:32:18] Traitement de la commande #400 pour le projet 2410177 (Mme FADIGA), Quantité commandée: 2
+[2025-04-12 11:32:18] Commande #400 PARTIELLEMENT satisfaite, nouvelle quantité restante: 1
+[2025-04-12 11:32:18] Aucun reste après dispatching pour Lincoln 8.0 (quantité: 1, dispatché: 1)
+[2025-04-12 11:32:18] Fournisseur mis à jour pour la commande #400: Elec Plus
+[2025-04-12 11:32:18] Fin du traitement du mouvement #1151
+[2025-04-12 11:32:18] Transaction VALIDÉE avec succès
+[2025-04-12 11:38:17] Projet prioritaire spécifié: 2410177
+[2025-04-12 11:38:17] Gestion des commandes partielles: Activée
+[2025-04-12 11:38:17] Entrée de produit: Lincoln 8.0 (ID: 2036, Code-barres: ACC-00939), Quantité: 2, Type d'entrée: commande, Fournisseur/Provenance: Elec Plus
+[2025-04-12 11:38:17] 2 unités de Lincoln 8.0 ajoutées au stock général
+[2025-04-12 11:38:17] Mouvement de stock #1152 enregistré pour Lincoln 8.0, quantité totale: 2, provenance: Elec Plus
+[2025-04-12 11:38:17] Vérification des commandes partielles pour Lincoln 8.0
+[2025-04-12 11:38:17] Nombre de commandes partielles trouvées pour Lincoln 8.0: 0
+[2025-04-12 11:38:17] Requête modifiée pour prioriser le projet: 2410177
+[2025-04-12 11:38:17] Recherche de commandes en attente pour 'Lincoln 8.0', 4 trouvées.
+[2025-04-12 11:38:17] Traitement de la commande #400 pour le projet 2410177 (Mme FADIGA), Quantité commandée: 1
+[2025-04-12 11:38:17] Commande #400 COMPLÉTÉE et marquée comme 'reçu'
+[2025-04-12 11:38:17] Traitement de la commande #402 pour le projet 2410177 (Mme FADIGA), Quantité commandée: 3
+[2025-04-12 11:38:17] Commande #402 PARTIELLEMENT satisfaite, nouvelle quantité restante: 2
+[2025-04-12 11:38:17] Aucun reste après dispatching pour Lincoln 8.0 (quantité: 2, dispatché: 2)
+[2025-04-12 11:38:17] Fournisseur mis à jour pour la commande #400: Elec Plus
+[2025-04-12 11:38:17] Fournisseur mis à jour pour la commande #402: Elec Plus
+[2025-04-12 11:38:17] Fin du traitement du mouvement #1152
+[2025-04-12 11:38:17] Transaction VALIDÉE avec succès
+[2025-04-13 19:07:07] Projet prioritaire spécifié: Aucun
+[2025-04-13 19:07:07] Gestion des commandes partielles: Activée
+[2025-04-13 19:07:07] Facture enregistrée avec ID: 67, Fichier: facture.jpg
+[2025-04-13 19:07:07] Entrée de produit: Buse conique WMS01 (ID: 2039, Code-barres: ACC-00942), Quantité: 2, Type d'entrée: commande, Fournisseur/Provenance: CHEZ BEN
+[2025-04-13 19:07:07] 2 unités de Buse conique WMS01 ajoutées au stock général
+[2025-04-13 19:07:07] Mouvement de stock #1153 enregistré pour Buse conique WMS01, quantité totale: 2, provenance: CHEZ BEN
+[2025-04-13 19:07:07] Vérification des commandes partielles pour Buse conique WMS01
+[2025-04-13 19:07:07] Nombre de commandes partielles trouvées pour Buse conique WMS01: 0
+[2025-04-13 19:07:07] Recherche de commandes en attente pour 'Buse conique WMS01', 5 trouvées.
+[2025-04-13 19:07:07] Traitement de la commande #406 pour le projet 2410177 (Mme FADIGA), Quantité commandée: 3
+[2025-04-13 19:07:07] Commande #406 PARTIELLEMENT satisfaite, nouvelle quantité restante: 1
+[2025-04-13 19:07:07] Aucun reste après dispatching pour Buse conique WMS01 (quantité: 2, dispatché: 2)
+[2025-04-13 19:07:07] Fournisseur mis à jour pour la commande #406: CHEZ BEN
+[2025-04-13 19:07:07] Fin du traitement du mouvement #1153
+[2025-04-13 19:07:07] Transaction VALIDÉE avec succès
+[2025-04-13 19:43:00] Projet prioritaire spécifié: Aucun
+[2025-04-13 19:43:00] Gestion des commandes partielles: Activée
+[2025-04-13 19:43:00] Facture enregistrée avec ID: 68, Fichier: images.jpg
+[2025-04-13 19:43:00] Entrée de produit: Buse conique WMS01 (ID: 2039, Code-barres: ACC-00942), Quantité: 2, Type d'entrée: commande, Fournisseur/Provenance: CHEZ BEN
+[2025-04-13 19:43:00] 2 unités de Buse conique WMS01 ajoutées au stock général
+[2025-04-13 19:43:00] Mouvement de stock #1154 enregistré pour Buse conique WMS01, quantité totale: 2, provenance: CHEZ BEN
+[2025-04-13 19:43:00] Vérification des commandes partielles pour Buse conique WMS01
+[2025-04-13 19:43:00] Nombre de commandes partielles trouvées pour Buse conique WMS01: 0
+[2025-04-13 19:43:00] Recherche de commandes en attente pour 'Buse conique WMS01', 5 trouvées.
+[2025-04-13 19:43:00] Traitement de la commande #406 pour le projet 2410177 (Mme FADIGA), Quantité commandée: 1
+[2025-04-13 19:43:00] Commande #406 COMPLÉTÉE et marquée comme 'reçu'
+[2025-04-13 19:43:00] Traitement de la commande #407 pour le projet 2410177 (Mme FADIGA), Quantité commandée: 5
+[2025-04-13 19:43:00] Commande #407 PARTIELLEMENT satisfaite, nouvelle quantité restante: 4
+[2025-04-13 19:43:00] Aucun reste après dispatching pour Buse conique WMS01 (quantité: 2, dispatché: 2)
+[2025-04-13 19:43:00] Fournisseur mis à jour pour la commande #406: CHEZ BEN
+[2025-04-13 19:43:00] Fournisseur mis à jour pour la commande #407: CHEZ BEN
+[2025-04-13 19:43:00] Fin du traitement du mouvement #1154
+[2025-04-13 19:43:00] Transaction VALIDÉE avec succès
+[2025-04-13 20:04:44] Projet prioritaire spécifié: Aucun
+[2025-04-13 20:04:44] Gestion des commandes partielles: Activée
+[2025-04-13 20:04:44] Entrée de produit: Buse conique WMS01 (ID: 2039, Code-barres: ACC-00942), Quantité: 2, Type d'entrée: commande, Fournisseur/Provenance: CHEZ BEN
+[2025-04-13 20:04:44] 2 unités de Buse conique WMS01 ajoutées au stock général
+[2025-04-13 20:04:44] Mouvement de stock #1155 enregistré pour Buse conique WMS01, quantité totale: 2, provenance: CHEZ BEN
+[2025-04-13 20:04:44] Vérification des commandes partielles pour Buse conique WMS01
+[2025-04-13 20:04:44] Nombre de commandes partielles trouvées pour Buse conique WMS01: 0
+[2025-04-13 20:04:44] Recherche de commandes en attente pour 'Buse conique WMS01', 5 trouvées.
+[2025-04-13 20:04:44] Traitement de la commande #406 pour le projet 2410177 (Mme FADIGA), Quantité commandée: 1
+[2025-04-13 20:04:44] Commande #406 COMPLÉTÉE et marquée comme 'reçu'
+[2025-04-13 20:04:44] Traitement de la commande #407 pour le projet 2410177 (Mme FADIGA), Quantité commandée: 4
+[2025-04-13 20:04:44] Commande #407 PARTIELLEMENT satisfaite, nouvelle quantité restante: 3
+[2025-04-13 20:04:44] Aucun reste après dispatching pour Buse conique WMS01 (quantité: 2, dispatché: 2)
+[2025-04-13 20:04:44] Fournisseur mis à jour pour la commande #406: CHEZ BEN
+[2025-04-13 20:04:44] Fournisseur mis à jour pour la commande #407: CHEZ BEN
+[2025-04-13 20:04:44] Fin du traitement du mouvement #1155
+[2025-04-13 20:04:44] Transaction VALIDÉE avec succès
+[2025-04-13 20:22:07] Projet prioritaire spécifié: Aucun
+[2025-04-13 20:22:07] Gestion des commandes partielles: Activée
+[2025-04-13 20:22:07] Entrée de produit: Buse conique WMS01 (ID: 2039, Code-barres: ACC-00942), Quantité: 2, Type d'entrée: commande, Fournisseur/Provenance: CHEZ BEN
+[2025-04-13 20:22:07] 2 unités de Buse conique WMS01 ajoutées au stock général
+[2025-04-13 20:22:07] Mouvement de stock #1156 enregistré pour Buse conique WMS01, quantité totale: 2, provenance: CHEZ BEN
+[2025-04-13 20:22:07] Vérification des commandes partielles pour Buse conique WMS01
+[2025-04-13 20:22:07] Nombre de commandes partielles trouvées pour Buse conique WMS01: 0
+[2025-04-13 20:22:07] Recherche de commandes en attente pour 'Buse conique WMS01', 5 trouvées.
+[2025-04-13 20:22:07] Traitement de la commande #406 pour le projet 2410177 (Mme FADIGA), Quantité commandée: 1
+[2025-04-13 20:22:07] Commande #406 COMPLÉTÉE et marquée comme 'reçu'
+[2025-04-13 20:22:07] Traitement de la commande #407 pour le projet 2410177 (Mme FADIGA), Quantité commandée: 3
+[2025-04-13 20:22:07] Commande #407 PARTIELLEMENT satisfaite, nouvelle quantité restante: 2
+[2025-04-13 20:22:07] Aucun reste après dispatching pour Buse conique WMS01 (quantité: 2, dispatché: 2)
+[2025-04-13 20:22:07] Fournisseur mis à jour pour la commande #406: CHEZ BEN
+[2025-04-13 20:22:07] Fournisseur mis à jour pour la commande #407: CHEZ BEN
+[2025-04-13 20:22:07] Fin du traitement du mouvement #1156
+[2025-04-13 20:22:07] Transaction VALIDÉE avec succès
+[2025-04-13 20:43:32] Projet prioritaire spécifié: Aucun
+[2025-04-13 20:43:32] Gestion des commandes partielles: Activée
+[2025-04-13 20:43:32] Entrée de produit: Buse conique WMS01 (ID: 2039, Code-barres: ACC-00942), Quantité: 2, Type d'entrée: commande, Fournisseur/Provenance: CHEZ BEN
+[2025-04-13 20:43:32] 2 unités de Buse conique WMS01 ajoutées au stock général
+[2025-04-13 20:43:32] Mouvement de stock #1157 enregistré pour Buse conique WMS01, quantité totale: 2, provenance: CHEZ BEN
+[2025-04-13 20:43:32] Vérification des commandes partielles pour Buse conique WMS01
+[2025-04-13 20:43:32] Nombre de commandes partielles trouvées pour Buse conique WMS01: 0
+[2025-04-13 20:43:32] Recherche de commandes en attente pour 'Buse conique WMS01', 4 trouvées.
+[2025-04-13 20:43:32] Traitement de la commande #407 pour le projet 2410177 (Mme FADIGA), Quantité commandée: 2
+[2025-04-13 20:43:32] Commande #407 COMPLÉTÉE et marquée comme 'reçu'
+[2025-04-13 20:43:32] Aucun reste après dispatching pour Buse conique WMS01 (quantité: 2, dispatché: 2)
+[2025-04-13 20:43:32] Fournisseur mis à jour pour la commande #407: CHEZ BEN
+[2025-04-13 20:43:32] Fin du traitement du mouvement #1157
+[2025-04-13 20:43:32] Transaction VALIDÉE avec succès
+[2025-04-13 20:52:31] Projet prioritaire spécifié: Aucun
+[2025-04-13 20:52:31] Gestion des commandes partielles: Activée
+[2025-04-13 20:52:31] Entrée de produit: Buse conique WMS01 (ID: 2039, Code-barres: ACC-00942), Quantité: 2, Type d'entrée: commande, Fournisseur/Provenance: CHEZ BEN
+[2025-04-13 20:52:31] 2 unités de Buse conique WMS01 ajoutées au stock général
+[2025-04-13 20:52:31] Mouvement de stock #1158 enregistré pour Buse conique WMS01, quantité totale: 2, provenance: CHEZ BEN
+[2025-04-13 20:52:31] Vérification des commandes partielles pour Buse conique WMS01
+[2025-04-13 20:52:31] Nombre de commandes partielles trouvées pour Buse conique WMS01: 0
+[2025-04-13 20:52:31] Recherche de commandes en attente pour 'Buse conique WMS01', 3 trouvées.
+[2025-04-13 20:52:31] Traitement de la commande #410 pour le projet 2410177 (Mme FADIGA), Quantité commandée: 1
+[2025-04-13 20:52:31] Commande #410 COMPLÉTÉE et marquée comme 'reçu'
+[2025-04-13 20:52:31] Traitement de la commande #412 pour le projet 2410177 (Mme FADIGA), Quantité commandée: 20
+[2025-04-13 20:52:31] Commande #412 PARTIELLEMENT satisfaite, nouvelle quantité restante: 19
+[2025-04-13 20:52:31] Aucun reste après dispatching pour Buse conique WMS01 (quantité: 2, dispatché: 2)
+[2025-04-13 20:52:31] Fournisseur mis à jour pour la commande #410: CHEZ BEN
+[2025-04-13 20:52:31] Fournisseur mis à jour pour la commande #412: CHEZ BEN
+[2025-04-13 20:52:31] Fin du traitement du mouvement #1158
+[2025-04-13 20:52:31] Transaction VALIDÉE avec succès
+[2025-04-14 21:06:01] Projet prioritaire spécifié: Aucun
+[2025-04-14 21:06:01] Gestion des commandes partielles: Activée
+[2025-04-14 21:06:01] Facture enregistrée avec ID: 74, Fichier: facture.jpg
+[2025-04-14 21:06:01] Entrée de produit: produitA (ID: 2047, Code-barres: ACC-00946), Quantité: 1, Type d'entrée: commande, Fournisseur/Provenance: CHEZ BEN
+[2025-04-14 21:06:01] 1 unités de produitA ajoutées au stock général
+[2025-04-14 21:06:01] Mouvement de stock #1170 enregistré pour produitA, quantité totale: 1, provenance: CHEZ BEN
+[2025-04-14 21:06:01] Vérification des commandes partielles pour produitA
+[2025-04-14 21:06:01] Nombre de commandes partielles trouvées pour produitA: 1
+[2025-04-14 21:06:01] Traitement de la commande partielle #5976 pour le projet 2303023 (COOPERATION ALLEMANDE AU DEVELOPPEMENT), Quantité restante: 5
+[2025-04-14 21:06:01] Commande partielle #5976 partiellement satisfaite, nouvelle quantité restante: 4, quantity_stock mise à jour: 1
+[2025-04-14 21:06:01] Commande partielle #441 créée pour 1 unités
+[2025-04-14 21:06:01] Recherche de commandes en attente pour 'produitA', 0 trouvées.
+[2025-04-14 21:06:01] Aucun reste après dispatching pour produitA (quantité: 1, dispatché: 0)
+[2025-04-14 21:06:01] Fin du traitement du mouvement #1170
+[2025-04-14 21:06:01] Transaction VALIDÉE avec succès
+[2025-04-14 21:44:44] Projet prioritaire spécifié: Aucun
+[2025-04-14 21:44:44] Gestion des commandes partielles: Activée
+[2025-04-14 21:44:44] Facture enregistrée avec ID: 75, Fichier: images.jpg
+[2025-04-14 21:44:44] Entrée de produit: produitA (ID: 2047, Code-barres: ACC-00946), Quantité: 2, Type d'entrée: commande, Fournisseur/Provenance: CHEZ BEN
+[2025-04-14 21:44:44] 2 unités de produitA ajoutées au stock général
+[2025-04-14 21:44:44] Mouvement de stock #1171 enregistré pour produitA, quantité totale: 2, provenance: CHEZ BEN
+[2025-04-14 21:44:44] Vérification des commandes partielles pour produitA
+[2025-04-14 21:44:44] Nombre de commandes partielles trouvées pour produitA: 1
+[2025-04-14 21:44:44] Traitement de la commande partielle #5976 pour le projet 2303023 (COOPERATION ALLEMANDE AU DEVELOPPEMENT), Quantité restante: 4
+[2025-04-14 21:44:44] Commande partielle #5976 PARTIELLEMENT satisfaite, quantity_stock mise à jour: 3 (1 → 3)
+[2025-04-14 21:44:44] Commande partielle #442 créée pour 2 unités
+[2025-04-14 21:44:45] Recherche de commandes en attente pour 'produitA', 0 trouvées.
+[2025-04-14 21:44:45] Aucun reste après dispatching pour produitA (quantité: 2, dispatché: 0)
+[2025-04-14 21:44:45] Fin du traitement du mouvement #1171
+[2025-04-14 21:44:45] Transaction VALIDÉE avec succès
+[2025-04-14 21:46:45] Projet prioritaire spécifié: Aucun
+[2025-04-14 21:46:45] Gestion des commandes partielles: Activée
+[2025-04-14 21:46:45] Facture enregistrée avec ID: 76, Fichier: images.jpg
+[2025-04-14 21:46:45] Entrée de produit: produitA (ID: 2047, Code-barres: ACC-00946), Quantité: 10, Type d'entrée: commande, Fournisseur/Provenance: CHEZ BEN
+[2025-04-14 21:46:45] 10 unités de produitA ajoutées au stock général
+[2025-04-14 21:46:45] Mouvement de stock #1172 enregistré pour produitA, quantité totale: 10, provenance: CHEZ BEN
+[2025-04-14 21:46:45] Vérification des commandes partielles pour produitA
+[2025-04-14 21:46:45] Nombre de commandes partielles trouvées pour produitA: 1
+[2025-04-14 21:46:45] Traitement de la commande partielle #5976 pour le projet 2303023 (COOPERATION ALLEMANDE AU DEVELOPPEMENT), Quantité restante: 4
+[2025-04-14 21:46:45] Commande partielle #5976 COMPLÉTÉE, quantity_stock mise à jour: 7 (3 → 7)
+[2025-04-14 21:46:45] Commande partielle #443 créée pour 4 unités
+[2025-04-14 21:46:45] Recherche de commandes en attente pour 'produitA', 0 trouvées.
+[2025-04-14 21:46:45] Mouvement de stock #1173 créé pour le reste non dispatché: 6 unités de produitA (réussi à la tentative 1)
+[2025-04-14 21:46:45] Fin du traitement du mouvement #1172
+[2025-04-14 21:46:45] Transaction VALIDÉE avec succès
+[2025-04-15 07:28:26] Projet prioritaire spécifié: Aucun
+[2025-04-15 07:28:26] Gestion des commandes partielles: Activée
+[2025-04-15 07:28:26] Facture enregistrée avec ID: 77, Fichier: images.jpg
+[2025-04-15 07:28:26] Entrée de produit: produitB (ID: 2048, Code-barres: ELEC-00947), Quantité: 10, Type d'entrée: commande, Fournisseur/Provenance: DMD
+[2025-04-15 07:28:26] 10 unités de produitB ajoutées au stock général
+[2025-04-15 07:28:26] Mouvement de stock #1174 enregistré pour produitB, quantité totale: 10, provenance: DMD
+[2025-04-15 07:28:26] Vérification des commandes partielles pour produitB
+[2025-04-15 07:28:26] Nombre de commandes partielles trouvées pour produitB: 0
+[2025-04-15 07:28:26] Recherche de commandes en attente pour 'produitB', 1 trouvées.
+[2025-04-15 07:28:26] Traitement de la commande #444 pour le projet 2303023 (COOPERATION ALLEMANDE AU DEVELOPPEMENT), Quantité commandée: 5
+[2025-04-15 07:28:26] Entrée #5977 dans expression_dym mise à jour, quantity_stock: 5 (0 → 5)
+[2025-04-15 07:28:26] Commande #444 COMPLÉTÉE et marquée comme 'reçu'
+[2025-04-15 07:28:26] Mouvement de stock #1175 créé pour le reste non dispatché: 5 unités de produitB (réussi à la tentative 1)
+[2025-04-15 07:28:26] Fournisseur mis à jour pour la commande #444: DMD
+[2025-04-15 07:28:26] Fin du traitement du mouvement #1174
+[2025-04-15 07:28:26] Transaction VALIDÉE avec succès
+[2025-04-15 07:28:41] Projet prioritaire spécifié: Aucun
+[2025-04-15 07:28:41] Gestion des commandes partielles: Activée
+[2025-04-15 07:28:41] Facture enregistrée avec ID: 78, Fichier: images.jpg
+[2025-04-15 07:28:41] Entrée de produit: produitB (ID: 2048, Code-barres: ELEC-00947), Quantité: 10, Type d'entrée: commande, Fournisseur/Provenance: DMD
+[2025-04-15 07:28:41] 10 unités de produitB ajoutées au stock général
+[2025-04-15 07:28:41] Mouvement de stock #1176 enregistré pour produitB, quantité totale: 10, provenance: DMD
+[2025-04-15 07:28:41] Vérification des commandes partielles pour produitB
+[2025-04-15 07:28:41] Nombre de commandes partielles trouvées pour produitB: 0
+[2025-04-15 07:28:41] Recherche de commandes en attente pour 'produitB', 0 trouvées.
+[2025-04-15 07:28:41] Mouvement de stock #1177 créé pour le reste non dispatché: 10 unités de produitB (réussi à la tentative 1)
+[2025-04-15 07:28:41] Fin du traitement du mouvement #1176
+[2025-04-15 07:28:41] Transaction VALIDÉE avec succès
+[2025-04-15 08:55:18] Projet prioritaire spécifié: Aucun
+[2025-04-15 08:55:18] Gestion des commandes partielles: Activée
+[2025-04-15 08:55:18] Facture enregistrée avec ID: 79, Fichier: images.jpg
+[2025-04-15 08:55:18] Entrée de produit: produitA (ID: 2047, Code-barres: ACC-00946), Quantité: 15, Type d'entrée: commande, Fournisseur/Provenance: CHEZ BEN
+[2025-04-15 08:55:18] 15 unités de produitA ajoutées au stock général
+[2025-04-15 08:55:18] Mouvement de stock #1178 enregistré pour produitA, quantité totale: 15, provenance: CHEZ BEN
+[2025-04-15 08:55:18] Vérification des commandes partielles pour produitA
+[2025-04-15 08:55:18] Nombre de commandes partielles trouvées pour produitA: 1
+[2025-04-15 08:55:18] Traitement de la commande partielle #5980 pour le projet 2303023 (COOPERATION ALLEMANDE AU DEVELOPPEMENT), Quantité restante: 2
+[2025-04-15 08:55:18] Commande partielle #5980 PARTIELLEMENT satisfaite, quantity_stock mise à jour: 2 (0 → 2)
+[2025-04-15 08:55:18] Commande partielle #465 créée pour 2 unités
+[2025-04-15 08:55:18] Recherche de commandes en attente pour 'produitA', 2 trouvées.
+[2025-04-15 08:55:18] Traitement de la commande #448 pour le projet 2303023 (GIZ), Quantité commandée: 8
+[2025-04-15 08:55:18] Entrée #5992 dans expression_dym mise à jour, quantity_stock: 8 (0 → 8)
+[2025-04-15 08:55:18] Commande #448 COMPLÉTÉE et marquée comme 'reçu'
+[2025-04-15 08:55:18] Traitement de la commande #446 pour le projet 2405106 (CORLAY 53 présentoirs), Quantité commandée: 5
+[2025-04-15 08:55:18] Entrée #5997 dans expression_dym mise à jour, quantity_stock: 5 (0 → 5)
+[2025-04-15 08:55:18] Commande #446 COMPLÉTÉE et marquée comme 'reçu'
+[2025-04-15 08:55:18] Aucun reste après dispatching pour produitA (quantité: 15, dispatché: 13)
+[2025-04-15 08:55:18] Fournisseur mis à jour pour la commande #448: CHEZ BEN
+[2025-04-15 08:55:18] Fournisseur mis à jour pour la commande #446: CHEZ BEN
+[2025-04-15 08:55:18] Fin du traitement du mouvement #1178
+[2025-04-15 08:55:18] Transaction VALIDÉE avec succès
+[2025-04-15 08:55:38] Projet prioritaire spécifié: Aucun
+[2025-04-15 08:55:38] Gestion des commandes partielles: Activée
+[2025-04-15 08:55:38] Facture enregistrée avec ID: 80, Fichier: images.jpg
+[2025-04-15 08:55:38] Entrée de produit: produitA (ID: 2047, Code-barres: ACC-00946), Quantité: 15, Type d'entrée: commande, Fournisseur/Provenance: CHEZ BEN
+[2025-04-15 08:55:38] 15 unités de produitA ajoutées au stock général
+[2025-04-15 08:55:38] Mouvement de stock #1179 enregistré pour produitA, quantité totale: 15, provenance: CHEZ BEN
+[2025-04-15 08:55:38] Vérification des commandes partielles pour produitA
+[2025-04-15 08:55:38] Nombre de commandes partielles trouvées pour produitA: 1
+[2025-04-15 08:55:38] Traitement de la commande partielle #5980 pour le projet 2303023 (COOPERATION ALLEMANDE AU DEVELOPPEMENT), Quantité restante: 2
+[2025-04-15 08:55:38] Commande partielle #5980 PARTIELLEMENT satisfaite, quantity_stock mise à jour: 4 (2 → 4)
+[2025-04-15 08:55:38] Commande partielle #466 créée pour 2 unités
+[2025-04-15 08:55:38] Recherche de commandes en attente pour 'produitA', 0 trouvées.
+[2025-04-15 08:55:38] Mouvement de stock #1180 créé pour le reste non dispatché: 13 unités de produitA (réussi à la tentative 1)
+[2025-04-15 08:55:38] Fin du traitement du mouvement #1179
+[2025-04-15 08:55:38] Transaction VALIDÉE avec succès
+[2025-04-15 09:08:35] Projet prioritaire spécifié: Aucun
+[2025-04-15 09:08:35] Gestion des commandes partielles: Activée
+[2025-04-15 09:08:35] Facture enregistrée avec ID: 81, Fichier: facture.jpg
+[2025-04-15 09:08:35] Entrée de produit: Jeu de clé douille 3/8 mitools (ID: 2037, Code-barres: ACC-00940), Quantité: 2, Type d'entrée: commande, Fournisseur/Provenance: CHEZ BEN
+[2025-04-15 09:08:35] 2 unités de Jeu de clé douille 3/8 mitools ajoutées au stock général
+[2025-04-15 09:08:35] Mouvement de stock #1181 enregistré pour Jeu de clé douille 3/8 mitools, quantité totale: 2, provenance: CHEZ BEN
+[2025-04-15 09:08:35] Vérification des commandes partielles pour Jeu de clé douille 3/8 mitools
+[2025-04-15 09:08:35] Nombre de commandes partielles trouvées pour Jeu de clé douille 3/8 mitools: 1
+[2025-04-15 09:08:35] Traitement de la commande partielle #5989 pour le projet 2404090 (DYM ZONE 3), Quantité restante: 1
+[2025-04-15 09:08:35] Commande partielle #5989 PARTIELLEMENT satisfaite, quantity_stock mise à jour: 1 (0 → 1)
+[2025-04-15 09:08:35] Commande partielle #467 créée pour 1 unités
+[2025-04-15 09:08:35] Recherche de commandes en attente pour 'Jeu de clé douille 3/8 mitools', 0 trouvées.
+[2025-04-15 09:08:35] Mouvement de stock #1182 créé pour le reste non dispatché: 1 unités de Jeu de clé douille 3/8 mitools (réussi à la tentative 1)
+[2025-04-15 09:08:35] Fin du traitement du mouvement #1181
+[2025-04-15 09:08:35] Transaction VALIDÉE avec succès
+[2025-04-15 09:12:44] Projet prioritaire spécifié: Aucun
+[2025-04-15 09:12:44] Gestion des commandes partielles: Activée
+[2025-04-15 09:12:44] Facture enregistrée avec ID: 82, Fichier: facture.jpg
+[2025-04-15 09:12:44] Entrée de produit: Buse conique WMS01 (ID: 2039, Code-barres: ACC-00942), Quantité: 2, Type d'entrée: commande, Fournisseur/Provenance: CHEZ BEN
+[2025-04-15 09:12:44] 2 unités de Buse conique WMS01 ajoutées au stock général
+[2025-04-15 09:12:44] Mouvement de stock #1183 enregistré pour Buse conique WMS01, quantité totale: 2, provenance: CHEZ BEN
+[2025-04-15 09:12:44] Vérification des commandes partielles pour Buse conique WMS01
+[2025-04-15 09:12:44] Nombre de commandes partielles trouvées pour Buse conique WMS01: 0
+[2025-04-15 09:12:44] Recherche de commandes en attente pour 'Buse conique WMS01', 1 trouvées.
+[2025-04-15 09:12:44] Traitement de la commande #452 pour le projet PROJET X (EBAH), Quantité commandée: 6
+[2025-04-15 09:12:44] Entrée #5984 dans expression_dym mise à jour, quantity_stock: 2 (0 → 2)
+[2025-04-15 09:12:44] Commande #452 PARTIELLEMENT satisfaite
+[2025-04-15 09:12:44] Aucun reste après dispatching pour Buse conique WMS01 (quantité: 2, dispatché: 2)
+[2025-04-15 09:12:44] Fournisseur mis à jour pour la commande #452: CHEZ BEN
+[2025-04-15 09:12:44] Fin du traitement du mouvement #1183
+[2025-04-15 09:12:44] Transaction VALIDÉE avec succès
+[2025-04-15 11:40:56] Projet prioritaire spécifié: Aucun
+[2025-04-15 11:40:56] Gestion des commandes partielles: Activée
+[2025-04-15 11:40:56] Facture enregistrée avec ID: 92, Fichier: facture.jpg
+[2025-04-15 11:40:56] Entrée de produit: Connecteur RJ45 male,Cat6 (ID: 2004, Code-barres: ACC-00911), Quantité: 3, Type d'entrée: commande, Fournisseur/Provenance: CHEZ BEN
+[2025-04-15 11:40:56] 3 unités de Connecteur RJ45 male,Cat6 ajoutées au stock général
+[2025-04-15 11:40:56] Mouvement de stock #1199 enregistré pour Connecteur RJ45 male,Cat6, quantité totale: 3, provenance: CHEZ BEN
+[2025-04-15 11:40:56] Vérification des commandes partielles pour Connecteur RJ45 male,Cat6
+[2025-04-15 11:40:56] Nombre de commandes partielles trouvées pour Connecteur RJ45 male,Cat6: 0
+[2025-04-15 11:40:56] Recherche de commandes en attente pour 'Connecteur RJ45 male,Cat6', 1 trouvées.
+[2025-04-15 11:40:56] Traitement de la commande #450 pour le projet 2404090 (DYM ZONE 3), Quantité commandée: 17
+[2025-04-15 11:40:56] Entrée #5991 dans expression_dym mise à jour, quantity_stock: 3 (0 → 3)
+[2025-04-15 11:40:56] Commande #450 PARTIELLEMENT satisfaite
+[2025-04-15 11:40:56] Aucun reste après dispatching pour Connecteur RJ45 male,Cat6 (quantité: 3, dispatché: 3)
+[2025-04-15 11:40:56] Fournisseur mis à jour pour la commande #450: CHEZ BEN
+[2025-04-15 11:40:56] Fin du traitement du mouvement #1199
+[2025-04-15 11:40:56] Transaction VALIDÉE avec succès
+[2025-04-15 11:45:46] Projet prioritaire spécifié: Aucun
+[2025-04-15 11:45:46] Gestion des commandes partielles: Activée
+[2025-04-15 11:45:46] Facture enregistrée avec ID: 93, Fichier: images.jpg
+[2025-04-15 11:45:46] Entrée de produit: produitB (ID: 2048, Code-barres: ELEC-00947), Quantité: 2, Type d'entrée: commande, Fournisseur/Provenance: CHEZ BEN
+[2025-04-15 11:45:46] 2 unités de produitB ajoutées au stock général
+[2025-04-15 11:45:46] Mouvement de stock #1200 enregistré pour produitB, quantité totale: 2, provenance: CHEZ BEN
+[2025-04-15 11:45:46] Vérification des commandes partielles pour produitB
+[2025-04-15 11:45:46] Nombre de commandes partielles trouvées pour produitB: 2
+[2025-04-15 11:45:46] Traitement de la commande partielle #5993 pour le projet 2303023 (GIZ), Quantité restante: 3
+[2025-04-15 11:45:46] Commande partielle #5993 PARTIELLEMENT satisfaite, quantity_stock mise à jour: 2 (0 → 2)
+[2025-04-15 11:45:46] Commande partielle #469 créée pour 2 unités
+[2025-04-15 11:45:46] Recherche de commandes en attente pour 'produitB', 0 trouvées.
+[2025-04-15 11:45:46] Aucun reste après dispatching pour produitB (quantité: 2, dispatché: 0)
+[2025-04-15 11:45:46] Fin du traitement du mouvement #1200
+[2025-04-15 11:45:46] Entrée de produit: produitA (ID: 2047, Code-barres: ACC-00946), Quantité: 1, Type d'entrée: commande, Fournisseur/Provenance: CHEZ BEN
+[2025-04-15 11:45:46] 1 unités de produitA ajoutées au stock général
+[2025-04-15 11:45:46] Mouvement de stock #1201 enregistré pour produitA, quantité totale: 1, provenance: CHEZ BEN
+[2025-04-15 11:45:46] Vérification des commandes partielles pour produitA
+[2025-04-15 11:45:46] Nombre de commandes partielles trouvées pour produitA: 1
+[2025-04-15 11:45:46] Traitement de la commande partielle #5980 pour le projet 2303023 (COOPERATION ALLEMANDE AU DEVELOPPEMENT), Quantité restante: 2
+[2025-04-15 11:45:46] Commande partielle #5980 PARTIELLEMENT satisfaite, quantity_stock mise à jour: 7 (6 → 7)
+[2025-04-15 11:45:46] Commande partielle #470 créée pour 1 unités
+[2025-04-15 11:45:46] Recherche de commandes en attente pour 'produitA', 0 trouvées.
+[2025-04-15 11:45:46] Aucun reste après dispatching pour produitA (quantité: 1, dispatché: 0)
+[2025-04-15 11:45:46] Fin du traitement du mouvement #1201
+[2025-04-15 11:45:46] Entrée de produit: Connecteur RJ45 male,Cat6 (ID: 2004, Code-barres: ACC-00911), Quantité: 1, Type d'entrée: commande, Fournisseur/Provenance: CHEZ BEN
+[2025-04-15 11:45:46] 1 unités de Connecteur RJ45 male,Cat6 ajoutées au stock général
+[2025-04-15 11:45:46] Mouvement de stock #1202 enregistré pour Connecteur RJ45 male,Cat6, quantité totale: 1, provenance: CHEZ BEN
+[2025-04-15 11:45:46] Vérification des commandes partielles pour Connecteur RJ45 male,Cat6
+[2025-04-15 11:45:46] Nombre de commandes partielles trouvées pour Connecteur RJ45 male,Cat6: 0
+[2025-04-15 11:45:46] Recherche de commandes en attente pour 'Connecteur RJ45 male,Cat6', 1 trouvées.
+[2025-04-15 11:45:46] Traitement de la commande #450 pour le projet 2404090 (DYM ZONE 3), Quantité commandée: 17
+[2025-04-15 11:45:46] Entrée #5991 dans expression_dym mise à jour, quantity_stock: 4 (3 → 4)
+[2025-04-15 11:45:46] Commande #450 PARTIELLEMENT satisfaite
+[2025-04-15 11:45:46] Aucun reste après dispatching pour Connecteur RJ45 male,Cat6 (quantité: 1, dispatché: 1)
+[2025-04-15 11:45:46] Fournisseur mis à jour pour la commande #450: CHEZ BEN
+[2025-04-15 11:45:46] Fin du traitement du mouvement #1202
+[2025-04-15 11:45:46] Transaction VALIDÉE avec succès
+[2025-04-15 11:51:47] Projet prioritaire spécifié: 2405106
+[2025-04-15 11:51:47] Gestion des commandes partielles: Activée
+[2025-04-15 11:51:47] Facture enregistrée avec ID: 94, Fichier: images.jpg
+[2025-04-15 11:51:47] Entrée de produit: produitB (ID: 2048, Code-barres: ELEC-00947), Quantité: 10, Type d'entrée: commande, Fournisseur/Provenance: CHEZ BEN
+[2025-04-15 11:51:47] 10 unités de produitB ajoutées au stock général
+[2025-04-15 11:51:47] Mouvement de stock #1203 enregistré pour produitB, quantité totale: 10, provenance: CHEZ BEN
+[2025-04-15 11:51:47] Vérification des commandes partielles pour produitB
+[2025-04-15 11:51:47] Nombre de commandes partielles trouvées pour produitB: 2
+[2025-04-15 11:51:47] Traitement de la commande partielle #5998 pour le projet 2405106 (CORLAY 53 présentoirs), Quantité restante: 4
+[2025-04-15 11:51:47] Commande partielle #5998 PARTIELLEMENT satisfaite, quantity_stock mise à jour: 4 (0 → 4)
+[2025-04-15 11:51:47] Commande partielle #471 créée pour 4 unités
+[2025-04-15 11:51:47] Traitement de la commande partielle #5993 pour le projet 2303023 (GIZ), Quantité restante: 3
+[2025-04-15 11:51:47] Commande partielle #5993 PARTIELLEMENT satisfaite, quantity_stock mise à jour: 5 (2 → 5)
+[2025-04-15 11:51:47] Commande partielle #472 créée pour 3 unités
+[2025-04-15 11:51:47] Requête modifiée pour prioriser le projet: 2405106
+[2025-04-15 11:51:47] Recherche de commandes en attente pour 'produitB', 0 trouvées.
+[2025-04-15 11:51:47] Mouvement de stock #1204 créé pour le reste non dispatché: 3 unités de produitB (réussi à la tentative 1)
+[2025-04-15 11:51:47] Fin du traitement du mouvement #1203
+[2025-04-15 11:51:47] Transaction VALIDÉE avec succès
+[2025-04-15 13:16:53] Projet prioritaire spécifié: 2303023
+[2025-04-15 13:16:53] Gestion des commandes partielles: Activée
+[2025-04-15 13:16:53] Facture enregistrée avec ID: 95, Fichier: images.jpg
+[2025-04-15 13:16:53] Entrée de produit: produitA (ID: 2047, Code-barres: ACC-00946), Quantité: 2, Type d'entrée: commande, Fournisseur/Provenance: CHEZ BEN
+[2025-04-15 13:16:53] 2 unités de produitA ajoutées au stock général
+[2025-04-15 13:16:53] Mouvement de stock #1205 enregistré pour produitA, quantité totale: 2, provenance: CHEZ BEN
+[2025-04-15 13:16:53] Vérification des commandes partielles pour produitA
+[2025-04-15 13:16:53] Nombre de commandes partielles trouvées pour produitA: 1
+[2025-04-15 13:16:53] Traitement de la commande partielle #5980 pour le projet 2303023 (COOPERATION ALLEMANDE AU DEVELOPPEMENT), Quantité commandée: 18
+[2025-04-15 13:16:53] Commande partielle #5980 PARTIELLEMENT satisfaite, quantity_stock mise à jour: 9 (7 → 9)
+[2025-04-15 13:16:53] Commande partielle #473 créée pour 2 unités
+[2025-04-15 13:16:53] Requête modifiée pour prioriser le projet: 2303023
+[2025-04-15 13:16:53] Recherche de commandes en attente pour 'produitA', 0 trouvées.
+[2025-04-15 13:16:53] Aucun reste après dispatching pour produitA (quantité: 2, dispatché: 0)
+[2025-04-15 13:16:53] Fin du traitement du mouvement #1205
+[2025-04-15 13:16:53] Entrée de produit: produitB (ID: 2048, Code-barres: ELEC-00947), Quantité: 2, Type d'entrée: commande, Fournisseur/Provenance: CHEZ BEN
+[2025-04-15 13:16:53] 2 unités de produitB ajoutées au stock général
+[2025-04-15 13:16:53] Mouvement de stock #1206 enregistré pour produitB, quantité totale: 2, provenance: CHEZ BEN
+[2025-04-15 13:16:53] Vérification des commandes partielles pour produitB
+[2025-04-15 13:16:53] Nombre de commandes partielles trouvées pour produitB: 2
+[2025-04-15 13:16:53] Traitement de la commande partielle #5993 pour le projet 2303023 (GIZ), Quantité commandée: 4
+[2025-04-15 13:16:53] Commande partielle #5993 COMPLÉTÉE, quantity_stock mise à jour: 7 (5 → 7)
+[2025-04-15 13:16:53] Commande partielle #474 créée pour 2 unités
+[2025-04-15 13:16:53] Requête modifiée pour prioriser le projet: 2303023
+[2025-04-15 13:16:53] Recherche de commandes en attente pour 'produitB', 0 trouvées.
+[2025-04-15 13:16:53] Aucun reste après dispatching pour produitB (quantité: 2, dispatché: 0)
+[2025-04-15 13:16:53] Fin du traitement du mouvement #1206
+[2025-04-15 13:16:53] Transaction VALIDÉE avec succès
+[2025-04-15 14:07:14] Projet prioritaire spécifié: Aucun
+[2025-04-15 14:07:14] Gestion des commandes partielles: Activée
+[2025-04-15 14:07:14] Facture enregistrée avec ID: 96, Fichier: facture.jpg
+[2025-04-15 14:07:14] Entrée de produit: Connecteur RJ45 male,Cat6 (ID: 2004, Code-barres: ACC-00911), Quantité: 2, Type d'entrée: commande, Fournisseur/Provenance: CHEZ BEN
+[2025-04-15 14:07:14] 2 unités de Connecteur RJ45 male,Cat6 ajoutées au stock général
+[2025-04-15 14:07:14] Mouvement de stock #1207 enregistré pour Connecteur RJ45 male,Cat6, quantité totale: 2, provenance: CHEZ BEN
+[2025-04-15 14:07:14] Vérification des commandes partielles pour Connecteur RJ45 male,Cat6
+[2025-04-15 14:07:14] Nombre de commandes partielles trouvées pour Connecteur RJ45 male,Cat6: 0
+[2025-04-15 14:07:14] Recherche de commandes en attente pour 'Connecteur RJ45 male,Cat6', 1 trouvées.
+[2025-04-15 14:07:14] Traitement de la commande #450 pour le projet 2404090 (DYM ZONE 3), Quantité commandée: 17
+[2025-04-15 14:07:14] Entrée #5991 dans expression_dym mise à jour, quantity_stock: 6 (4 → 6)
+[2025-04-15 14:07:14] Commande #450 PARTIELLEMENT satisfaite
+[2025-04-15 14:07:14] Aucun reste après dispatching pour Connecteur RJ45 male,Cat6 (quantité: 2, dispatché: 2)
+[2025-04-15 14:07:14] Fournisseur mis à jour pour la commande #450: CHEZ BEN
+[2025-04-15 14:07:14] Fin du traitement du mouvement #1207
+[2025-04-15 14:07:14] Entrée de produit: Griffe fer a beton (ID: 2041, Code-barres: MAFE-00947), Quantité: 1, Type d'entrée: commande, Fournisseur/Provenance: CHEZ BEN
+[2025-04-15 14:07:14] 1 unités de Griffe fer a beton ajoutées au stock général
+[2025-04-15 14:07:14] Mouvement de stock #1208 enregistré pour Griffe fer a beton, quantité totale: 1, provenance: CHEZ BEN
+[2025-04-15 14:07:14] Vérification des commandes partielles pour Griffe fer a beton
+[2025-04-15 14:07:14] Nombre de commandes partielles trouvées pour Griffe fer a beton: 1
+[2025-04-15 14:07:14] Traitement de la commande partielle #5986 pour le projet PROJET X (EBAH), Quantité commandée: 8
+[2025-04-15 14:07:14] Commande partielle #5986 PARTIELLEMENT satisfaite, quantity_stock mise à jour: 1 (0 → 1)
+[2025-04-15 14:07:14] Commande partielle #475 créée pour 1 unités
+[2025-04-15 14:07:14] Recherche de commandes en attente pour 'Griffe fer a beton', 1 trouvées.
+[2025-04-15 14:07:14] Aucun reste après dispatching pour Griffe fer a beton (quantité: 1, dispatché: 0)
+[2025-04-15 14:07:14] Fournisseur mis à jour pour la commande #450: CHEZ BEN
+[2025-04-15 14:07:14] Fin du traitement du mouvement #1208
+[2025-04-15 14:07:14] Transaction VALIDÉE avec succès
+[2025-04-15 14:08:44] Projet prioritaire spécifié: 2405106
+[2025-04-15 14:08:44] Gestion des commandes partielles: Activée
+[2025-04-15 14:08:44] Facture enregistrée avec ID: 97, Fichier: images.jpg
+[2025-04-15 14:08:44] Entrée de produit: fil de courant en rouleau (ID: 2044, Code-barres: ELEC-00946), Quantité: 1, Type d'entrée: autre, Fournisseur/Provenance: fournisseur teste
+[2025-04-15 14:08:44] 1 unités de fil de courant en rouleau ajoutées au stock général
+[2025-04-15 14:08:44] Mouvement de stock #1209 enregistré pour fil de courant en rouleau, quantité totale: 1, provenance: fournisseur teste
+[2025-04-15 14:08:44] Vérification des commandes partielles pour fil de courant en rouleau
+[2025-04-15 14:08:44] Nombre de commandes partielles trouvées pour fil de courant en rouleau: 0
+[2025-04-15 14:08:44] Requête modifiée pour prioriser le projet: 2405106
+[2025-04-15 14:08:44] Recherche de commandes en attente pour 'fil de courant en rouleau', 0 trouvées.
+[2025-04-15 14:08:44] Mouvement de stock #1210 créé pour le reste non dispatché: 1 unités de fil de courant en rouleau (réussi à la tentative 1)
+[2025-04-15 14:08:44] Fin du traitement du mouvement #1209
+[2025-04-15 14:08:44] Transaction VALIDÉE avec succès
+[2025-04-16 11:58:22] Projet prioritaire spécifié: Aucun
+[2025-04-16 11:58:22] Gestion des commandes partielles: Activée
+[2025-04-16 11:58:22] Facture enregistrée avec ID: 98, Fichier: images.jpg
+[2025-04-16 11:58:22] Entrée de produit: produitA (ID: 2047, Code-barres: ACC-00946), Quantité: 32, Type d'entrée: commande, Fournisseur/Provenance: CHEZ BEN
+[2025-04-16 11:58:22] 32 unités de produitA ajoutées au stock général
+[2025-04-16 11:58:22] Mouvement de stock #1213 enregistré pour produitA, quantité totale: 32, provenance: CHEZ BEN
+[2025-04-16 11:58:22] Vérification des commandes partielles pour produitA
+[2025-04-16 11:58:22] Nombre de commandes partielles trouvées pour produitA: 1
+[2025-04-16 11:58:22] Traitement de la commande partielle #6014 pour le projet 2303023 (COOPERATION ALLEMANDE AU DEVELOPPEMENT), Quantité commandée: 17
+[2025-04-16 11:58:22] Commande partielle #6014 PARTIELLEMENT satisfaite, quantity_stock mise à jour: 17 (0 → 17)
+[2025-04-16 11:58:22] Commande partielle #477 créée pour 17 unités
+[2025-04-16 11:58:22] Recherche de commandes en attente pour 'produitA', 0 trouvées.
+[2025-04-16 11:58:22] Mouvement de stock #1214 créé pour le reste non dispatché: 15 unités de produitA (réussi à la tentative 1)
+[2025-04-16 11:58:22] Fin du traitement du mouvement #1213
+[2025-04-16 11:58:22] Transaction VALIDÉE avec succès
+[2025-04-16 14:26:14] Projet prioritaire spécifié: Aucun
+[2025-04-16 14:26:14] Gestion des commandes partielles: Activée
+[2025-04-16 14:26:14] Facture enregistrée avec ID: 99, Fichier: facture.jpg
+[2025-04-16 14:26:14] Entrée de produit: produitB (ID: 2048, Code-barres: ELEC-00947), Quantité: 6, Type d'entrée: commande, Fournisseur/Provenance: fofana
+[2025-04-16 14:26:14] 6 unités de produitB ajoutées au stock général
+[2025-04-16 14:26:14] Mouvement de stock #1215 enregistré pour produitB, quantité totale: 6, provenance: fofana
+[2025-04-16 14:26:14] Vérification des commandes partielles pour produitB
+[2025-04-16 14:26:14] Nombre de commandes partielles trouvées pour produitB: 1
+[2025-04-16 14:26:14] Traitement de la commande partielle #6024 pour le projet 2410175 (CORLAY), Quantité commandée: 5
+[2025-04-16 14:26:14] Commande partielle #6024 PARTIELLEMENT satisfaite, quantity_stock mise à jour: 5 (0 → 5)
+[2025-04-16 14:26:14] Commande partielle #482 créée pour 5 unités
+[2025-04-16 14:26:14] Recherche de commandes en attente pour 'produitB', 0 trouvées.
+[2025-04-16 14:26:14] Mouvement de stock #1216 créé pour le reste non dispatché: 1 unités de produitB (réussi à la tentative 1)
+[2025-04-16 14:26:14] Fin du traitement du mouvement #1215
+[2025-04-16 14:26:14] Transaction VALIDÉE avec succès
+[2025-04-16 14:27:51] Projet prioritaire spécifié: 2410177
+[2025-04-16 14:27:51] Gestion des commandes partielles: Activée
+[2025-04-16 14:27:51] Facture enregistrée avec ID: 100, Fichier: facture.jpg
+[2025-04-16 14:27:51] Entrée de produit: produitA (ID: 2047, Code-barres: ACC-00946), Quantité: 20, Type d'entrée: commande, Fournisseur/Provenance: Elec Plus
+[2025-04-16 14:27:51] 20 unités de produitA ajoutées au stock général
+[2025-04-16 14:27:51] Mouvement de stock #1217 enregistré pour produitA, quantité totale: 20, provenance: Elec Plus
+[2025-04-16 14:27:51] Vérification des commandes partielles pour produitA
+[2025-04-16 14:27:51] Nombre de commandes partielles trouvées pour produitA: 1
+[2025-04-16 14:27:51] Traitement de la commande partielle #6014 pour le projet 2303023 (COOPERATION ALLEMANDE AU DEVELOPPEMENT), Quantité commandée: 17
+[2025-04-16 14:27:51] Commande partielle #6014 COMPLÉTÉE, quantity_stock mise à jour: 34 (17 → 34)
+[2025-04-16 14:27:51] Commande partielle #483 créée pour 17 unités
+[2025-04-16 14:27:52] Requête modifiée pour prioriser le projet: 2410177
+[2025-04-16 14:27:52] Recherche de commandes en attente pour 'produitA', 1 trouvées.
+[2025-04-16 14:27:52] Traitement de la commande #481 pour le projet 2410177 (MME FADIGA), Quantité commandée: 12
+[2025-04-16 14:27:52] Entrée #6008 dans expression_dym mise à jour, quantity_stock: 3 (0 → 3)
+[2025-04-16 14:27:52] Commande #481 PARTIELLEMENT satisfaite
+[2025-04-16 14:27:52] Aucun reste après dispatching pour produitA (quantité: 20, dispatché: 3)
+[2025-04-16 14:27:52] Fournisseur mis à jour pour la commande #481: Elec Plus
+[2025-04-16 14:27:52] Fin du traitement du mouvement #1217
+[2025-04-16 14:27:52] Transaction VALIDÉE avec succès
+[2025-04-17 10:18:11] Projet prioritaire spécifié: Aucun
+[2025-04-17 10:18:11] Gestion des commandes partielles: Activée
+[2025-04-17 10:18:11] Facture enregistrée avec ID: 101, Fichier: images.jpg
+[2025-04-17 10:18:11] Entrée de produit: produitA (ID: 2047, Code-barres: ACC-00946), Quantité: 15, Type d'entrée: commande, Fournisseur/Provenance: CHEZ BEN
+[2025-04-17 10:18:11] 15 unités de produitA ajoutées au stock général
+[2025-04-17 10:18:11] Mouvement de stock #1266 enregistré pour produitA, quantité totale: 15, provenance: CHEZ BEN
+[2025-04-17 10:18:11] Vérification des commandes partielles pour produitA
+[2025-04-17 10:18:11] Nombre de commandes partielles trouvées pour produitA: 0
+[2025-04-17 10:18:11] Recherche de commandes en attente pour 'produitA', 1 trouvées.
+[2025-04-17 10:18:11] Traitement de la commande #484 pour le projet 2410177 (Mme FADIGA), Quantité commandée: 5
+[2025-04-17 10:18:11] Entrée #6028 dans expression_dym mise à jour, quantity_stock: 5 (0 → 5)
+[2025-04-17 10:18:11] Commande #484 COMPLÉTÉE et marquée comme 'reçu'
+[2025-04-17 10:18:11] Mouvement de stock #1267 créé pour le reste non dispatché: 10 unités de produitA (réussi à la tentative 1)
+[2025-04-17 10:18:11] Fournisseur mis à jour pour la commande #484: CHEZ BEN
+[2025-04-17 10:18:11] Fin du traitement du mouvement #1266
+[2025-04-17 10:18:11] Transaction VALIDÉE avec succès
+[2025-04-19 13:48:26] Projet prioritaire spécifié: 2404090
+[2025-04-19 13:48:26] Gestion des commandes partielles: Activée
+[2025-04-19 13:48:26] Facture enregistrée avec ID: 102, Fichier: images.jpg
+[2025-04-19 13:48:26] Entrée de produit: produitA (ID: 2047, Code-barres: ACC-00946), Quantité: 6, Type d'entrée: commande, Fournisseur/Provenance: CHEZ BEN
+[2025-04-19 13:48:26] 6 unités de produitA ajoutées au stock général
+[2025-04-19 13:48:26] Mouvement de stock #1292 enregistré pour produitA, quantité totale: 6, provenance: CHEZ BEN
+[2025-04-19 13:48:26] Vérification des commandes partielles pour produitA
+[2025-04-19 13:48:26] Nombre de commandes partielles trouvées pour produitA: 1
+[2025-04-19 13:48:26] Traitement de la commande partielle #6063 pour le projet 2404090 (DYM MANUFACTURE), Quantité commandée: 20
+[2025-04-19 13:48:26] Commande partielle #6063 PARTIELLEMENT satisfaite, quantity_stock mise à jour: 6 (0 → 6)
+[2025-04-19 13:48:26] Commande partielle #490 créée pour 6 unités
+[2025-04-19 13:48:26] Requête modifiée pour prioriser le projet: 2404090
+[2025-04-19 13:48:26] Recherche de commandes en attente pour 'produitA', 0 trouvées.
+[2025-04-19 13:48:26] Aucun reste après dispatching pour produitA (quantité: 6, dispatché: 0)
+[2025-04-19 13:48:26] Fin du traitement du mouvement #1292
+[2025-04-19 13:48:26] Transaction VALIDÉE avec succès
+[2025-04-19 13:57:47] Projet prioritaire spécifié: 2410175
+[2025-04-19 13:57:47] Gestion des commandes partielles: Activée
+[2025-04-19 13:57:47] Facture enregistrée avec ID: 103, Fichier: images.jpg
+[2025-04-19 13:57:47] Entrée de produit: produitA (ID: 2047, Code-barres: ACC-00946), Quantité: 3, Type d'entrée: commande, Fournisseur/Provenance: fofana
+[2025-04-19 13:57:47] 3 unités de produitA ajoutées au stock général
+[2025-04-19 13:57:47] Mouvement de stock #1297 enregistré pour produitA, quantité totale: 3, provenance: fofana
+[2025-04-19 13:57:47] Vérification des commandes partielles pour produitA
+[2025-04-19 13:57:47] Nombre de commandes partielles trouvées pour produitA: 1
+[2025-04-19 13:57:47] Traitement de la commande partielle #6069 pour le projet 2410175 (CORLAY), Quantité commandée: 2
+[2025-04-19 13:57:47] Commande partielle #6069 PARTIELLEMENT satisfaite, quantity_stock mise à jour: 2 (0 → 2)
+[2025-04-19 13:57:47] Commande partielle #492 créée pour 2 unités
+[2025-04-19 13:57:47] Requête modifiée pour prioriser le projet: 2410175
+[2025-04-19 13:57:47] Recherche de commandes en attente pour 'produitA', 0 trouvées.
+[2025-04-19 13:57:47] Mouvement de stock #1298 créé pour le reste non dispatché: 1 unités de produitA (réussi à la tentative 1)
+[2025-04-19 13:57:47] Fin du traitement du mouvement #1297
+[2025-04-19 13:57:47] Transaction VALIDÉE avec succès
+[2025-04-19 14:00:07] Projet prioritaire spécifié: Aucun
+[2025-04-19 14:00:07] Gestion des commandes partielles: Activée
+[2025-04-19 14:00:07] Facture enregistrée avec ID: 104, Fichier: images.jpg
+[2025-04-19 14:00:07] Entrée de produit: produitA (ID: 2047, Code-barres: ACC-00946), Quantité: 8, Type d'entrée: commande, Fournisseur/Provenance: CHEZ BEN
+[2025-04-19 14:00:07] 8 unités de produitA ajoutées au stock général
+[2025-04-19 14:00:07] Mouvement de stock #1299 enregistré pour produitA, quantité totale: 8, provenance: CHEZ BEN
+[2025-04-19 14:00:07] Vérification des commandes partielles pour produitA
+[2025-04-19 14:00:07] Nombre de commandes partielles trouvées pour produitA: 0
+[2025-04-19 14:00:07] Recherche de commandes en attente pour 'produitA', 3 trouvées.
+[2025-04-19 14:00:07] Traitement de la commande #491 pour le projet 2410175 (CORLAY), Quantité commandée: 2
+[2025-04-19 14:00:07] Entrée #6069 dans expression_dym mise à jour, quantity_stock: 4 (2 → 4)
+[2025-04-19 14:00:07] Commande #491 PARTIELLEMENT satisfaite
+[2025-04-19 14:00:07] Traitement de la commande #492 pour le projet 2410175 (CORLAY), Quantité commandée: 2
+[2025-04-19 14:00:07] Entrée #6069 dans expression_dym mise à jour, quantity_stock: 4 (2 → 4)
+[2025-04-19 14:00:07] Commande #492 PARTIELLEMENT satisfaite
+[2025-04-19 14:00:07] Traitement de la commande #493 pour le projet 2410175 (CORLAY), Quantité commandée: 3
+[2025-04-19 14:00:07] Entrée #6069 dans expression_dym mise à jour, quantity_stock: 5 (2 → 5)
+[2025-04-19 14:00:07] Commande #493 COMPLÉTÉE et marquée comme 'reçu'
+[2025-04-19 14:00:07] Mouvement de stock #1300 créé pour le reste non dispatché: 1 unités de produitA (réussi à la tentative 1)
+[2025-04-19 14:00:07] Fournisseur mis à jour pour la commande #491: CHEZ BEN
+[2025-04-19 14:00:07] Fournisseur mis à jour pour la commande #492: CHEZ BEN
+[2025-04-19 14:00:07] Fournisseur mis à jour pour la commande #493: CHEZ BEN
+[2025-04-19 14:00:07] Fin du traitement du mouvement #1299
+[2025-04-19 14:00:07] Transaction VALIDÉE avec succès
+[2025-04-19 16:21:17] Projet prioritaire spécifié: Aucun
+[2025-04-19 16:21:17] Gestion des commandes partielles: Activée
+[2025-04-19 16:21:17] Facture enregistrée avec ID: 105, Fichier: images.jpg
+[2025-04-19 16:21:17] Entrée de produit: produitA (ID: 2047, Code-barres: ACC-00946), Quantité: 1, Type d'entrée: commande, Fournisseur/Provenance: CHEZ BEN
+[2025-04-19 16:21:17] 1 unités de produitA ajoutées au stock général
+[2025-04-19 16:21:17] Mouvement de stock #1301 enregistré pour produitA, quantité totale: 1, provenance: CHEZ BEN
+[2025-04-19 16:21:17] Vérification des commandes partielles pour produitA
+[2025-04-19 16:21:17] Nombre de commandes partielles trouvées pour produitA: 0
+[2025-04-19 16:21:17] Recherche de commandes en attente pour 'produitA', 1 trouvées.
+[2025-04-19 16:21:17] Traitement de la commande #494 pour le projet 2410175 (CORLAY), Quantité commandée: 5
+[2025-04-19 16:21:17] Entrée #6070 dans expression_dym mise à jour, quantity_stock: 1 (0 → 1)
+[2025-04-19 16:21:17] Commande #494 PARTIELLEMENT satisfaite
+[2025-04-19 16:21:17] Aucun reste après dispatching pour produitA (quantité: 1, dispatché: 1)
+[2025-04-19 16:21:17] Fournisseur mis à jour pour la commande #494: CHEZ BEN
+[2025-04-19 16:21:17] Fin du traitement du mouvement #1301
+[2025-04-19 16:21:17] Entrée de produit: produitB (ID: 2048, Code-barres: ELEC-00947), Quantité: 1, Type d'entrée: commande, Fournisseur/Provenance: CHEZ BEN
+[2025-04-19 16:21:17] 1 unités de produitB ajoutées au stock général
+[2025-04-19 16:21:17] Mouvement de stock #1302 enregistré pour produitB, quantité totale: 1, provenance: CHEZ BEN
+[2025-04-19 16:21:17] Vérification des commandes partielles pour produitB
+[2025-04-19 16:21:17] Nombre de commandes partielles trouvées pour produitB: 1
+[2025-04-19 16:21:17] Traitement de la commande partielle #6071 pour le projet 2410175 (CORLAY), Quantité commandée: 5
+[2025-04-19 16:21:17] Commande partielle #6071 PARTIELLEMENT satisfaite, quantity_stock mise à jour: 1 (0 → 1)
+[2025-04-19 16:21:17] Commande partielle #496 créée pour 1 unités
+[2025-04-19 16:21:17] Recherche de commandes en attente pour 'produitB', 0 trouvées.
+[2025-04-19 16:21:17] Aucun reste après dispatching pour produitB (quantité: 1, dispatché: 0)
+[2025-04-19 16:21:17] Fournisseur mis à jour pour la commande #494: CHEZ BEN
+[2025-04-19 16:21:17] Fin du traitement du mouvement #1302
+[2025-04-19 16:21:17] Transaction VALIDÉE avec succès
+[2025-04-19 16:27:59] Projet prioritaire spécifié: Aucun
+[2025-04-19 16:27:59] Gestion des commandes partielles: Activée
+[2025-04-19 16:27:59] Facture enregistrée avec ID: 106, Fichier: facture.jpg
+[2025-04-19 16:27:59] Entrée de produit: produitA (ID: 2047, Code-barres: ACC-00946), Quantité: 7, Type d'entrée: commande, Fournisseur/Provenance: CHEZ BEN
+[2025-04-19 16:27:59] 7 unités de produitA ajoutées au stock général
+[2025-04-19 16:27:59] Mouvement de stock #1303 enregistré pour produitA, quantité totale: 7, provenance: CHEZ BEN
+[2025-04-19 16:27:59] Vérification des commandes partielles pour produitA
+[2025-04-19 16:27:59] Nombre de commandes partielles trouvées pour produitA: 0
+[2025-04-19 16:27:59] Recherche de commandes en attente pour 'produitA', 1 trouvées.
+[2025-04-19 16:27:59] Traitement de la commande #494 pour le projet 2410175 (CORLAY), Quantité commandée: 5
+[2025-04-19 16:27:59] Entrée #6070 dans expression_dym mise à jour, quantity_stock: 6 (1 → 6)
+[2025-04-19 16:27:59] Commande #494 COMPLÉTÉE et marquée comme 'reçu'
+[2025-04-19 16:27:59] Mouvement de stock #1304 créé pour le reste non dispatché: 2 unités de produitA (réussi à la tentative 1)
+[2025-04-19 16:27:59] Fournisseur mis à jour pour la commande #494: CHEZ BEN
+[2025-04-19 16:27:59] Fin du traitement du mouvement #1303
+[2025-04-19 16:27:59] Entrée de produit: produitB (ID: 2048, Code-barres: ELEC-00947), Quantité: 10, Type d'entrée: commande, Fournisseur/Provenance: fofana
+[2025-04-19 16:27:59] 10 unités de produitB ajoutées au stock général
+[2025-04-19 16:27:59] Mouvement de stock #1305 enregistré pour produitB, quantité totale: 10, provenance: fofana
+[2025-04-19 16:27:59] Vérification des commandes partielles pour produitB
+[2025-04-19 16:27:59] Nombre de commandes partielles trouvées pour produitB: 1
+[2025-04-19 16:27:59] Traitement de la commande partielle #6071 pour le projet 2410175 (CORLAY), Quantité commandée: 7
+[2025-04-19 16:27:59] Commande partielle #6071 PARTIELLEMENT satisfaite, quantity_stock mise à jour: 8 (1 → 8)
+[2025-04-19 16:27:59] Commande partielle #498 créée pour 7 unités
+[2025-04-19 16:27:59] Recherche de commandes en attente pour 'produitB', 0 trouvées.
+[2025-04-19 16:27:59] Mouvement de stock #1306 créé pour le reste non dispatché: 3 unités de produitB (réussi à la tentative 1)
+[2025-04-19 16:27:59] Fournisseur mis à jour pour la commande #494: fofana
+[2025-04-19 16:27:59] Fin du traitement du mouvement #1305
+[2025-04-19 16:27:59] Transaction VALIDÉE avec succès
+[2025-04-19 16:46:14] Projet prioritaire spécifié: 2410175
+[2025-04-19 16:46:14] Gestion des commandes partielles: Activée
+[2025-04-19 16:46:14] Facture enregistrée avec ID: 107, Fichier: facture.jpg
+[2025-04-19 16:46:14] Entrée de produit: produitA (ID: 2047, Code-barres: ACC-00946), Quantité: 2, Type d'entrée: autre, Fournisseur/Provenance: FOURNISSEUR
+[2025-04-19 16:46:14] 2 unités de produitA ajoutées au stock général
+[2025-04-19 16:46:14] Mouvement de stock #1307 enregistré pour produitA, quantité totale: 2, provenance: FOURNISSEUR
+[2025-04-19 16:46:14] Vérification des commandes partielles pour produitA
+[2025-04-19 16:46:14] Nombre de commandes partielles trouvées pour produitA: 0
+[2025-04-19 16:46:14] Requête modifiée pour prioriser le projet: 2410175
+[2025-04-19 16:46:14] Recherche de commandes en attente pour 'produitA', 0 trouvées.
+[2025-04-19 16:46:14] Mouvement de stock #1308 créé pour le reste non dispatché: 2 unités de produitA (réussi à la tentative 1)
+[2025-04-19 16:46:14] Fin du traitement du mouvement #1307
+[2025-04-19 16:46:14] Transaction VALIDÉE avec succès
+[2025-04-21 16:28:52] Projet prioritaire spécifié: Aucun
+[2025-04-21 16:28:52] Gestion des commandes partielles: Activée
+[2025-04-21 16:28:52] Facture enregistrée avec ID: 108, Fichier: bon_commande_00107-1745248441871 (1).pdf
+[2025-04-21 16:28:52] Entrée de produit: produitA (ID: 2047, Code-barres: ACC-00946), Quantité: 50, Type d'entrée: commande, Fournisseur/Provenance: CHEZ BEN
+[2025-04-21 16:28:52] 50 unités de produitA ajoutées au stock général
+[2025-04-21 16:28:52] Mouvement de stock #1315 enregistré pour produitA, quantité totale: 50, provenance: CHEZ BEN
+[2025-04-21 16:28:52] Vérification des commandes partielles pour produitA
+[2025-04-21 16:28:52] Nombre de commandes partielles trouvées pour produitA: 0
+[2025-04-21 16:28:52] Recherche de commandes en attente pour 'produitA', 12 trouvées.
+[2025-04-21 16:28:52] Traitement de la commande #501 pour le projet 2410177 (MME FADIGA), Quantité commandée: 2
+[2025-04-21 16:28:52] Entrée #6079 dans expression_dym mise à jour, quantity_stock: 2 (0 → 2)
+[2025-04-21 16:28:52] Commande #501 PARTIELLEMENT satisfaite
+[2025-04-21 16:28:52] Traitement de la commande #502 pour le projet 2410177 (MME FADIGA), Quantité commandée: 1
+[2025-04-21 16:28:52] Entrée #6079 dans expression_dym mise à jour, quantity_stock: 1 (0 → 1)
+[2025-04-21 16:28:52] Commande #502 PARTIELLEMENT satisfaite
+[2025-04-21 16:28:52] Traitement de la commande #503 pour le projet 2410177 (MME FADIGA), Quantité commandée: 1
+[2025-04-21 16:28:52] Entrée #6079 dans expression_dym mise à jour, quantity_stock: 1 (0 → 1)
+[2025-04-21 16:28:52] Commande #503 PARTIELLEMENT satisfaite
+[2025-04-21 16:28:52] Traitement de la commande #504 pour le projet 2410177 (MME FADIGA), Quantité commandée: 2
+[2025-04-21 16:28:52] Entrée #6079 dans expression_dym mise à jour, quantity_stock: 2 (0 → 2)
+[2025-04-21 16:28:52] Commande #504 PARTIELLEMENT satisfaite
+[2025-04-21 16:28:52] Traitement de la commande #505 pour le projet 2410177 (MME FADIGA), Quantité commandée: 6
+[2025-04-21 16:28:52] Entrée #6079 dans expression_dym mise à jour, quantity_stock: 6 (0 → 6)
+[2025-04-21 16:28:52] Commande #505 COMPLÉTÉE et marquée comme 'reçu'
+[2025-04-21 16:28:52] Traitement de la commande #506 pour le projet 2410177 (DYM YOPOUGON), Quantité commandée: 2
+[2025-04-21 16:28:52] Entrée #6080 dans expression_dym mise à jour, quantity_stock: 2 (0 → 2)
+[2025-04-21 16:28:52] Commande #506 PARTIELLEMENT satisfaite
+[2025-04-21 16:28:52] Traitement de la commande #507 pour le projet 2410177 (DYM YOPOUGON), Quantité commandée: 4
+[2025-04-21 16:28:52] Entrée #6080 dans expression_dym mise à jour, quantity_stock: 4 (0 → 4)
+[2025-04-21 16:28:52] Commande #507 PARTIELLEMENT satisfaite
+[2025-04-21 16:28:52] Traitement de la commande #508 pour le projet 2410177 (DYM YOPOUGON), Quantité commandée: 1
+[2025-04-21 16:28:52] Entrée #6080 dans expression_dym mise à jour, quantity_stock: 1 (0 → 1)
+[2025-04-21 16:28:52] Commande #508 PARTIELLEMENT satisfaite
+[2025-04-21 16:28:52] Traitement de la commande #509 pour le projet 2410177 (DYM YOPOUGON), Quantité commandée: 1
+[2025-04-21 16:28:52] Entrée #6080 dans expression_dym mise à jour, quantity_stock: 1 (0 → 1)
+[2025-04-21 16:28:52] Commande #509 PARTIELLEMENT satisfaite
+[2025-04-21 16:28:52] Traitement de la commande #516 pour le projet 2404090 (DYM MANUFACTURE), Quantité commandée: 5
+[2025-04-21 16:28:52] Entrée #6082 dans expression_dym mise à jour, quantity_stock: 5 (0 → 5)
+[2025-04-21 16:28:52] Commande #516 COMPLÉTÉE et marquée comme 'reçu'
+[2025-04-21 16:28:52] Traitement de la commande #517 pour le projet 2410177 (DYM YOPOUGON), Quantité commandée: 1
+[2025-04-21 16:28:52] Entrée #6080 dans expression_dym mise à jour, quantity_stock: 1 (0 → 1)
+[2025-04-21 16:28:52] Commande #517 PARTIELLEMENT satisfaite
+[2025-04-21 16:28:52] Traitement de la commande #520 pour le projet 2410177 (DYM YOPOUGON), Quantité commandée: 9
+[2025-04-21 16:28:52] Entrée #6080 dans expression_dym mise à jour, quantity_stock: 9 (0 → 9)
+[2025-04-21 16:28:52] Commande #520 COMPLÉTÉE et marquée comme 'reçu'
+[2025-04-21 16:28:52] Mouvement de stock #1316 créé pour le reste non dispatché: 15 unités de produitA (réussi à la tentative 1)
+[2025-04-21 16:28:52] Fournisseur mis à jour pour la commande #501: CHEZ BEN
+[2025-04-21 16:28:52] Fournisseur mis à jour pour la commande #502: CHEZ BEN
+[2025-04-21 16:28:52] Fournisseur mis à jour pour la commande #503: CHEZ BEN
+[2025-04-21 16:28:52] Fournisseur mis à jour pour la commande #504: CHEZ BEN
+[2025-04-21 16:28:52] Fournisseur mis à jour pour la commande #505: CHEZ BEN
+[2025-04-21 16:28:52] Fournisseur mis à jour pour la commande #506: CHEZ BEN
+[2025-04-21 16:28:52] Fournisseur mis à jour pour la commande #507: CHEZ BEN
+[2025-04-21 16:28:52] Fournisseur mis à jour pour la commande #508: CHEZ BEN
+[2025-04-21 16:28:52] Fournisseur mis à jour pour la commande #509: CHEZ BEN
+[2025-04-21 16:28:52] Fournisseur mis à jour pour la commande #516: CHEZ BEN
+[2025-04-21 16:28:52] Fournisseur mis à jour pour la commande #517: CHEZ BEN
+[2025-04-21 16:28:52] Fournisseur mis à jour pour la commande #520: CHEZ BEN
+[2025-04-21 16:28:52] Fin du traitement du mouvement #1315
+[2025-04-21 16:28:52] Entrée de produit: produitB (ID: 2048, Code-barres: ELEC-00947), Quantité: 15, Type d'entrée: commande, Fournisseur/Provenance: CHEZ BEN
+[2025-04-21 16:28:52] 15 unités de produitB ajoutées au stock général
+[2025-04-21 16:28:52] Mouvement de stock #1317 enregistré pour produitB, quantité totale: 15, provenance: CHEZ BEN
+[2025-04-21 16:28:52] Vérification des commandes partielles pour produitB
+[2025-04-21 16:28:52] Nombre de commandes partielles trouvées pour produitB: 0
+[2025-04-21 16:28:52] Recherche de commandes en attente pour 'produitB', 10 trouvées.
+[2025-04-21 16:28:52] Traitement de la commande #510 pour le projet 2410177 (DYM YOPOUGON), Quantité commandée: 7
+[2025-04-21 16:28:52] Entrée #6081 dans expression_dym mise à jour, quantity_stock: 7 (0 → 7)
+[2025-04-21 16:28:52] Commande #510 PARTIELLEMENT satisfaite
+[2025-04-21 16:28:52] Traitement de la commande #511 pour le projet 2410177 (DYM YOPOUGON), Quantité commandée: 2
+[2025-04-21 16:28:52] Entrée #6081 dans expression_dym mise à jour, quantity_stock: 2 (0 → 2)
+[2025-04-21 16:28:52] Commande #511 PARTIELLEMENT satisfaite
+[2025-04-21 16:28:52] Traitement de la commande #512 pour le projet 2410177 (DYM YOPOUGON), Quantité commandée: 1
+[2025-04-21 16:28:52] Entrée #6081 dans expression_dym mise à jour, quantity_stock: 1 (0 → 1)
+[2025-04-21 16:28:52] Commande #512 PARTIELLEMENT satisfaite
+[2025-04-21 16:28:52] Traitement de la commande #513 pour le projet 2404090 (DYM MANUFACTURE), Quantité commandée: 4
+[2025-04-21 16:28:52] Entrée #6083 dans expression_dym mise à jour, quantity_stock: 4 (0 → 4)
+[2025-04-21 16:28:52] Commande #513 PARTIELLEMENT satisfaite
+[2025-04-21 16:28:52] Traitement de la commande #514 pour le projet 2404090 (DYM MANUFACTURE), Quantité commandée: 1
+[2025-04-21 16:28:52] Entrée #6083 dans expression_dym mise à jour, quantity_stock: 1 (0 → 1)
+[2025-04-21 16:28:52] Commande #514 PARTIELLEMENT satisfaite
+[2025-04-21 16:28:52] Aucun reste après dispatching pour produitB (quantité: 15, dispatché: 15)
+[2025-04-21 16:28:52] Fournisseur mis à jour pour la commande #501: CHEZ BEN
+[2025-04-21 16:28:52] Fournisseur mis à jour pour la commande #502: CHEZ BEN
+[2025-04-21 16:28:52] Fournisseur mis à jour pour la commande #503: CHEZ BEN
+[2025-04-21 16:28:52] Fournisseur mis à jour pour la commande #504: CHEZ BEN
+[2025-04-21 16:28:52] Fournisseur mis à jour pour la commande #505: CHEZ BEN
+[2025-04-21 16:28:52] Fournisseur mis à jour pour la commande #506: CHEZ BEN
+[2025-04-21 16:28:52] Fournisseur mis à jour pour la commande #507: CHEZ BEN
+[2025-04-21 16:28:52] Fournisseur mis à jour pour la commande #508: CHEZ BEN
+[2025-04-21 16:28:52] Fournisseur mis à jour pour la commande #509: CHEZ BEN
+[2025-04-21 16:28:52] Fournisseur mis à jour pour la commande #516: CHEZ BEN
+[2025-04-21 16:28:52] Fournisseur mis à jour pour la commande #517: CHEZ BEN
+[2025-04-21 16:28:52] Fournisseur mis à jour pour la commande #520: CHEZ BEN
+[2025-04-21 16:28:52] Fournisseur mis à jour pour la commande #510: CHEZ BEN
+[2025-04-21 16:28:52] Fournisseur mis à jour pour la commande #511: CHEZ BEN
+[2025-04-21 16:28:52] Fournisseur mis à jour pour la commande #512: CHEZ BEN
+[2025-04-21 16:28:52] Fournisseur mis à jour pour la commande #513: CHEZ BEN
+[2025-04-21 16:28:52] Fournisseur mis à jour pour la commande #514: CHEZ BEN
+[2025-04-21 16:28:52] Fin du traitement du mouvement #1317
+[2025-04-21 16:28:52] Transaction VALIDÉE avec succès
+[2025-05-05 20:56:14] Projet prioritaire spécifié: Aucun
+[2025-05-05 20:56:14] Gestion des commandes partielles: Activée
+[2025-05-05 20:56:14] Facture enregistrée avec ID: 109, Fichier: facture.jpg
+[2025-05-05 20:56:14] Entrée de produit: produitA (ID: 2047, Code-barres: ACC-00946), Quantité: 0.5, Type d'entrée: commande, Fournisseur/Provenance: CHEZ BEN
+[2025-05-05 20:56:14] 0.5 unités de produitA ajoutées au stock général
+[2025-05-05 20:56:14] Mouvement de stock #1320 enregistré pour produitA, quantité totale: 0.5, provenance: CHEZ BEN
+[2025-05-05 20:56:14] Vérification des commandes partielles pour produitA
+[2025-05-05 20:56:14] Nombre de commandes partielles trouvées pour produitA: 0
+[2025-05-05 20:56:14] Recherche de commandes en attente pour 'produitA', 0 trouvées.
+[2025-05-05 20:56:14] Mouvement de stock #1321 créé pour le reste non dispatché: 0.5 unités de produitA (réussi à la tentative 1)
+[2025-05-05 20:56:14] Fin du traitement du mouvement #1320
+[2025-05-05 20:56:14] Transaction VALIDÉE avec succès
+[2025-05-08 09:26:53] Projet prioritaire spécifié: Aucun
+[2025-05-08 09:26:53] Gestion des commandes partielles: Activée
+[2025-05-08 09:26:53] Facture enregistrée avec ID: 110, Fichier: facture.jpg
+[2025-05-08 09:26:53] Entrée de produit: Wash Primer - Apprêt Primocolor Filler (ID: 874, Code-barres: REPP-00005), Quantité: 1, Type d'entrée: commande, Fournisseur/Provenance: PeintPro
+[2025-05-08 09:26:53] 1 unités de Wash Primer - Apprêt Primocolor Filler ajoutées au stock général
+[2025-05-08 09:26:53] Mouvement de stock #1324 enregistré pour Wash Primer - Apprêt Primocolor Filler, quantité totale: 1, provenance: PeintPro
+[2025-05-08 09:26:53] Vérification des commandes partielles pour Wash Primer - Apprêt Primocolor Filler
+[2025-05-08 09:26:53] Nombre de commandes partielles trouvées pour Wash Primer - Apprêt Primocolor Filler: 1
+[2025-05-08 09:26:53] Traitement de la commande partielle #101 (source: besoins) pour le projet SYS (Demande Service Finance), Quantité commandée: 2
+[2025-05-08 09:26:53] Commande partielle #101 (source: besoins) PARTIELLEMENT satisfaite, quantity_stock mise à jour: 1 (0 → 1)
+[2025-05-08 09:26:53] Commande partielle #670 créée pour 1 unités
+[2025-05-08 09:26:53] ERREUR: SQLSTATE[42000]: Syntax error or access violation: 1250 Table 'am' from one of the SELECTs cannot be used in ORDER clause
+[2025-05-08 09:29:22] Projet prioritaire spécifié: Aucun
+[2025-05-08 09:29:22] Gestion des commandes partielles: Activée
+[2025-05-08 09:29:22] Facture enregistrée avec ID: 111, Fichier: facture.jpg
+[2025-05-08 09:29:22] Entrée de produit: Wash Primer - Apprêt Primocolor Filler (ID: 874, Code-barres: REPP-00005), Quantité: 1, Type d'entrée: commande, Fournisseur/Provenance: PeintPro
+[2025-05-08 09:29:22] 1 unités de Wash Primer - Apprêt Primocolor Filler ajoutées au stock général
+[2025-05-08 09:29:22] Mouvement de stock #1325 enregistré pour Wash Primer - Apprêt Primocolor Filler, quantité totale: 1, provenance: PeintPro
+[2025-05-08 09:29:22] Vérification des commandes partielles pour Wash Primer - Apprêt Primocolor Filler
+[2025-05-08 09:29:22] Nombre de commandes partielles trouvées pour Wash Primer - Apprêt Primocolor Filler: 1
+[2025-05-08 09:29:22] Traitement de la commande partielle #101 (source: besoins) pour le projet SYS (Demande Service Finance), Quantité commandée: 2
+[2025-05-08 09:29:22] Commande partielle #101 (source: besoins) PARTIELLEMENT satisfaite, quantity_stock mise à jour: 1 (0 → 1)
+[2025-05-08 09:29:22] Commande partielle #671 créée pour 1 unités
+[2025-05-08 09:29:22] ERREUR: SQLSTATE[42000]: Syntax error or access violation: 1250 Table 'am' from one of the SELECTs cannot be used in ORDER clause
+[2025-05-08 09:33:43] Projet prioritaire spécifié: Aucun
+[2025-05-08 09:33:43] Gestion des commandes partielles: Activée
+[2025-05-08 09:33:43] Facture enregistrée avec ID: 112, Fichier: facture.jpg
+[2025-05-08 09:33:43] Entrée de produit: Wash Primer - Apprêt Primocolor Filler (ID: 874, Code-barres: REPP-00005), Quantité: 1, Type d'entrée: commande, Fournisseur/Provenance: PeintPro
+[2025-05-08 09:33:43] 1 unités de Wash Primer - Apprêt Primocolor Filler ajoutées au stock général
+[2025-05-08 09:33:43] Mouvement de stock #1326 enregistré pour Wash Primer - Apprêt Primocolor Filler, quantité totale: 1, provenance: PeintPro
+[2025-05-08 09:33:43] Vérification des commandes partielles pour Wash Primer - Apprêt Primocolor Filler
+[2025-05-08 09:33:43] ERREUR: SQLSTATE[42000]: Syntax error or access violation: 1250 Table 'am' from one of the SELECTs cannot be used in ORDER clause
+[2025-05-08 11:34:03] Projet prioritaire spécifié: Aucun
+[2025-05-08 11:34:03] Gestion des commandes partielles: Activée
+[2025-05-08 11:34:03] Facture enregistrée avec ID: 113, Fichier: facture.jpg
+[2025-05-08 11:34:03] Entrée de produit: Wash Primer - Apprêt Primocolor Filler (ID: 874, Code-barres: REPP-00005), Quantité: 1, Type d'entrée: commande, Fournisseur/Provenance: PeintPro
+[2025-05-08 11:34:03] 1 unités de Wash Primer - Apprêt Primocolor Filler ajoutées au stock général
+[2025-05-08 11:34:03] Mouvement de stock #1327 enregistré pour Wash Primer - Apprêt Primocolor Filler, quantité totale: 1, provenance: PeintPro
+[2025-05-08 11:34:03] Vérification des commandes partielles pour Wash Primer - Apprêt Primocolor Filler
+[2025-05-08 11:34:03] Nombre de commandes partielles trouvées pour Wash Primer - Apprêt Primocolor Filler: 1
+[2025-05-08 11:34:03] Traitement de la commande partielle #101 (source: besoins) pour le projet SYS (Demande Service Finance), Quantité commandée: 2
+[2025-05-08 11:34:03] Commande partielle #101 (source: besoins) PARTIELLEMENT satisfaite, quantity_stock mise à jour: 1 (0 → 1)
+[2025-05-08 11:34:03] Commande partielle #672 créée pour 1 unités
+[2025-05-08 11:34:03] ERREUR: SQLSTATE[42000]: Syntax error or access violation: 1250 Table 'am' from one of the SELECTs cannot be used in ORDER clause
+[2025-05-08 12:49:24] Projet prioritaire spécifié: Aucun
+[2025-05-08 12:49:24] Gestion des commandes partielles: Activée
+[2025-05-08 12:49:24] Facture enregistrée avec ID: 114, Fichier: facture.jpg
+[2025-05-08 12:49:24] Entrée de produit: Wash Primer - Apprêt Primocolor Filler (ID: 874, Code-barres: REPP-00005), Quantité: 1, Type d'entrée: commande, Fournisseur/Provenance: PeintPro
+[2025-05-08 12:49:24] 1 unités de Wash Primer - Apprêt Primocolor Filler ajoutées au stock général
+[2025-05-08 12:49:24] Mouvement de stock #1328 enregistré pour Wash Primer - Apprêt Primocolor Filler, quantité totale: 1, provenance: PeintPro
+[2025-05-08 12:49:24] Vérification des commandes partielles pour Wash Primer - Apprêt Primocolor Filler
+[2025-05-08 12:49:24] Nombre de commandes partielles trouvées pour Wash Primer - Apprêt Primocolor Filler: 1
+[2025-05-08 12:49:24] Traitement de la commande partielle #101 pour le projet SYS (Demande Service Finance), Quantité commandée: 2
+[2025-05-08 12:49:24] Commande partielle #101 PARTIELLEMENT satisfaite, quantity_stock mise à jour: 1 (0 → 1)
+[2025-05-08 12:49:24] Commande partielle #673 créée pour 1 unités
+[2025-05-08 12:49:24] Recherche de commandes en attente pour 'Wash Primer - Apprêt Primocolor Filler', 4 trouvées.
+[2025-05-08 12:49:24] Aucun reste après dispatching pour Wash Primer - Apprêt Primocolor Filler (quantité: 1, dispatché: 0)
+[2025-05-08 12:49:24] Fin du traitement du mouvement #1328
+[2025-05-08 12:49:24] Transaction VALIDÉE avec succès
+[2025-05-08 13:13:18] Projet prioritaire spécifié: Aucun
+[2025-05-08 13:13:18] Gestion des commandes partielles: Activée
+[2025-05-08 13:13:18] Facture enregistrée avec ID: 115, Fichier: facture.jpg
+[2025-05-08 13:13:18] Entrée de produit: Wash Primer - Apprêt Primocolor Filler (ID: 874, Code-barres: REPP-00005), Quantité: 6, Type d'entrée: commande, Fournisseur/Provenance: PeintPro
+[2025-05-08 13:13:18] 6 unités de Wash Primer - Apprêt Primocolor Filler ajoutées au stock général
+[2025-05-08 13:13:18] Mouvement de stock #1329 enregistré pour Wash Primer - Apprêt Primocolor Filler, quantité totale: 6, provenance: PeintPro
+[2025-05-08 13:13:18] Vérification des commandes partielles pour Wash Primer - Apprêt Primocolor Filler
+[2025-05-08 13:13:18] Nombre de commandes partielles trouvées pour Wash Primer - Apprêt Primocolor Filler: 1
+[2025-05-08 13:13:18] Traitement de la commande partielle #101 pour le projet SYS (Demande Service Finance), Quantité commandée: 2
+[2025-05-08 13:13:18] Commande partielle #101 COMPLÉTÉE, quantity_stock mise à jour: 6 (0 → 6)
+[2025-05-08 13:13:18] Commande partielle #674 créée pour 6 unités
+[2025-05-08 13:13:18] Recherche de commandes en attente pour 'Wash Primer - Apprêt Primocolor Filler', 4 trouvées.
+[2025-05-08 13:13:18] Aucun reste après dispatching pour Wash Primer - Apprêt Primocolor Filler (quantité: 6, dispatché: 0)
+[2025-05-08 13:13:18] Fin du traitement du mouvement #1329
+[2025-05-08 13:13:18] Transaction VALIDÉE avec succès
+[2025-05-08 15:51:03] Projet prioritaire spécifié: Aucun
+[2025-05-08 15:51:03] Gestion des commandes partielles: Activée
+[2025-05-08 15:51:03] Facture enregistrée avec ID: 116, Fichier: facture.jpg
+[2025-05-08 15:51:03] Entrée de produit: Autolac Agenté  (ID: 1788, Code-barres: REPP-00852), Quantité: 13, Type d'entrée: commande, Fournisseur/Provenance: CHEZ BEN
+[2025-05-08 15:51:03] 13 unités de Autolac Agenté  ajoutées au stock général
+[2025-05-08 15:51:03] Mouvement de stock #1330 enregistré pour Autolac Agenté , quantité totale: 13, provenance: CHEZ BEN
+[2025-05-08 15:51:03] Vérification des commandes partielles pour Autolac Agenté 
+[2025-05-08 15:51:03] Nombre de commandes partielles trouvées pour Autolac Agenté : 1
+[2025-05-08 15:51:03] Traitement de la commande partielle #109 pour le projet SYS (Demande Service Stock), Quantité commandée: 2
+[2025-05-08 15:51:03] Commande partielle #109 COMPLÉTÉE, quantity_stock mise à jour: 18 (6 → 18)
+[2025-05-08 15:51:03] Commande partielle #678 créée pour 12 unités
+[2025-05-08 15:51:03] Recherche de commandes en attente pour 'Autolac Agenté ', 0 trouvées.
+[2025-05-08 15:51:03] Mouvement de stock #1331 créé pour le reste non dispatché: 1 unités de Autolac Agenté  (réussi à la tentative 1)
+[2025-05-08 15:51:03] Fin du traitement du mouvement #1330
+[2025-05-08 15:51:03] Entrée de produit: produitA (ID: 2047, Code-barres: ACC-00946), Quantité: 1, Type d'entrée: commande, Fournisseur/Provenance: CHEZ BEN
+[2025-05-08 15:51:03] 1 unités de produitA ajoutées au stock général
+[2025-05-08 15:51:03] Mouvement de stock #1332 enregistré pour produitA, quantité totale: 1, provenance: CHEZ BEN
+[2025-05-08 15:51:03] Vérification des commandes partielles pour produitA
+[2025-05-08 15:51:03] Nombre de commandes partielles trouvées pour produitA: 1
+[2025-05-08 15:51:03] Traitement de la commande partielle #6134 pour le projet 2408143 (DYM MANUFACTURE), Quantité commandée: 7
+[2025-05-08 15:51:03] Commande partielle #6134 PARTIELLEMENT satisfaite, quantity_stock mise à jour: 1 (0 → 1)
+[2025-05-08 15:51:03] Commande partielle #679 créée pour 1 unités
+[2025-05-08 15:51:04] Recherche de commandes en attente pour 'produitA', 0 trouvées.
+[2025-05-08 15:51:04] Aucun reste après dispatching pour produitA (quantité: 1, dispatché: 0)
+[2025-05-08 15:51:04] Fin du traitement du mouvement #1332
+[2025-05-08 15:51:04] Transaction VALIDÉE avec succès
+[2025-05-08 16:07:27] Projet prioritaire spécifié: Aucun
+[2025-05-08 16:07:27] Gestion des commandes partielles: Activée
+[2025-05-08 16:07:27] Facture enregistrée avec ID: 117, Fichier: images.jpg
+[2025-05-08 16:07:27] Entrée de produit: produitA (ID: 2047, Code-barres: ACC-00946), Quantité: 13, Type d'entrée: commande, Fournisseur/Provenance: CHEZ BEN
+[2025-05-08 16:07:27] 13 unités de produitA ajoutées au stock général
+[2025-05-08 16:07:27] Mouvement de stock #1333 enregistré pour produitA, quantité totale: 13, provenance: CHEZ BEN
+[2025-05-08 16:07:27] Vérification des commandes partielles pour produitA
+[2025-05-08 16:07:27] Nombre de commandes partielles trouvées pour produitA: 1
+[2025-05-08 16:07:27] Traitement de la commande partielle #6134 pour le projet 2408143 (DYM MANUFACTURE), Quantité commandée: 7
+[2025-05-08 16:07:27] Commande partielle #6134 COMPLÉTÉE, quantity_stock mise à jour: 13 (1 → 13)
+[2025-05-08 16:07:27] Commande partielle #680 créée pour 12 unités
+[2025-05-08 16:07:27] Recherche de commandes en attente pour 'produitA', 0 trouvées.
+[2025-05-08 16:07:27] Mouvement de stock #1334 créé pour le reste non dispatché: 1 unités de produitA (réussi à la tentative 1)
+[2025-05-08 16:07:27] Fin du traitement du mouvement #1333
+[2025-05-08 16:07:27] Transaction VALIDÉE avec succès
+[2025-05-08 16:35:55] Projet prioritaire spécifié: Aucun
+[2025-05-08 16:35:55] Gestion des commandes partielles: Activée
+[2025-05-08 16:35:55] Facture enregistrée avec ID: 118, Fichier: images.jpg
+[2025-05-08 16:35:55] Entrée de produit: Autolac beige (ID: 1588, Code-barres: REPP-00012), Quantité: 8, Type d'entrée: commande, Fournisseur/Provenance: CGI
+[2025-05-08 16:35:55] 8 unités de Autolac beige ajoutées au stock général
+[2025-05-08 16:35:55] Mouvement de stock #1335 enregistré pour Autolac beige, quantité totale: 8, provenance: CGI
+[2025-05-08 16:35:55] Vérification des commandes partielles pour Autolac beige
+[2025-05-08 16:35:55] Nombre de commandes partielles trouvées pour Autolac beige: 1
+[2025-05-08 16:35:55] Traitement de la commande partielle #6137 pour le projet 2408143 (DYM MANUFACTURE), Quantité commandée: 4
+[2025-05-08 16:35:55] Commande partielle #6137 PARTIELLEMENT satisfaite, quantity_stock mise à jour: 6 (0 → 6), besoin total: 10
+[2025-05-08 16:35:55] Commande partielle #682 créée pour 6 unités
+[2025-05-08 16:35:55] Recherche de commandes en attente pour 'Autolac beige', 0 trouvées.
+[2025-05-08 16:35:55] Mouvement de stock #1336 créé pour le reste non dispatché: 2 unités de Autolac beige (réussi à la tentative 1)
+[2025-05-08 16:35:55] Fin du traitement du mouvement #1335
+[2025-05-08 16:35:55] Transaction VALIDÉE avec succès
+[2025-05-08 17:03:20] Projet prioritaire spécifié: Aucun
+[2025-05-08 17:03:20] Gestion des commandes partielles: Activée
+[2025-05-08 17:03:20] Facture enregistrée avec ID: 119, Fichier: Signature-PNG-HD-Image.png
+[2025-05-08 17:03:20] Entrée de produit: Autolac beige (ID: 1588, Code-barres: REPP-00012), Quantité: 2, Type d'entrée: commande, Fournisseur/Provenance: CGI
+[2025-05-08 17:03:20] 2 unités de Autolac beige ajoutées au stock général
+[2025-05-08 17:03:20] Mouvement de stock #1337 enregistré pour Autolac beige, quantité totale: 2, provenance: CGI
+[2025-05-08 17:03:20] Vérification des commandes partielles pour Autolac beige
+[2025-05-08 17:03:20] Nombre de commandes partielles trouvées pour Autolac beige: 1
+[2025-05-08 17:03:20] Traitement de la commande partielle #6137 pour le projet 2408143 (DYM MANUFACTURE), Quantité commandée: 4
+[2025-05-08 17:03:20] Commande partielle #6137 PARTIELLEMENT satisfaite, quantity_stock mise à jour: 8 (6 → 8)
+[2025-05-08 17:03:20] Commande partielle #683 créée pour 2 unités
+[2025-05-08 17:03:20] Recherche de commandes en attente pour 'Autolac beige', 0 trouvées.
+[2025-05-08 17:03:20] Aucun reste après dispatching pour Autolac beige (quantité: 2, dispatché: 0)
+[2025-05-08 17:03:20] Fin du traitement du mouvement #1337
+[2025-05-08 17:03:20] Transaction VALIDÉE avec succès
+[2025-05-08 21:00:42] Projet prioritaire spécifié: Aucun
+[2025-05-08 21:00:42] Gestion des commandes partielles: Activée
+[2025-05-08 21:00:42] Facture enregistrée avec ID: 120, Fichier: images.jpg
+[2025-05-08 21:00:42] Entrée de produit: Autolac beige (ID: 1588, Code-barres: REPP-00012), Quantité: 1, Type d'entrée: commande, Fournisseur/Provenance: CGI
+[2025-05-08 21:00:42] 1 unités de Autolac beige ajoutées au stock général
+[2025-05-08 21:00:42] Mouvement de stock #1338 enregistré pour Autolac beige, quantité totale: 1, provenance: CGI
+[2025-05-08 21:00:42] Vérification des commandes partielles pour Autolac beige
+[2025-05-08 21:00:42] Nombre de commandes partielles trouvées pour Autolac beige: 1
+[2025-05-08 21:00:42] Traitement de la commande partielle #6137 pour le projet 2408143 (DYM MANUFACTURE), Quantité commandée: 4
+[2025-05-08 21:00:42] Commande partielle #6137 PARTIELLEMENT satisfaite, quantity_stock mise à jour: 9 (8 → 9), besoin total: 10
+[2025-05-08 21:00:42] Recherche de commandes en attente pour 'Autolac beige', 0 trouvées.
+[2025-05-08 21:00:42] Aucun reste après dispatching pour Autolac beige (quantité: 1, dispatché: 0)
+[2025-05-08 21:00:42] Fin du traitement du mouvement #1338
+[2025-05-08 21:00:42] Transaction VALIDÉE avec succès
+[2025-05-08 21:43:23] Projet prioritaire spécifié: Aucun
+[2025-05-08 21:43:23] Gestion des commandes partielles: Activée
+[2025-05-08 21:43:23] Facture enregistrée avec ID: 121, Fichier: facture.jpg
+[2025-05-08 21:43:23] Entrée de produit: Autolac beige (ID: 1588, Code-barres: REPP-00012), Quantité: 3, Type d'entrée: commande, Fournisseur/Provenance: CGI
+[2025-05-08 21:43:23] 3 unités de Autolac beige ajoutées au stock général
+[2025-05-08 21:43:23] Mouvement de stock #1339 enregistré pour Autolac beige, quantité totale: 3, provenance: CGI
+[2025-05-08 21:43:23] Vérification des commandes partielles pour Autolac beige
+[2025-05-08 21:43:23] Nombre de commandes partielles trouvées pour Autolac beige: 1
+[2025-05-08 21:43:23] Traitement de la commande partielle #6137 pour le projet 2408143 (DYM MANUFACTURE), Quantité commandée: 4
+[2025-05-08 21:43:23] Commande partielle #6137 COMPLÉTÉE, quantity_stock mise à jour: 12 (9 → 12), besoin total: 10
+[2025-05-08 21:43:23] Recherche de commandes en attente pour 'Autolac beige', 0 trouvées.
+[2025-05-08 21:43:23] Aucun reste après dispatching pour Autolac beige (quantité: 3, dispatché: 0)
+[2025-05-08 21:43:23] Fin du traitement du mouvement #1339
+[2025-05-08 21:43:23] Transaction VALIDÉE avec succès
+[2025-05-09 07:04:56] Projet prioritaire spécifié: Aucun
+[2025-05-09 07:04:56] Gestion des commandes partielles: Activée
+[2025-05-09 07:04:56] Entrée de produit: Autolac beige (ID: 1588, Code-barres: REPP-00012), Quantité: 1, Type d'entrée: commande, Fournisseur/Provenance: CGI
+[2025-05-09 07:04:56] 1 unités de Autolac beige ajoutées au stock général
+[2025-05-09 07:04:56] Mouvement de stock #1340 enregistré pour Autolac beige, quantité totale: 1, provenance: CGI
+[2025-05-09 07:04:56] Vérification des commandes partielles pour Autolac beige
+[2025-05-09 07:04:56] Nombre de commandes partielles trouvées pour Autolac beige: 0
+[2025-05-09 07:04:56] Recherche de commandes en attente pour 'Autolac beige', 0 trouvées.
+[2025-05-09 07:04:56] Mouvement de stock #1341 créé pour le reste non dispatché: 1 unités de Autolac beige (réussi à la tentative 1)
+[2025-05-09 07:04:56] Fin du traitement du mouvement #1340
+[2025-05-09 07:04:56] Transaction VALIDÉE avec succès
+[2025-05-09 07:35:47] Projet prioritaire spécifié: Aucun
+[2025-05-09 07:35:47] Gestion des commandes partielles: Activée
+[2025-05-09 07:35:47] Entrée de produit: Autolac beige (ID: 1588, Code-barres: REPP-00012), Quantité: 1, Type d'entrée: commande, Fournisseur/Provenance: CGI
+[2025-05-09 07:35:47] 1 unités de Autolac beige ajoutées au stock général
+[2025-05-09 07:35:47] Mouvement de stock #1342 enregistré pour Autolac beige, quantité totale: 1, provenance: CGI
+[2025-05-09 07:35:47] Vérification des commandes partielles pour Autolac beige
+[2025-05-09 07:35:48] Nombre de commandes partielles trouvées pour Autolac beige: 0
+[2025-05-09 07:35:48] Recherche de commandes en attente pour 'Autolac beige', 0 trouvées.
+[2025-05-09 07:35:48] Mouvement de stock #1343 créé pour le reste non dispatché: 1 unités de Autolac beige (réussi à la tentative 1)
+[2025-05-09 07:35:48] Fin du traitement du mouvement #1342
+[2025-05-09 07:35:48] Transaction VALIDÉE avec succès
+[2025-05-09 07:42:11] Projet prioritaire spécifié: Aucun
+[2025-05-09 07:42:11] Gestion des commandes partielles: Activée
+[2025-05-09 07:42:11] Facture enregistrée avec ID: 122, Fichier: images.jpg
+[2025-05-09 07:42:11] Entrée de produit: Autolac beige (ID: 1588, Code-barres: REPP-00012), Quantité: 1, Type d'entrée: commande, Fournisseur/Provenance: CGI
+[2025-05-09 07:42:11] 1 unités de Autolac beige ajoutées au stock général
+[2025-05-09 07:42:11] Mouvement de stock #1344 enregistré pour Autolac beige, quantité totale: 1, provenance: CGI
+[2025-05-09 07:42:11] Vérification des commandes partielles pour Autolac beige
+[2025-05-09 07:42:11] Nombre de commandes partielles trouvées pour Autolac beige: 0
+[2025-05-09 07:42:11] Recherche de commandes en attente pour 'Autolac beige', 0 trouvées.
+[2025-05-09 07:42:11] Aucun reste après dispatching pour Autolac beige (quantité: 1, dispatché: 0)
+[2025-05-09 07:42:11] Fin du traitement du mouvement #1344
+[2025-05-09 07:42:11] Transaction VALIDÉE avec succès
+[2025-05-09 08:26:32] Projet prioritaire spécifié: Aucun
+[2025-05-09 08:26:32] Gestion des commandes partielles: Activée
+[2025-05-09 08:26:32] Entrée de produit: Autolac beige (ID: 1588, Code-barres: REPP-00012), Quantité: 1, Type d'entrée: commande, Fournisseur/Provenance: CGI
+[2025-05-09 08:26:32] 1 unités de Autolac beige ajoutées au stock général
+[2025-05-09 08:26:32] Mouvement de stock #1345 enregistré pour Autolac beige, quantité totale: 1, provenance: CGI
+[2025-05-09 08:26:32] Produit Autolac beige ajouté directement au stock général sans dispatching car son statut n'est ni 'validé' ni 'en_cours'
+[2025-05-09 08:26:32] Transaction VALIDÉE avec succès
+[2025-05-09 08:31:57] Projet prioritaire spécifié: Aucun
+[2025-05-09 08:31:57] Gestion des commandes partielles: Activée
+[2025-05-09 08:31:57] Facture enregistrée avec ID: 123, Fichier: images.jpg
+[2025-05-09 08:31:57] Entrée de produit: Autolac beige (ID: 1588, Code-barres: REPP-00012), Quantité: 1, Type d'entrée: commande, Fournisseur/Provenance: CGI
+[2025-05-09 08:31:57] Produit 'Autolac beige' a des commandes en attente mais aucune n'a un statut validé/en_cours - pas de dispatching
+[2025-05-09 08:31:57] 1 unités de Autolac beige ajoutées au stock général
+[2025-05-09 08:31:57] Mouvement de stock #1346 enregistré pour Autolac beige, quantité totale: 1, provenance: CGI
+[2025-05-09 08:31:57] Produit Autolac beige ajouté directement au stock général sans dispatching car son statut n'est ni 'validé' ni 'en_cours'
+[2025-05-09 08:31:57] Transaction VALIDÉE avec succès
+[2025-05-09 08:43:30] Projet prioritaire spécifié: Aucun
+[2025-05-09 08:43:30] Gestion des commandes partielles: Activée
+[2025-05-09 08:43:30] Facture enregistrée avec ID: 124, Fichier: images.jpg
+[2025-05-09 08:43:30] Entrée de produit: Autolac beige (ID: 1588, Code-barres: REPP-00012), Quantité: 1, Type d'entrée: commande, Fournisseur/Provenance: CGI
+[2025-05-09 08:43:30] Produit 'Autolac beige' a des commandes en attente mais aucune n'a un statut validé/en_cours - pas de dispatching
+[2025-05-09 08:43:30] 1 unités de Autolac beige ajoutées au stock général
+[2025-05-09 08:43:30] Mouvement de stock #1347 enregistré pour Autolac beige, quantité totale: 1, provenance: CGI
+[2025-05-09 08:43:30] Produit Autolac beige ajouté directement au stock général sans dispatching car son statut n'est ni 'validé' ni 'en_cours'
+[2025-05-09 08:43:30] Transaction VALIDÉE avec succès
+[2025-05-09 09:39:15] Projet prioritaire spécifié: Aucun
+[2025-05-09 09:39:15] Gestion des commandes partielles: Activée
+[2025-05-09 09:39:15] Facture enregistrée avec ID: 125, Fichier: facture.jpg
+[2025-05-09 09:39:15] Entrée de produit: produitB (ID: 2048, Code-barres: ELEC-00947), Quantité: 5, Type d'entrée: commande, Fournisseur/Provenance: Métaux Express
+[2025-05-09 09:39:15] Dispatching nécessaire pour 'produitB' - trouvé dans besoins avec statut validé/en_cours
+[2025-05-09 09:39:15] 5 unités de produitB ajoutées au stock général
+[2025-05-09 09:39:15] Mouvement de stock #1348 enregistré pour produitB, quantité totale: 5, provenance: Métaux Express
+[2025-05-09 09:39:15] Vérification des commandes partielles pour produitB
+[2025-05-09 09:39:15] Nombre de commandes partielles trouvées pour produitB: 1
+[2025-05-09 09:39:15] Traitement de la commande partielle #107 pour le projet SYS (Demande DYM FONCTIONNEMENT), Quantité commandée: 8
+[2025-05-09 09:39:15] Commande partielle #107 PARTIELLEMENT satisfaite, quantity_stock mise à jour: 6 (1 → 6), besoin total: 20
+[2025-05-09 09:39:15] Recherche de commandes en attente pour 'produitB', 0 trouvées.
+[2025-05-09 09:39:15] Aucun reste après dispatching pour produitB (quantité: 5, dispatché: 0)
+[2025-05-09 09:39:15] Fin du traitement du mouvement #1348
+[2025-05-09 09:39:15] Entrée de produit: Ampoule (ID: 1724, Code-barres: DIV-00135), Quantité: 3, Type d'entrée: commande, Fournisseur/Provenance: Métaux Express
+[2025-05-09 09:39:15] Dispatching nécessaire pour 'Ampoule' - trouvé dans besoins avec statut validé/en_cours
+[2025-05-09 09:39:15] 3 unités de Ampoule ajoutées au stock général
+[2025-05-09 09:39:15] Mouvement de stock #1349 enregistré pour Ampoule, quantité totale: 3, provenance: Métaux Express
+[2025-05-09 09:39:15] Vérification des commandes partielles pour Ampoule
+[2025-05-09 09:39:15] Nombre de commandes partielles trouvées pour Ampoule: 1
+[2025-05-09 09:39:15] Traitement de la commande partielle #108 pour le projet SYS (Demande DYM FONCTIONNEMENT), Quantité commandée: 5
+[2025-05-09 09:39:15] Commande partielle #108 PARTIELLEMENT satisfaite, quantity_stock mise à jour: 8 (5 → 8), besoin total: 23
+[2025-05-09 09:39:15] Recherche de commandes en attente pour 'Ampoule', 0 trouvées.
+[2025-05-09 09:39:15] Aucun reste après dispatching pour Ampoule (quantité: 3, dispatché: 0)
+[2025-05-09 09:39:15] Fin du traitement du mouvement #1349
+[2025-05-09 09:39:15] Transaction VALIDÉE avec succès
+[2025-05-09 12:14:45] Projet prioritaire spécifié: Aucun
+[2025-05-09 12:14:45] Gestion des commandes partielles: Activée
+[2025-05-09 12:14:45] Facture enregistrée avec ID: 126, Fichier: facture.jpg
+[2025-05-09 12:14:45] Entrée de produit: produitA (ID: 2047, Code-barres: ACC-00946), Quantité: 5, Type d'entrée: commande, Fournisseur/Provenance: CHEZ BEN
+[2025-05-09 12:14:45] Dispatching nécessaire pour 'produitA' - trouvé dans besoins avec statut validé/en_cours
+[2025-05-09 12:14:45] 5 unités de produitA ajoutées au stock général
+[2025-05-09 12:14:45] Mouvement de stock #1350 enregistré pour produitA, quantité totale: 5, provenance: CHEZ BEN
+[2025-05-09 12:14:45] Vérification des commandes partielles pour produitA
+[2025-05-09 12:14:45] Nombre de commandes partielles trouvées pour produitA: 1
+[2025-05-09 12:14:45] Traitement de la commande partielle #110 pour le projet SYS (Demande DYM FONCTIONNEMENT), Quantité commandée: 2
+[2025-05-09 12:14:45] Commande partielle #110 PARTIELLEMENT satisfaite, quantity_stock mise à jour: 8 (3 → 8), besoin total: 9
+[2025-05-09 12:14:45] Recherche de commandes en attente pour 'produitA', 0 trouvées.
+[2025-05-09 12:14:45] Aucun reste après dispatching pour produitA (quantité: 5, dispatché: 0)
+[2025-05-09 12:14:45] Fin du traitement du mouvement #1350
+[2025-05-09 12:14:45] Entrée de produit: produitB (ID: 2048, Code-barres: ELEC-00947), Quantité: 2, Type d'entrée: commande, Fournisseur/Provenance: CHEZ BEN
+[2025-05-09 12:14:45] Produit 'produitB' a des commandes en attente mais aucune n'a un statut validé/en_cours - pas de dispatching
+[2025-05-09 12:14:45] 2 unités de produitB ajoutées au stock général
+[2025-05-09 12:14:45] Mouvement de stock #1351 enregistré pour produitB, quantité totale: 2, provenance: CHEZ BEN
+[2025-05-09 12:14:45] Produit produitB ajouté directement au stock général sans dispatching car son statut n'est ni 'validé' ni 'en_cours'
+[2025-05-09 12:14:45] Transaction VALIDÉE avec succès
+[2025-05-09 13:41:19] Projet prioritaire spécifié: Aucun
+[2025-05-09 13:41:19] Gestion des commandes partielles: Activée
+[2025-05-09 13:41:19] Entrée de produit: produitA (ID: 2047, Code-barres: ACC-00946), Quantité: 1, Type d'entrée: commande, Fournisseur/Provenance: OutilMax
+[2025-05-09 13:41:19] Dispatching nécessaire pour 'produitA' - trouvé dans besoins avec statut validé/en_cours
+[2025-05-09 13:41:19] 1 unités de produitA ajoutées au stock général
+[2025-05-09 13:41:19] Mouvement de stock #1352 enregistré pour produitA, quantité totale: 1, provenance: OutilMax
+[2025-05-09 13:41:19] Vérification des commandes partielles pour produitA
+[2025-05-09 13:41:19] Nombre de commandes partielles trouvées pour produitA: 1
+[2025-05-09 13:41:19] Traitement de la commande partielle #110 pour le projet SYS (Demande DYM FONCTIONNEMENT), Quantité commandée: 4
+[2025-05-09 13:41:19] Commande partielle #110 PARTIELLEMENT satisfaite, quantity_stock mise à jour: 4 (3 → 4), besoin total: 9
+[2025-05-09 13:41:19] Recherche de commandes en attente pour 'produitA', 0 trouvées.
+[2025-05-09 13:41:19] Aucun reste après dispatching pour produitA (quantité: 1, dispatché: 0)
+[2025-05-09 13:41:19] Fin du traitement du mouvement #1352
+[2025-05-09 13:41:19] Transaction VALIDÉE avec succès
+[2025-05-09 13:53:59] Projet prioritaire spécifié: Aucun
+[2025-05-09 13:53:59] Gestion des commandes partielles: Activée
+[2025-05-09 13:53:59] Entrée de produit: produitA (ID: 2047, Code-barres: ACC-00946), Quantité: 1, Type d'entrée: commande, Fournisseur/Provenance: OutilMax
+[2025-05-09 13:53:59] Dispatching nécessaire pour 'produitA' - trouvé dans besoins avec statut validé/en_cours
+[2025-05-09 13:53:59] 1 unités de produitA ajoutées au stock général
+[2025-05-09 13:53:59] Mouvement de stock #1353 enregistré pour produitA, quantité totale: 1, provenance: OutilMax
+[2025-05-09 13:53:59] Vérification des commandes partielles pour produitA
+[2025-05-09 13:53:59] Nombre de commandes partielles trouvées pour produitA: 1
+[2025-05-09 13:53:59] Traitement de la commande partielle #110 pour le projet SYS (Demande DYM FONCTIONNEMENT), Quantité commandée: 4
+[2025-05-09 13:53:59] Commande partielle #110 PARTIELLEMENT satisfaite, quantity_stock mise à jour: 4 (3 → 4), besoin total: 9
+[2025-05-09 13:53:59] Recherche de commandes en attente pour 'produitA', 0 trouvées.
+[2025-05-09 13:53:59] Aucun reste après dispatching pour produitA (quantité: 1, dispatché: 0)
+[2025-05-09 13:53:59] Fin du traitement du mouvement #1353
+[2025-05-09 13:53:59] Transaction VALIDÉE avec succès
+[2025-05-09 14:10:38] Projet prioritaire spécifié: Aucun
+[2025-05-09 14:10:38] Gestion des commandes partielles: Activée
+[2025-05-09 14:10:38] Facture enregistrée avec ID: 127, Fichier: images.jpg
+[2025-05-09 14:10:38] Entrée de produit: produitA (ID: 2047, Code-barres: ACC-00946), Quantité: 1, Type d'entrée: commande, Fournisseur/Provenance: OutilMax
+[2025-05-09 14:10:38] Dispatching nécessaire pour 'produitA' - trouvé dans besoins avec statut validé/en_cours
+[2025-05-09 14:10:38] 1 unités de produitA ajoutées au stock général
+[2025-05-09 14:10:38] Mouvement de stock #1354 enregistré pour produitA, quantité totale: 1, provenance: OutilMax
+[2025-05-09 14:10:38] Vérification des commandes partielles pour produitA
+[2025-05-09 14:10:38] Nombre de commandes partielles trouvées pour produitA: 1
+[2025-05-09 14:10:38] Traitement de la commande partielle #110 pour le projet SYS (Demande DYM FONCTIONNEMENT), Quantité commandée: 4
+[2025-05-09 14:10:38] Commande partielle #110 PARTIELLEMENT satisfaite, quantity_stock mise à jour: 5 (4 → 5), besoin total: 9
+[2025-05-09 14:10:38] Recherche de commandes en attente pour 'produitA', 0 trouvées.
+[2025-05-09 14:10:38] Aucun reste après dispatching pour produitA (quantité: 1, dispatché: 0)
+[2025-05-09 14:10:38] Fin du traitement du mouvement #1354
+[2025-05-09 14:10:38] Transaction VALIDÉE avec succès
+[2025-05-10 11:02:47] Projet prioritaire spécifié: Aucun
+[2025-05-10 11:02:47] Gestion des commandes partielles: Activée
+[2025-05-10 11:02:47] Entrée de produit: Disque à Poncer Inox ø85x15x10 (ID: 1333, Code-barres: OMDP-00094), Quantité: 20, Type d'entrée: autre, Fournisseur/Provenance: DYM BIENGRVEIILE 
+[2025-05-10 11:02:47] Aucune commande en attente trouvée pour 'Disque à Poncer Inox ø85x15x10' - pas de dispatching nécessaire
+[2025-05-10 11:02:47] 20 unités de Disque à Poncer Inox ø85x15x10 ajoutées au stock général
+[2025-05-10 11:02:47] Mouvement de stock #1888 enregistré pour Disque à Poncer Inox ø85x15x10, quantité totale: 20, provenance: DYM BIENGRVEIILE 
+[2025-05-10 11:02:47] Produit Disque à Poncer Inox ø85x15x10 ajouté directement au stock général sans dispatching car son statut n'est ni 'validé' ni 'en_cours'
+[2025-05-10 11:02:47] Transaction VALIDÉE avec succès
+[2025-05-10 11:19:17] Projet prioritaire spécifié: Aucun
+[2025-05-10 11:19:17] Gestion des commandes partielles: Activée
+[2025-05-10 11:19:17] Entrée de produit: Tôle Plane Galva 1x2x20/10 mm (ID: 38, Code-barres: MAFE-00027), Quantité: 10, Type d'entrée: autre, Fournisseur/Provenance: FADIGA
+[2025-05-10 11:19:17] Dispatching nécessaire pour 'Tôle Plane Galva 1x2x20/10 mm' - trouvé dans expression_dym avec statut validé/en_cours
+[2025-05-10 11:19:17] 10 unités de Tôle Plane Galva 1x2x20/10 mm ajoutées au stock général
+[2025-05-10 11:19:17] Mouvement de stock #1896 enregistré pour Tôle Plane Galva 1x2x20/10 mm, quantité totale: 10, provenance: FADIGA
+[2025-05-10 11:19:17] Vérification des commandes partielles pour Tôle Plane Galva 1x2x20/10 mm
+[2025-05-10 11:19:17] ERREUR: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'b.quantity_dispatch_stock' in 'field list'
+[2025-05-10 11:19:41] Projet prioritaire spécifié: Aucun
+[2025-05-10 11:19:41] Gestion des commandes partielles: Activée
+[2025-05-10 11:19:41] Entrée de produit: Tôle Plane Galva 1x2x20/10 mm (ID: 38, Code-barres: MAFE-00027), Quantité: 10, Type d'entrée: autre, Fournisseur/Provenance: FADIGA
+[2025-05-10 11:19:41] Dispatching nécessaire pour 'Tôle Plane Galva 1x2x20/10 mm' - trouvé dans expression_dym avec statut validé/en_cours
+[2025-05-10 11:19:41] 10 unités de Tôle Plane Galva 1x2x20/10 mm ajoutées au stock général
+[2025-05-10 11:19:41] Mouvement de stock #1897 enregistré pour Tôle Plane Galva 1x2x20/10 mm, quantité totale: 10, provenance: FADIGA
+[2025-05-10 11:19:41] Vérification des commandes partielles pour Tôle Plane Galva 1x2x20/10 mm
+[2025-05-10 11:19:41] ERREUR: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'b.quantity_dispatch_stock' in 'field list'
+[2025-05-10 11:19:55] Projet prioritaire spécifié: Aucun
+[2025-05-10 11:19:55] Gestion des commandes partielles: Activée
+[2025-05-10 11:19:55] Entrée de produit: Tôle Plane Galva 1x2x20/10 mm (ID: 38, Code-barres: MAFE-00027), Quantité: 10, Type d'entrée: autre, Fournisseur/Provenance: FADIGA
+[2025-05-10 11:19:55] Dispatching nécessaire pour 'Tôle Plane Galva 1x2x20/10 mm' - trouvé dans expression_dym avec statut validé/en_cours
+[2025-05-10 11:19:55] 10 unités de Tôle Plane Galva 1x2x20/10 mm ajoutées au stock général
+[2025-05-10 11:19:55] Mouvement de stock #1898 enregistré pour Tôle Plane Galva 1x2x20/10 mm, quantité totale: 10, provenance: FADIGA
+[2025-05-10 11:19:55] Vérification des commandes partielles pour Tôle Plane Galva 1x2x20/10 mm
+[2025-05-10 11:19:55] ERREUR: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'b.quantity_dispatch_stock' in 'field list'
+[2025-05-10 11:20:23] Projet prioritaire spécifié: Aucun
+[2025-05-10 11:20:23] Gestion des commandes partielles: Activée
+[2025-05-10 11:20:23] Entrée de produit: Tôle Plane Galva 1x2x20/10 mm (ID: 38, Code-barres: MAFE-00027), Quantité: 10, Type d'entrée: autre, Fournisseur/Provenance: FADIGA
+[2025-05-10 11:20:23] Dispatching nécessaire pour 'Tôle Plane Galva 1x2x20/10 mm' - trouvé dans expression_dym avec statut validé/en_cours
+[2025-05-10 11:20:23] 10 unités de Tôle Plane Galva 1x2x20/10 mm ajoutées au stock général
+[2025-05-10 11:20:23] Mouvement de stock #1899 enregistré pour Tôle Plane Galva 1x2x20/10 mm, quantité totale: 10, provenance: FADIGA
+[2025-05-10 11:20:23] Vérification des commandes partielles pour Tôle Plane Galva 1x2x20/10 mm
+[2025-05-10 11:20:23] ERREUR: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'b.quantity_dispatch_stock' in 'field list'
+[2025-05-10 11:50:33] Projet prioritaire spécifié: Aucun
+[2025-05-10 11:50:33] Gestion des commandes partielles: Activée
+[2025-05-10 11:50:33] Entrée de produit: Tube Rectangulaire Galva 40x20x15/10 mm (ID: 238, Code-barres: MAFE-00227), Quantité: 8, Type d'entrée: commande, Fournisseur/Provenance: Mamah kemeta
+[2025-05-10 11:50:33] Dispatching nécessaire pour 'Tube Rectangulaire Galva 40x20x15/10 mm' - trouvé dans expression_dym avec statut validé/en_cours
+[2025-05-10 11:50:33] 8 unités de Tube Rectangulaire Galva 40x20x15/10 mm ajoutées au stock général
+[2025-05-10 11:50:33] Mouvement de stock #1909 enregistré pour Tube Rectangulaire Galva 40x20x15/10 mm, quantité totale: 8, provenance: Mamah kemeta
+[2025-05-10 11:50:33] Vérification des commandes partielles pour Tube Rectangulaire Galva 40x20x15/10 mm
+[2025-05-10 11:50:33] ERREUR: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'b.quantity_dispatch_stock' in 'field list'
+[2025-05-10 11:51:43] Projet prioritaire spécifié: Aucun
+[2025-05-10 11:51:43] Gestion des commandes partielles: Activée
+[2025-05-10 11:51:43] Entrée de produit: Tube Carré Galva 50x50x20/10 mm (ID: 129, Code-barres: MAFE-00118), Quantité: 1, Type d'entrée: commande, Fournisseur/Provenance: Mamah kemeta
+[2025-05-10 11:51:43] Dispatching nécessaire pour 'Tube Carré Galva 50x50x20/10 mm' - trouvé dans expression_dym avec statut validé/en_cours
+[2025-05-10 11:51:43] 1 unités de Tube Carré Galva 50x50x20/10 mm ajoutées au stock général
+[2025-05-10 11:51:43] Mouvement de stock #1910 enregistré pour Tube Carré Galva 50x50x20/10 mm, quantité totale: 1, provenance: Mamah kemeta
+[2025-05-10 11:51:43] Vérification des commandes partielles pour Tube Carré Galva 50x50x20/10 mm
+[2025-05-10 11:51:43] ERREUR: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'b.quantity_dispatch_stock' in 'field list'
+[2025-05-10 11:51:48] Projet prioritaire spécifié: Aucun
+[2025-05-10 11:51:48] Gestion des commandes partielles: Activée
+[2025-05-10 11:51:48] Entrée de produit: Tube Carré Galva 50x50x20/10 mm (ID: 129, Code-barres: MAFE-00118), Quantité: 1, Type d'entrée: commande, Fournisseur/Provenance: Mamah kemeta
+[2025-05-10 11:51:48] Dispatching nécessaire pour 'Tube Carré Galva 50x50x20/10 mm' - trouvé dans expression_dym avec statut validé/en_cours
+[2025-05-10 11:51:48] 1 unités de Tube Carré Galva 50x50x20/10 mm ajoutées au stock général
+[2025-05-10 11:51:48] Mouvement de stock #1911 enregistré pour Tube Carré Galva 50x50x20/10 mm, quantité totale: 1, provenance: Mamah kemeta
+[2025-05-10 11:51:48] Vérification des commandes partielles pour Tube Carré Galva 50x50x20/10 mm
+[2025-05-10 11:51:48] ERREUR: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'b.quantity_dispatch_stock' in 'field list'
+[2025-05-10 11:52:11] Projet prioritaire spécifié: P018-02-25-V0/M
+[2025-05-10 11:52:11] Gestion des commandes partielles: Activée
+[2025-05-10 11:52:11] Entrée de produit: Tube Carré Galva 50x50x20/10 mm (ID: 129, Code-barres: MAFE-00118), Quantité: 1, Type d'entrée: commande, Fournisseur/Provenance: Mamah kemeta
+[2025-05-10 11:52:11] Dispatching nécessaire pour 'Tube Carré Galva 50x50x20/10 mm' - trouvé dans expression_dym avec statut validé/en_cours
+[2025-05-10 11:52:11] 1 unités de Tube Carré Galva 50x50x20/10 mm ajoutées au stock général
+[2025-05-10 11:52:11] Mouvement de stock #1912 enregistré pour Tube Carré Galva 50x50x20/10 mm, quantité totale: 1, provenance: Mamah kemeta
+[2025-05-10 11:52:11] Vérification des commandes partielles pour Tube Carré Galva 50x50x20/10 mm
+[2025-05-10 11:52:11] ERREUR: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'b.quantity_dispatch_stock' in 'field list'
+[2025-05-10 11:52:35] Projet prioritaire spécifié: P018-02-25-V0/M
+[2025-05-10 11:52:35] Gestion des commandes partielles: Activée
+[2025-05-10 11:52:35] Entrée de produit: Tube Carré Galva 50x50x20/10 mm (ID: 129, Code-barres: MAFE-00118), Quantité: 1, Type d'entrée: commande, Fournisseur/Provenance: Mamah kemeta
+[2025-05-10 11:52:35] Dispatching nécessaire pour 'Tube Carré Galva 50x50x20/10 mm' - trouvé dans expression_dym avec statut validé/en_cours
+[2025-05-10 11:52:35] 1 unités de Tube Carré Galva 50x50x20/10 mm ajoutées au stock général
+[2025-05-10 11:52:35] Mouvement de stock #1913 enregistré pour Tube Carré Galva 50x50x20/10 mm, quantité totale: 1, provenance: Mamah kemeta
+[2025-05-10 11:52:35] Vérification des commandes partielles pour Tube Carré Galva 50x50x20/10 mm
+[2025-05-10 11:52:35] ERREUR: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'b.quantity_dispatch_stock' in 'field list'
+[2025-05-10 11:52:43] Projet prioritaire spécifié: P018-02-25-V0/M
+[2025-05-10 11:52:43] Gestion des commandes partielles: Activée
+[2025-05-10 11:52:43] Entrée de produit: Tube Carré Galva 50x50x20/10 mm (ID: 129, Code-barres: MAFE-00118), Quantité: 1, Type d'entrée: commande, Fournisseur/Provenance: Mamah kemeta
+[2025-05-10 11:52:43] Dispatching nécessaire pour 'Tube Carré Galva 50x50x20/10 mm' - trouvé dans expression_dym avec statut validé/en_cours
+[2025-05-10 11:52:43] 1 unités de Tube Carré Galva 50x50x20/10 mm ajoutées au stock général
+[2025-05-10 11:52:43] Mouvement de stock #1914 enregistré pour Tube Carré Galva 50x50x20/10 mm, quantité totale: 1, provenance: Mamah kemeta
+[2025-05-10 11:52:43] Vérification des commandes partielles pour Tube Carré Galva 50x50x20/10 mm
+[2025-05-10 11:52:43] ERREUR: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'b.quantity_dispatch_stock' in 'field list'
+[2025-05-10 11:53:07] Projet prioritaire spécifié: P018-02-25-V0/M
+[2025-05-10 11:53:07] Gestion des commandes partielles: Activée
+[2025-05-10 11:53:07] Entrée de produit: Tube Carré Galva 50x50x20/10 mm (ID: 129, Code-barres: MAFE-00118), Quantité: 1, Type d'entrée: commande, Fournisseur/Provenance: Mamah kemeta
+[2025-05-10 11:53:07] Dispatching nécessaire pour 'Tube Carré Galva 50x50x20/10 mm' - trouvé dans expression_dym avec statut validé/en_cours
+[2025-05-10 11:53:07] 1 unités de Tube Carré Galva 50x50x20/10 mm ajoutées au stock général
+[2025-05-10 11:53:07] Mouvement de stock #1915 enregistré pour Tube Carré Galva 50x50x20/10 mm, quantité totale: 1, provenance: Mamah kemeta
+[2025-05-10 11:53:07] Vérification des commandes partielles pour Tube Carré Galva 50x50x20/10 mm
+[2025-05-10 11:53:07] ERREUR: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'b.quantity_dispatch_stock' in 'field list'
+[2025-05-10 11:59:07] Projet prioritaire spécifié: P018-02-25-V0/M
+[2025-05-10 11:59:07] Gestion des commandes partielles: Activée
+[2025-05-10 11:59:07] Entrée de produit: Tôle Plane Galva 1x2x20/10 mm (ID: 38, Code-barres: MAFE-00027), Quantité: 7, Type d'entrée: commande, Fournisseur/Provenance: Ferro
+[2025-05-10 11:59:07] Dispatching nécessaire pour 'Tôle Plane Galva 1x2x20/10 mm' - trouvé dans expression_dym avec statut validé/en_cours
+[2025-05-10 11:59:07] 7 unités de Tôle Plane Galva 1x2x20/10 mm ajoutées au stock général
+[2025-05-10 11:59:07] Mouvement de stock #1916 enregistré pour Tôle Plane Galva 1x2x20/10 mm, quantité totale: 7, provenance: Ferro
+[2025-05-10 11:59:07] Vérification des commandes partielles pour Tôle Plane Galva 1x2x20/10 mm
+[2025-05-10 11:59:07] ERREUR: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'b.quantity_dispatch_stock' in 'field list'
+[2025-05-10 12:03:14] Projet prioritaire spécifié: P018-02-25-V0/M
+[2025-05-10 12:03:14] Gestion des commandes partielles: Activée
+[2025-05-10 12:03:14] Entrée de produit: Tôle Plane Galva 1x2x20/10 mm (ID: 38, Code-barres: MAFE-00027), Quantité: 7, Type d'entrée: commande, Fournisseur/Provenance: Ferro
+[2025-05-10 12:03:14] Dispatching nécessaire pour 'Tôle Plane Galva 1x2x20/10 mm' - trouvé dans expression_dym avec statut validé/en_cours
+[2025-05-10 12:03:14] 7 unités de Tôle Plane Galva 1x2x20/10 mm ajoutées au stock général
+[2025-05-10 12:03:14] Mouvement de stock #1917 enregistré pour Tôle Plane Galva 1x2x20/10 mm, quantité totale: 7, provenance: Ferro
+[2025-05-10 12:03:14] Vérification des commandes partielles pour Tôle Plane Galva 1x2x20/10 mm
+[2025-05-10 12:03:14] Nombre de commandes partielles trouvées pour Tôle Plane Galva 1x2x20/10 mm: 0
+[2025-05-10 12:03:14] Requête modifiée pour prioriser le projet: P018-02-25-V0/M
+[2025-05-10 12:03:14] Recherche de commandes en attente pour 'Tôle Plane Galva 1x2x20/10 mm', 1 trouvées.
+[2025-05-10 12:03:14] Traitement de la commande #82 (source: expression_dym) pour le projet P018-02-25-V0/M (Mme COULIBALY), Quantité commandée: 7
+[2025-05-10 12:03:14] Vérification de la commande: quantity_stock=7, besoin total=7, statut: COMPLET
+[2025-05-10 12:03:14] Entrée #6176 dans expression_dym mise à jour, quantity_stock: 7 (0 → 7)
+[2025-05-10 12:03:14] Commande #82 COMPLÉTÉE et marquée comme 'reçu'
+[2025-05-10 12:03:14] Aucun reste après dispatching pour Tôle Plane Galva 1x2x20/10 mm (quantité: 7, dispatché: 7)
+[2025-05-10 12:03:14] Fournisseur mis à jour pour la commande #82: Ferro
+[2025-05-10 12:03:14] Fin du traitement du mouvement #1917
+[2025-05-10 12:03:14] Transaction VALIDÉE avec succès
+[2025-05-10 12:07:35] Projet prioritaire spécifié: P018-02-25-V0/M
+[2025-05-10 12:07:35] Gestion des commandes partielles: Activée
+[2025-05-10 12:07:35] Entrée de produit: Tôle Plane Noire 1x2x15/10 mm (ID: 15, Code-barres: MAFE-00004), Quantité: 1, Type d'entrée: commande, Fournisseur/Provenance: Ferro
+[2025-05-10 12:07:35] Dispatching nécessaire pour 'Tôle Plane Noire 1x2x15/10 mm' - trouvé dans expression_dym avec statut validé/en_cours
+[2025-05-10 12:07:35] 1 unités de Tôle Plane Noire 1x2x15/10 mm ajoutées au stock général
+[2025-05-10 12:07:35] Mouvement de stock #1918 enregistré pour Tôle Plane Noire 1x2x15/10 mm, quantité totale: 1, provenance: Ferro
+[2025-05-10 12:07:35] Vérification des commandes partielles pour Tôle Plane Noire 1x2x15/10 mm
+[2025-05-10 12:07:35] Nombre de commandes partielles trouvées pour Tôle Plane Noire 1x2x15/10 mm: 0
+[2025-05-10 12:07:35] Requête modifiée pour prioriser le projet: P018-02-25-V0/M
+[2025-05-10 12:07:35] Recherche de commandes en attente pour 'Tôle Plane Noire 1x2x15/10 mm', 1 trouvées.
+[2025-05-10 12:07:35] Traitement de la commande #83 (source: expression_dym) pour le projet P018-02-25-V0/M (Mme COULIBALY), Quantité commandée: 1
+[2025-05-10 12:07:35] Vérification de la commande: quantity_stock=1, besoin total=1, statut: COMPLET
+[2025-05-10 12:07:35] Entrée #6177 dans expression_dym mise à jour, quantity_stock: 1 (0 → 1)
+[2025-05-10 12:07:35] Commande #83 COMPLÉTÉE et marquée comme 'reçu'
+[2025-05-10 12:07:35] Aucun reste après dispatching pour Tôle Plane Noire 1x2x15/10 mm (quantité: 1, dispatché: 1)
+[2025-05-10 12:07:35] Fournisseur mis à jour pour la commande #83: Ferro
+[2025-05-10 12:07:35] Fin du traitement du mouvement #1918
+[2025-05-10 12:07:35] Transaction VALIDÉE avec succès
+[2025-05-13 10:25:47] Projet prioritaire spécifié: Aucun
+[2025-05-13 10:25:47] Gestion des commandes partielles: Activée
+[2025-05-13 10:25:47] Entrée de produit: Fer Rond Noir ø 30 mm (ID: 661, Code-barres: MAFE-00650), Quantité: 1, Type d'entrée: commande, Fournisseur/Provenance: Ferro
+[2025-05-13 10:25:47] Dispatching nécessaire pour 'Fer Rond Noir ø 30 mm' - trouvé dans expression_dym avec statut validé/en_cours
+[2025-05-13 10:25:47] 1 unités de Fer Rond Noir ø 30 mm ajoutées au stock général
+[2025-05-13 10:25:47] Mouvement de stock #1938 enregistré pour Fer Rond Noir ø 30 mm, quantité totale: 1, provenance: Ferro
+[2025-05-13 10:25:47] Vérification des commandes partielles pour Fer Rond Noir ø 30 mm
+[2025-05-13 10:25:47] Nombre de commandes partielles trouvées pour Fer Rond Noir ø 30 mm: 0
+[2025-05-13 10:25:47] Recherche de commandes en attente pour 'Fer Rond Noir ø 30 mm', 1 trouvées.
+[2025-05-13 10:25:47] Traitement de la commande #84 (source: expression_dym) pour le projet 2503030 (TORREFACTEUR DE BIOCHAR), Quantité commandée: 0.5
+[2025-05-13 10:25:47] Vérification de la commande: quantity_stock=0.5, besoin total=0.5, statut: COMPLET
+[2025-05-13 10:25:47] Entrée #5859 dans expression_dym mise à jour, quantity_stock: 0.5 (0 → 0.5)
+[2025-05-13 10:25:47] Commande #84 COMPLÉTÉE et marquée comme 'reçu'
+[2025-05-13 10:25:47] Mouvement de stock #1939 créé pour le reste non dispatché: 0.5 unités de Fer Rond Noir ø 30 mm (réussi à la tentative 1)
+[2025-05-13 10:25:47] Fournisseur mis à jour pour la commande #84: Ferro
+[2025-05-13 10:25:47] Fin du traitement du mouvement #1938
+[2025-05-13 10:25:47] Transaction VALIDÉE avec succès
+[2025-05-13 10:26:57] Projet prioritaire spécifié: Aucun
+[2025-05-13 10:26:57] Gestion des commandes partielles: Activée
+[2025-05-13 10:26:57] Entrée de produit: Tube Carré Galva 50x50x20/10 mm (ID: 129, Code-barres: MAFE-00118), Quantité: 1, Type d'entrée: commande, Fournisseur/Provenance: Mamah kemeta
+[2025-05-13 10:26:57] Dispatching nécessaire pour 'Tube Carré Galva 50x50x20/10 mm' - trouvé dans expression_dym avec statut validé/en_cours
+[2025-05-13 10:26:57] 1 unités de Tube Carré Galva 50x50x20/10 mm ajoutées au stock général
+[2025-05-13 10:26:57] Mouvement de stock #1940 enregistré pour Tube Carré Galva 50x50x20/10 mm, quantité totale: 1, provenance: Mamah kemeta
+[2025-05-13 10:26:57] Vérification des commandes partielles pour Tube Carré Galva 50x50x20/10 mm
+[2025-05-13 10:26:57] Nombre de commandes partielles trouvées pour Tube Carré Galva 50x50x20/10 mm: 0
+[2025-05-13 10:26:57] Recherche de commandes en attente pour 'Tube Carré Galva 50x50x20/10 mm', 1 trouvées.
+[2025-05-13 10:26:57] Traitement de la commande #85 (source: expression_dym) pour le projet P018-02-25-V0/M (Mme COULIBALY), Quantité commandée: 1
+[2025-05-13 10:26:57] Vérification de la commande: quantity_stock=1, besoin total=1, statut: COMPLET
+[2025-05-13 10:26:57] Entrée #6174 dans expression_dym mise à jour, quantity_stock: 1 (0 → 1)
+[2025-05-13 10:26:57] Commande #85 COMPLÉTÉE et marquée comme 'reçu'
+[2025-05-13 10:26:57] Aucun reste après dispatching pour Tube Carré Galva 50x50x20/10 mm (quantité: 1, dispatché: 1)
+[2025-05-13 10:26:57] Fournisseur mis à jour pour la commande #85: Mamah kemeta
+[2025-05-13 10:26:57] Fin du traitement du mouvement #1940
+[2025-05-13 10:26:57] Transaction VALIDÉE avec succès
+[2025-05-13 10:30:36] Projet prioritaire spécifié: P018-02-25-V0/M
+[2025-05-13 10:30:36] Gestion des commandes partielles: Activée
+[2025-05-13 10:30:36] Entrée de produit: Tube Rectangulaire Galva 40x20x15/10 mm (ID: 238, Code-barres: MAFE-00227), Quantité: 8, Type d'entrée: commande, Fournisseur/Provenance: Mamah kemeta
+[2025-05-13 10:30:36] Dispatching nécessaire pour 'Tube Rectangulaire Galva 40x20x15/10 mm' - trouvé dans expression_dym avec statut validé/en_cours
+[2025-05-13 10:30:36] 8 unités de Tube Rectangulaire Galva 40x20x15/10 mm ajoutées au stock général
+[2025-05-13 10:30:36] Mouvement de stock #1941 enregistré pour Tube Rectangulaire Galva 40x20x15/10 mm, quantité totale: 8, provenance: Mamah kemeta
+[2025-05-13 10:30:36] Vérification des commandes partielles pour Tube Rectangulaire Galva 40x20x15/10 mm
+[2025-05-13 10:30:36] Nombre de commandes partielles trouvées pour Tube Rectangulaire Galva 40x20x15/10 mm: 0
+[2025-05-13 10:30:36] Requête modifiée pour prioriser le projet: P018-02-25-V0/M
+[2025-05-13 10:30:36] Recherche de commandes en attente pour 'Tube Rectangulaire Galva 40x20x15/10 mm', 1 trouvées.
+[2025-05-13 10:30:36] Traitement de la commande #86 (source: expression_dym) pour le projet P018-02-25-V0/M (Mme COULIBALY), Quantité commandée: 8
+[2025-05-13 10:30:36] Vérification de la commande: quantity_stock=8, besoin total=8, statut: COMPLET
+[2025-05-13 10:30:36] Entrée #6175 dans expression_dym mise à jour, quantity_stock: 8 (0 → 8)
+[2025-05-13 10:30:36] Commande #86 COMPLÉTÉE et marquée comme 'reçu'
+[2025-05-13 10:30:36] Aucun reste après dispatching pour Tube Rectangulaire Galva 40x20x15/10 mm (quantité: 8, dispatché: 8)
+[2025-05-13 10:30:36] Fournisseur mis à jour pour la commande #86: Mamah kemeta
+[2025-05-13 10:30:36] Fin du traitement du mouvement #1941
+[2025-05-13 10:30:36] Transaction VALIDÉE avec succès
+[2025-05-13 10:34:51] Projet prioritaire spécifié: Aucun
+[2025-05-13 10:34:52] Gestion des commandes partielles: Activée
+[2025-05-13 10:34:52] Entrée de produit: Fiche Femelle 220 V (ID: 2373, Code-barres: ACC-01112), Quantité: 10, Type d'entrée: commande, Fournisseur/Provenance: DMD
+[2025-05-13 10:34:52] Dispatching nécessaire pour 'Fiche Femelle 220 V' - trouvé dans expression_dym avec statut validé/en_cours
+[2025-05-13 10:34:52] 10 unités de Fiche Femelle 220 V ajoutées au stock général
+[2025-05-13 10:34:52] Mouvement de stock #1942 enregistré pour Fiche Femelle 220 V, quantité totale: 10, provenance: DMD
+[2025-05-13 10:34:52] Vérification des commandes partielles pour Fiche Femelle 220 V
+[2025-05-13 10:34:52] Nombre de commandes partielles trouvées pour Fiche Femelle 220 V: 0
+[2025-05-13 10:34:52] Recherche de commandes en attente pour 'Fiche Femelle 220 V', 1 trouvées.
+[2025-05-13 10:34:52] Traitement de la commande #78 (source: expression_dym) pour le projet P163-05-25-V0-M (DYM FONCTIONEMENT), Quantité commandée: 10
+[2025-05-13 10:34:52] Vérification de la commande: quantity_stock=10, besoin total=10, statut: COMPLET
+[2025-05-13 10:34:52] Entrée #6172 dans expression_dym mise à jour, quantity_stock: 10 (0 → 10)
+[2025-05-13 10:34:52] Commande #78 COMPLÉTÉE et marquée comme 'reçu'
+[2025-05-13 10:34:52] Aucun reste après dispatching pour Fiche Femelle 220 V (quantité: 10, dispatché: 10)
+[2025-05-13 10:34:52] Fournisseur mis à jour pour la commande #78: DMD
+[2025-05-13 10:34:52] Fin du traitement du mouvement #1942
+[2025-05-13 10:34:52] Transaction VALIDÉE avec succès
+[2025-05-13 15:36:47] Projet prioritaire spécifié: Aucun
+[2025-05-13 15:36:47] Gestion des commandes partielles: Activée
+[2025-05-13 15:36:47] Entrée de produit: Cache Nez (ID: 1875, Code-barres: DIV-00143), Quantité: 20, Type d'entrée: commande, Fournisseur/Provenance: China Mall
+[2025-05-13 15:36:47] Dispatching nécessaire pour 'Cache Nez' - trouvé dans besoins avec statut validé/en_cours
+[2025-05-13 15:36:47] 20 unités de Cache Nez ajoutées au stock général
+[2025-05-13 15:36:47] Mouvement de stock #1953 enregistré pour Cache Nez, quantité totale: 20, provenance: China Mall
+[2025-05-13 15:36:47] Vérification des commandes partielles pour Cache Nez
+[2025-05-13 15:36:47] Nombre de commandes partielles trouvées pour Cache Nez: 0
+[2025-05-13 15:36:47] Recherche de commandes en attente pour 'Cache Nez', 1 trouvées.
+[2025-05-13 15:36:47] Traitement de la commande #112 (source: besoins) pour le projet SYS (Demande DYM FONCTIONNEMENT), Quantité commandée: 20
+[2025-05-13 15:36:47] Vérification de la commande: quantity_stock=20, besoin total=20, statut: COMPLET
+[2025-05-13 15:36:47] Entrée #135 dans besoins mise à jour, quantity_stock: 20 (0 → 20)
+[2025-05-13 15:36:47] Commande #112 COMPLÉTÉE et marquée comme 'reçu'
+[2025-05-13 15:36:47] Aucun reste après dispatching pour Cache Nez (quantité: 20, dispatché: 20)
+[2025-05-13 15:36:47] Fournisseur mis à jour pour la commande #112: China Mall
+[2025-05-13 15:36:47] Fin du traitement du mouvement #1953
+[2025-05-13 15:36:47] Transaction VALIDÉE avec succès
+[2025-05-13 15:38:19] Projet prioritaire spécifié: Aucun
+[2025-05-13 15:38:19] Gestion des commandes partielles: Activée
+[2025-05-13 15:38:19] Entrée de produit: Gazoil (ID: 2254, Code-barres: ACC-01079), Quantité: 40, Type d'entrée: commande, Fournisseur/Provenance: STATION TOTAL CHU ANGRE
+[2025-05-13 15:38:19] Dispatching nécessaire pour 'Gazoil' - trouvé dans besoins avec statut validé/en_cours
+[2025-05-13 15:38:19] 40 unités de Gazoil ajoutées au stock général
+[2025-05-13 15:38:19] Mouvement de stock #1955 enregistré pour Gazoil, quantité totale: 40, provenance: STATION TOTAL CHU ANGRE
+[2025-05-13 15:38:19] Vérification des commandes partielles pour Gazoil
+[2025-05-13 15:38:19] Nombre de commandes partielles trouvées pour Gazoil: 0
+[2025-05-13 15:38:19] Recherche de commandes en attente pour 'Gazoil', 1 trouvées.
+[2025-05-13 15:38:19] Traitement de la commande #110 (source: besoins) pour le projet SYS (Demande Kouko Armand Michel), Quantité commandée: 40
+[2025-05-13 15:38:19] Vérification de la commande: quantity_stock=40, besoin total=40, statut: COMPLET
+[2025-05-13 15:38:19] Entrée #128 dans besoins mise à jour, quantity_stock: 40 (0 → 40)
+[2025-05-13 15:38:19] Commande #110 COMPLÉTÉE et marquée comme 'reçu'
+[2025-05-13 15:38:19] Aucun reste après dispatching pour Gazoil (quantité: 40, dispatché: 40)
+[2025-05-13 15:38:19] Fournisseur mis à jour pour la commande #110: STATION TOTAL CHU ANGRE
+[2025-05-13 15:38:19] Fin du traitement du mouvement #1955
+[2025-05-13 15:38:19] Transaction VALIDÉE avec succès
+[2025-05-13 15:49:00] Projet prioritaire spécifié: Aucun
+[2025-05-13 15:49:00] Gestion des commandes partielles: Activée
+[2025-05-13 15:49:00] Entrée de produit: Serrure encastre simple (ID: 840, Code-barres: ACC-00047), Quantité: 1, Type d'entrée: commande, Fournisseur/Provenance: Quincaillerie Chez Djibril
+[2025-05-13 15:49:00] Dispatching nécessaire pour 'Serrure encastre simple' - trouvé dans besoins avec statut validé/en_cours
+[2025-05-13 15:49:00] 1 unités de Serrure encastre simple ajoutées au stock général
+[2025-05-13 15:49:00] Mouvement de stock #1957 enregistré pour Serrure encastre simple, quantité totale: 1, provenance: Quincaillerie Chez Djibril
+[2025-05-13 15:49:00] Vérification des commandes partielles pour Serrure encastre simple
+[2025-05-13 15:49:00] Nombre de commandes partielles trouvées pour Serrure encastre simple: 0
+[2025-05-13 15:49:00] Recherche de commandes en attente pour 'Serrure encastre simple', 1 trouvées.
+[2025-05-13 15:49:00] Traitement de la commande #111 (source: besoins) pour le projet SYS (Demande DYM FONCTIONNEMENT), Quantité commandée: 2
+[2025-05-13 15:49:00] Vérification de la commande: quantity_stock=1, besoin total=2, statut: PARTIEL
+[2025-05-13 15:49:00] Entrée #144 dans besoins mise à jour, quantity_stock: 1 (0 → 1)
+[2025-05-13 15:49:00] Commande #111 PARTIELLEMENT satisfaite
+[2025-05-13 15:49:00] Aucun reste après dispatching pour Serrure encastre simple (quantité: 1, dispatché: 1)
+[2025-05-13 15:49:00] Fournisseur mis à jour pour la commande #111: Quincaillerie Chez Djibril
+[2025-05-13 15:49:00] Fin du traitement du mouvement #1957
+[2025-05-13 15:49:00] Transaction VALIDÉE avec succès
+[2025-05-19 22:28:13] Projet prioritaire spécifié: Aucun
+[2025-05-19 22:28:13] Gestion des commandes partielles: Activée
+[2025-05-19 22:28:13] Facture enregistrée avec ID: 128, Fichier: facture.jpg
+[2025-05-19 22:28:13] Entrée de produit: Croche de pano (ID: 1839, Code-barres: ACC-00145), Quantité: 23, Type d'entrée: commande, Fournisseur/Provenance: CHEZ BEN
+[2025-05-19 22:28:13] Dispatching nécessaire pour 'Croche de pano' - trouvé dans besoins avec statut validé/en_cours
+[2025-05-19 22:28:13] 23 unités de Croche de pano ajoutées au stock général
+[2025-05-19 22:28:13] Mouvement de stock #1357 enregistré pour Croche de pano, quantité totale: 23, provenance: CHEZ BEN
+[2025-05-19 22:28:13] Vérification des commandes partielles pour Croche de pano
+[2025-05-19 22:28:13] Nombre de commandes partielles trouvées pour Croche de pano: 0
+[2025-05-19 22:28:13] Recherche de commandes en attente pour 'Croche de pano', 1 trouvées.
+[2025-05-19 22:28:13] Traitement de la commande #693 (source: besoins) pour le projet SYS (Demande DYM FONCTIONNEMENT), Quantité commandée: 22
+[2025-05-19 22:28:13] Vérification de la commande: quantity_stock=22, besoin total=25, statut: PARTIEL
+[2025-05-19 22:28:13] Entrée #112 dans besoins mise à jour, quantity_stock: 22 (0 → 22)
+[2025-05-19 22:28:13] Commande #693 PARTIELLEMENT satisfaite
+[2025-05-19 22:28:13] Mouvement de stock #1358 créé pour le reste non dispatché: 1 unités de Croche de pano (réussi à la tentative 1)
+[2025-05-19 22:28:13] Fournisseur mis à jour pour la commande #693: CHEZ BEN
+[2025-05-19 22:28:13] Fin du traitement du mouvement #1357
+[2025-05-19 22:28:13] Transaction VALIDÉE avec succès
+[2025-05-19 22:29:34] Projet prioritaire spécifié: Aucun
+[2025-05-19 22:29:34] Gestion des commandes partielles: Activée
+[2025-05-19 22:29:34] Entrée de produit: Croche de pano (ID: 1839, Code-barres: ACC-00145), Quantité: 10, Type d'entrée: commande, Fournisseur/Provenance: CHEZ BEN
+[2025-05-19 22:29:34] Dispatching nécessaire pour 'Croche de pano' - trouvé dans besoins avec statut validé/en_cours
+[2025-05-19 22:29:35] 10 unités de Croche de pano ajoutées au stock général
+[2025-05-19 22:29:35] Mouvement de stock #1359 enregistré pour Croche de pano, quantité totale: 10, provenance: CHEZ BEN
+[2025-05-19 22:29:35] Vérification des commandes partielles pour Croche de pano
+[2025-05-19 22:29:35] Nombre de commandes partielles trouvées pour Croche de pano: 0
+[2025-05-19 22:29:35] Recherche de commandes en attente pour 'Croche de pano', 1 trouvées.
+[2025-05-19 22:29:35] Traitement de la commande #693 (source: besoins) pour le projet SYS (Demande DYM FONCTIONNEMENT), Quantité commandée: 22
+[2025-05-19 22:29:35] Vérification de la commande: quantity_stock=32, besoin total=25, statut: COMPLET
+[2025-05-19 22:29:35] Entrée #112 dans besoins mise à jour, quantity_stock: 32 (22 → 32)
+[2025-05-19 22:29:35] Commande #693 COMPLÉTÉE et marquée comme 'reçu'
+[2025-05-19 22:29:35] Aucun reste après dispatching pour Croche de pano (quantité: 10, dispatché: 10)
+[2025-05-19 22:29:35] Fournisseur mis à jour pour la commande #693: CHEZ BEN
+[2025-05-19 22:29:35] Fin du traitement du mouvement #1359
+[2025-05-19 22:29:35] Transaction VALIDÉE avec succès

@@ -1,0 +1,22 @@
+/DYM MANUFACTURE
+  /expressions_besoins
+    /User-Achat
+      achats_materiaux.php
+      /statistics
+        index.php           // Page principale des statistiques
+        stats_achats.php    // Statistiques des achats
+        projet_details.php
+        stats_fournisseurs.php  // Statistiques des fournisseurs
+        stats_produits.php  // Statistiques des produits
+        stats_projets.php
+        reserve_api.php     // API pour récupérer les données
+        generate_report.php // Génération de rapports PDF
+        assets/js/chart_functions.js  // Fonctions JavaScript pour les graphiques
+        style.css           // Styles spécifiques
+        stats_canceled_orders.php
+
+      /statistics/retour-fournisseur/api_getSupplierReturns.php
+      /statistics/retour-fournisseur/get_return_details.php
+      /statistics/api_canceled/api_getProjectsWithCanceledOrders.php
+      /statistics/api_canceled/api_getRecentCanceledOrders.php
+      /statistics/api_canceled/api_getCanceledOrderDetails.php

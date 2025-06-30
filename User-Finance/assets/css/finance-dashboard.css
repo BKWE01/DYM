@@ -1,0 +1,969 @@
+/**
+ * finance-dashboard.css
+ * Styles personnalisés pour le Dashboard Finance v2.0 - CORRIGÉ
+ * 
+ * @author DYM MANUFACTURE
+ * @version 2.0
+ */
+
+/* ================================================================
+   VARIABLES CSS PERSONNALISÉES
+   ================================================================ */
+:root {
+    /* Couleurs principales */
+    --finance-primary: #3b82f6;
+    --finance-secondary: #10b981;
+    --finance-accent: #f59e0b;
+    --finance-danger: #ef4444;
+    --finance-success: #22c55e;
+    --finance-warning: #f59e0b;
+    --finance-info: #06b6d4;
+
+    /* Couleurs de fond */
+    --bg-primary: #ffffff;
+    --bg-secondary: #f8fafc;
+    --bg-accent: #f1f5f9;
+    --bg-dark: #1e293b;
+
+    /* Couleurs de texte */
+    --text-primary: #1e293b;
+    --text-secondary: #64748b;
+    --text-muted: #94a3b8;
+    --text-light: #cbd5e1;
+
+    /* Bordures et ombres */
+    --border-color: #e2e8f0;
+    --border-radius: 8px;
+    --border-radius-lg: 12px;
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+
+    /* Animations */
+    --transition-fast: 0.15s ease-in-out;
+    --transition-normal: 0.3s ease-in-out;
+    --transition-slow: 0.5s ease-in-out;
+
+    /* Espacements */
+    --spacing-xs: 0.25rem;
+    --spacing-sm: 0.5rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 1.5rem;
+    --spacing-xl: 2rem;
+}
+
+/* ================================================================
+   STYLES GLOBAUX
+   ================================================================ */
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    line-height: 1.6;
+}
+
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    position: relative;
+}
+
+/* ================================================================
+   MODALES - CORRECTION COMPLÈTE
+   ================================================================ */
+/* Force l'affichage des modales */
+.modal {
+    display: none !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    background-color: rgba(0, 0, 0, 0.7) !important;
+    z-index: 999999 !important;
+    justify-content: center !important;
+    align-items: center !important;
+    padding: 1rem !important;
+    overflow-y: auto !important;
+}
+
+.modal.show {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+.modal-content {
+    background: white !important;
+    border-radius: 12px !important;
+    padding: 2rem !important;
+    max-width: 900px !important;
+    width: 95% !important;
+    max-height: 90vh !important;
+    overflow-y: auto !important;
+    position: relative !important;
+    z-index: 1000000 !important;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25) !important;
+}
+
+.modal-close {
+    position: absolute !important;
+    top: 1rem !important;
+    right: 1rem !important;
+    background: none !important;
+    border: none !important;
+    font-size: 1.5rem !important;
+    cursor: pointer !important;
+    color: #6b7280 !important;
+    z-index: 1000001 !important;
+    width: 2rem !important;
+    height: 2rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 50% !important;
+}
+
+.modal-close:hover {
+    background-color: #f3f4f6 !important;
+    color: #374151 !important;
+}
+
+/* Empêcher le scroll du body quand modal ouverte */
+body.modal-open {
+    overflow: hidden !important;
+    position: fixed !important;
+    width: 100% !important;
+}
+
+/* ================================================================
+   BARRE SUPÉRIEURE
+   ================================================================ */
+.top-bar {
+    background-color: var(--bg-primary);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition-normal);
+    border: 1px solid var(--border-color);
+}
+
+.top-bar:hover {
+    box-shadow: var(--shadow-md);
+}
+
+.dashboard-btn-container {
+    display: flex;
+    align-items: center;
+}
+
+.dashboard-btn {
+    background: linear-gradient(135deg, #ebf2ff 0%, #dbeafe 100%);
+    border: 2px solid var(--finance-primary);
+    color: var(--finance-primary);
+    padding: 12px 20px;
+    border-radius: var(--border-radius);
+    font-weight: 600;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: var(--transition-normal);
+    cursor: pointer;
+}
+
+.dashboard-btn:hover {
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    color: #1d4ed8;
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+.date-time {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    color: var(--text-secondary);
+    background-color: var(--bg-accent);
+    border-radius: var(--border-radius);
+    padding: 12px 16px;
+    font-weight: 500;
+    border: 1px solid var(--border-color);
+}
+
+.date-time .material-icons {
+    margin-right: 10px;
+    font-size: 20px;
+    color: var(--text-primary);
+}
+
+/* ================================================================
+   GRILLE DE STATISTIQUES
+   ================================================================ */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--spacing-lg);
+}
+
+.stat-card {
+    background: var(--bg-primary);
+    border-radius: var(--border-radius-lg);
+    padding: var(--spacing-lg);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border-color);
+    transition: var(--transition-normal);
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--finance-primary), var(--finance-secondary));
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.stat-card {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    flex-shrink: 0;
+}
+
+.stat-pending .stat-icon {
+    background: linear-gradient(135deg, #fef3c7, #fed7aa);
+    color: var(--finance-warning);
+}
+
+.stat-signed .stat-icon {
+    background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+    color: var(--finance-success);
+}
+
+.stat-amount .stat-icon {
+    background: linear-gradient(135deg, #ddd6fe, #c4b5fd);
+    color: #7c3aed;
+}
+
+.stat-content {
+    flex: 1;
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+    line-height: 1;
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin: 0.25rem 0 0 0;
+    font-weight: 500;
+}
+
+/* ================================================================
+   EN-TÊTE DE PAGE
+   ================================================================ */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--spacing-md);
+}
+
+.page-title {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.action-buttons {
+    display: flex;
+    gap: var(--spacing-sm);
+    flex-wrap: wrap;
+}
+
+.action-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 16px;
+    border-radius: var(--border-radius);
+    font-weight: 600;
+    font-size: 0.875rem;
+    transition: var(--transition-normal);
+    border: 2px solid transparent;
+    cursor: pointer;
+}
+
+.btn-refresh {
+    background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+    color: var(--finance-info);
+    border-color: var(--finance-info);
+}
+
+.btn-refresh:hover {
+    background: linear-gradient(135deg, #e0f2fe, #b0e7e8);
+    transform: translateY(-1px);
+}
+
+.btn-export-excel {
+    background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+    color: var(--finance-success);
+    border-color: var(--finance-success);
+}
+
+.btn-export-excel:hover {
+    background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+    transform: translateY(-1px);
+}
+
+.btn-export-pdf {
+    background: linear-gradient(135deg, #fef2f2, #fee2e2);
+    color: var(--finance-danger);
+    border-color: var(--finance-danger);
+}
+
+.btn-export-pdf:hover {
+    background: linear-gradient(135deg, #fee2e2, #fecaca);
+    transform: translateY(-1px);
+}
+
+/* ================================================================
+   CONTAINER PRINCIPAL
+   ================================================================ */
+.card-container {
+    background-color: var(--bg-primary);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+}
+
+/* ================================================================
+   NAVIGATION DES ONGLETS
+   ================================================================ */
+.tab-container {
+    display: flex;
+    border-bottom: 2px solid var(--border-color);
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+}
+
+.tab {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem 1.5rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition-normal);
+    position: relative;
+    gap: var(--spacing-sm);
+    color: var(--text-secondary);
+    border-bottom: 3px solid transparent;
+}
+
+.tab:hover:not(.active) {
+    color: var(--text-primary);
+    background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+}
+
+.tab.active {
+    color: var(--finance-primary);
+    background: linear-gradient(135deg, #ebf2ff 0%, #dbeafe 100%);
+    border-bottom-color: var(--finance-primary);
+}
+
+.tab-badge {
+    background: var(--finance-primary);
+    color: white;
+    font-size: 0.75rem;
+    padding: 2px 8px;
+    border-radius: 12px;
+    min-width: 20px;
+    text-align: center;
+}
+
+.tab.active .tab-badge {
+    background: #1d4ed8;
+}
+
+/* ================================================================
+   CONTENU DES ONGLETS
+   ================================================================ */
+.tab-content {
+    display: none;
+    min-height: 400px;
+}
+
+.tab-content.active {
+    display: block;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ================================================================
+   ÉTATS DE CHARGEMENT
+   ================================================================ */
+.loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    text-align: center;
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid var(--border-color);
+    border-top: 4px solid var(--finance-primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: var(--spacing-md);
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.loading-text {
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+/* ================================================================
+   ÉTATS VIDES
+   ================================================================ */
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    text-align: center;
+}
+
+.empty-icon .material-icons {
+    font-size: 4rem;
+    color: var(--text-muted);
+    margin-bottom: var(--spacing-md);
+}
+
+.empty-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-sm);
+}
+
+.empty-message {
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-lg);
+    max-width: 400px;
+}
+
+.empty-action {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: 12px 20px;
+    background: var(--finance-primary);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius);
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition-normal);
+}
+
+.empty-action:hover {
+    background: #1d4ed8;
+    transform: translateY(-1px);
+}
+
+/* ================================================================
+   EN-TÊTES DE TABLEAUX
+   ================================================================ */
+.table-header {
+    margin-bottom: var(--spacing-lg);
+}
+
+.table-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-xs);
+}
+
+.table-subtitle {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+/* ================================================================
+   TABLEAUX DATATABLES PERSONNALISÉS
+   ================================================================ */
+.table-responsive {
+    overflow-x: auto;
+    border-radius: var(--border-radius);
+}
+
+.finance-table {
+    width: 100% !important;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: var(--bg-primary);
+}
+
+.finance-table thead th {
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    color: var(--text-primary);
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 1rem 1.5rem;
+    border-bottom: 2px solid var(--border-color);
+    position: relative;
+}
+
+.finance-table thead th:first-child {
+    border-top-left-radius: var(--border-radius);
+}
+
+.finance-table thead th:last-child {
+    border-top-right-radius: var(--border-radius);
+}
+
+.finance-table tbody td {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    vertical-align: middle;
+    transition: var(--transition-fast);
+}
+
+.finance-table tbody tr:hover td {
+    background-color: #f8fafc;
+}
+
+.finance-table tbody tr:last-child td:first-child {
+    border-bottom-left-radius: var(--border-radius);
+}
+
+.finance-table tbody tr:last-child td:last-child {
+    border-bottom-right-radius: var(--border-radius);
+}
+
+/* ================================================================
+   INFORMATIONS SYSTÈME
+   ================================================================ */
+.system-info {
+    margin-top: auto;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--spacing-md);
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-sm) 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.info-item:last-child {
+    border-bottom: none;
+}
+
+.info-label {
+    color: var(--text-secondary);
+    font-weight: 500;
+    font-size: 0.875rem;
+}
+
+.info-value {
+    color: var(--text-primary);
+    font-weight: 600;
+    font-size: 0.875rem;
+    font-family: 'Monaco', 'Menlo', monospace;
+}
+
+/* ================================================================
+   BOUTONS D'ACTION DANS LES TABLEAUX
+   ================================================================ */
+.action-btn-group {
+    display: flex;
+    gap: var(--spacing-xs);
+    flex-wrap: wrap;
+}
+
+.table-action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 12px;
+    border-radius: var(--border-radius);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: var(--transition-fast);
+    border: 1px solid transparent;
+    cursor: pointer;
+}
+
+.table-action-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
+}
+
+.btn-sign {
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    color: white;
+    border-color: #16a34a;
+}
+
+.btn-sign:hover {
+    background: linear-gradient(135deg, #16a34a, #15803d);
+}
+
+.btn-view {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: white;
+    border-color: #2563eb;
+}
+
+.btn-view:hover {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+}
+
+.btn-download {
+    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+    color: white;
+    border-color: #7c3aed;
+}
+
+.btn-download:hover {
+    background: linear-gradient(135deg, #7c3aed, #6d28d9);
+}
+
+/* ================================================================
+   CORRECTIFS POUR ÉVITER LES DÉBORDEMENTS
+   ================================================================ */
+.wrapper>* {
+    position: relative;
+    z-index: 1;
+}
+
+main {
+    flex: 1;
+    overflow-x: hidden;
+}
+
+/* Empêcher tout débordement des composants */
+.card-container,
+.stats-grid,
+.tab-container,
+.tab-content {
+    position: relative;
+    z-index: 1;
+}
+
+/* ================================================================
+   RESPONSIVE DESIGN
+   ================================================================ */
+@media (max-width: 1024px) {
+    .stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: var(--spacing-md);
+    }
+
+    .page-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .action-buttons {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 768px) {
+    .top-bar {
+        flex-direction: column;
+        gap: var(--spacing-md);
+    }
+
+    .dashboard-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .tab-container {
+        flex-direction: column;
+    }
+
+    .tab {
+        flex: none;
+        padding: 0.75rem 1rem;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .action-btn-group {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .table-action-btn {
+        justify-content: center;
+    }
+
+    .finance-table thead th,
+    .finance-table tbody td {
+        padding: 0.75rem 1rem;
+        font-size: 0.875rem;
+    }
+
+    .modal-content {
+        width: 98%;
+        padding: 1rem;
+        max-height: 95vh;
+    }
+}
+
+@media (max-width: 480px) {
+    main {
+        padding: var(--spacing-md);
+    }
+
+    .stat-card {
+        flex-direction: column;
+        text-align: center;
+        gap: var(--spacing-sm);
+    }
+
+    .stat-icon {
+        width: 50px;
+        height: 50px;
+    }
+
+    .stat-number {
+        font-size: 1.5rem;
+    }
+
+    .page-title {
+        font-size: 1.5rem;
+        text-align: center;
+    }
+
+    .modal-content {
+        width: 100%;
+        height: 100vh;
+        max-height: 100vh;
+        border-radius: 0;
+        margin: 0;
+    }
+}
+
+/* ================================================================
+   ANIMATIONS D'AMÉLIORATION UX
+   ================================================================ */
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.card-container {
+    animation: slideInUp 0.4s ease-out;
+}
+
+.stat-card {
+    animation: slideInUp 0.3s ease-out;
+}
+
+.stat-card:nth-child(1) {
+    animation-delay: 0.1s;
+}
+
+.stat-card:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.stat-card:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+/* ================================================================
+   PRINT STYLES
+   ================================================================ */
+@media print {
+
+    .top-bar,
+    .action-buttons,
+    .tab-container,
+    .system-info,
+    .modal {
+        display: none !important;
+    }
+
+    .card-container {
+        box-shadow: none;
+        border: 1px solid #000;
+    }
+
+    .finance-table {
+        font-size: 12px;
+    }
+
+    .table-action-btn {
+        display: none;
+    }
+}
+
+/* ================================================================
+   CORRECTIFS FINAUX POUR MODALES
+   ================================================================ */
+/* S'assurer qu'aucune modal n'apparaît par défaut */
+#signature-modal,
+#view-signed-modal,
+#order-details-modal {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+}
+
+/* Quand une modal est montrée */
+.modal.show {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+
+/* Styles pour les messages de debug */
+.debug-info {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #991b1b;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin: 1rem 0;
+    font-family: monospace;
+    font-size: 0.875rem;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.api-error {
+    background: #fef2f2;
+    border-left: 4px solid #ef4444;
+    padding: 1rem;
+    margin: 1rem 0;
+}
+
+.api-error h4 {
+    color: #dc2626;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+/* =========personnalisé========= */
+.position-relative {
+    position: relative;
+}
+
+.z-2 {
+    z-index: 2;
+}
+
+/* ================================================================
+   STYLES BOUTON RÉVOCATION - CORRECTION COULEURS
+   ================================================================ */
+
+/* Bouton de confirmation de révocation */
+.revoke-confirm-btn {
+    background: linear-gradient(135deg, #dc2626, #b91c1c) !important;
+    border: 2px solid #dc2626 !important;
+    box-shadow: 0 2px 4px rgba(220, 38, 38, 0.2) !important;
+}
+
+.revoke-confirm-btn:hover {
+    background: linear-gradient(135deg, #b91c1c, #991b1b) !important;
+    border-color: #b91c1c !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 8px rgba(220, 38, 38, 0.3) !important;
+}
+
+.revoke-confirm-btn:active {
+    transform: translateY(0) !important;
+    box-shadow: 0 1px 2px rgba(220, 38, 38, 0.2) !important;
+}
+
+/* S'assurer que le bouton est visible */
+.revoke-confirm-btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}

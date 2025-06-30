@@ -1,0 +1,4 @@
+{"timestamp":"2025-06-26 20:38:38","proforma_id":"1","achat_materiau_id":"739","filename":"proforma_20250626203838_3d2a68db_proforma.png","status":"success","user_id":80,"error":null}
+{"timestamp":"2025-06-27 07:21:13","proforma_id":"2","achat_materiau_id":"740","filename":"proforma_20250627072113_df4d5a63_proforma.png","status":"success","user_id":80,"error":null}
+{"timestamp":"2025-06-27 07:51:45","proforma_id":"3","achat_materiau_id":"741","filename":"proforma_20250627075145_11103ed7_proforma.png","status":"success","user_id":"80","error":null}
+{"timestamp":"2025-06-27 07:51:45","proforma_id":null,"achat_materiau_id":"742","filename":"proforma.png","status":"error","user_id":"80","error":"Fichier invalide ou non fourni"}

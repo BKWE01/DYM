@@ -1,0 +1,6 @@
+nom,quantite,unite,prix,categorie,fournisseur,notes
+"Tournevis cruciforme",10,"pièce",15.50,"Outils","Fournisseur A","Emplacement A1"
+"Marteau de menuisier",5,"pièce",25.00,"Outils","Fournisseur B","Emplacement B2"
+"Colle à bois",3,"litre",8.75,"Consommables","Fournisseur C",""
+"Cable électrique 1.5mm",100,"mètre",0.85,"Électricité","",""
+"Cheville plastique 6mm",50,"boîte",12.25,"Quincaillerie","",""

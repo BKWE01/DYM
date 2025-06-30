@@ -1,0 +1,589 @@
+
+<!DOCTYPE html>
+<html class="wide wow-animation" lang="en">
+  <head>
+    <title>DYM | ACTUALITES</title>
+    <meta name="format-detection" content="telephone=no">
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <link rel="icon" href="images/logo.png" type="image/x-icon">
+    <!-- head section -->
+    <link rel="stylesheet" href="css/bootstrap.css">
+    <link rel="stylesheet" href="css/fonts.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/owl.carousel.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link href="//fonts.googleapis.com/css?family=Roboto+Condensed:700italic,400,300,700" rel="stylesheet" type="text/css">
+
+    <style>
+          .rd-dropdown-link {
+  cursor: pointer; /* Affiche le curseur en forme de main */
+}
+.preloader {
+    position: fixed; /* Fixe le préchargeur à l'écran */
+    top: 0;
+    left: 0;
+    width: 100vw; /* Prend toute la largeur de la fenêtre d'affichage */
+    height: 100vh; /* Prend toute la hauteur de la fenêtre d'affichage */
+    background-color: #f7f7f8; /* Couleur de fond pour les zones sans vidéo */
+    display: flex; /* Utilisation de Flexbox pour centrer la vidéo */
+    align-items: center; /* Centre verticalement */
+    justify-content: center; /* Centre horizontalement */
+    z-index: 9999; /* Assurez-vous que le préchargeur est au-dessus des autres éléments */
+    transition: opacity 0.5s ease-out; /* Transition pour un effet de fondu */
+}
+
+a {
+  color: #ff4500;
+  text-decoration: none;}
+.preloader.hidden {
+    opacity: 0;
+    visibility: hidden; /* Assure que le préchargeur est invisible et n'affecte pas la mise en page */
+}
+
+.preloader video {
+    width: 100%; /* Ajuste la largeur de la vidéo pour remplir la largeur du préchargeur */
+    height: 100%; /* Ajuste la hauteur de la vidéo pour remplir la hauteur du préchargeur */
+    object-fit: cover; /* Couvre la zone sans déformer la vidéo */
+}
+
+
+        .news-container {
+            width: 95%;
+            margin: 0 auto;
+            padding: 20px;
+            font-family: Roboto Condensed, sans-serif;
+        }
+
+        .cards-wrapper {
+            display: flex;
+            flex-direction: column; /* Align cards vertically */
+            align-items: center; /* Center cards horizontally */
+            gap: 20px; /* Space between cards */
+        }
+
+        .card-item {
+            display: flex;
+            flex-direction: column; /* Align content vertically */
+            width: 90%; /* Adjust width as needed */
+            max-width: 950px; /* Maximum width for larger screens */
+            border-radius: 1px;
+            padding: 20px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            text-align: left;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Optional shadow for card */
+        }
+
+        .card-item.active .card-image {
+            display: block;
+        }
+
+        .card-item .card-image {
+            display: none; /* Hide by default */
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .card-item img {
+            width: 100%; /* Adjust image size as needed */
+            height: auto; /* Maintain aspect ratio */
+        }
+
+        .card-item .card-content {
+            display: flex;
+            flex-direction: column; /* Align content vertically */
+            gap: 10px; /* Space between text and image */
+        }
+
+        .card-item h3 {
+            font-size: 20px;
+            margin-bottom: 10px;
+            font-weight: 300;
+            font-family: Roboto Condensed, sans-serif;
+        }
+
+        .card-item p {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 20px;
+            font-weight: 300;
+        }
+
+        .clearfix::after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+
+        .main-section, .side-section {
+            float: left;
+        }
+
+        .main-section {
+            width: 65%;
+            margin-left: -3%; /* Pousse la section vers la gauche */
+        }
+
+        .side-section {
+            width: 30%;
+            margin-left: 5%;
+        }
+
+        @media (max-width: 768px) {
+            .cards-wrapper {
+                flex-direction: column;
+            }
+            .card-item {
+                width: 90%;
+                margin-bottom: 20px;
+            }
+            .main-section, .side-section {
+                width: 100%;
+                float: none;
+            }
+            .side-section {
+                margin-left: 0;
+            }
+        }
+
+        .header-main h1 {
+            font-size: 2rem;
+            letter-spacing: 2px;
+            font-weight: 300;
+            text-align: left;
+            font-family: Roboto Condensed, sans-serif;
+        }
+
+        .header-main h3 {
+            font-size: 1rem;
+            font-weight: lighter;
+            color: #888;
+            text-align: left;
+            font-family: Roboto Condensed, sans-serif;
+        }
+        .sidebar-content h2 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: #333;
+            font-weight: 300;
+            text-align: left;
+            font-family: Roboto Condensed, sans-serif;
+        }
+
+        .sidebar-content .sidebar-item {
+            display: flex;
+            align-items: left;
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        .sidebar-content img {
+            width: 80px;
+            height: 80px;
+            margin-right: 10px;
+        }
+
+        .sidebar-content p {
+            font-size: 0.9rem;
+            text-align: left;
+            font-weight: 300;
+        }
+</style>
+  </head>
+  <body>
+  <div id="preloader" class="preloader">
+    <video autoplay muted loop>
+        <source src="3.mp4" type="video/mp4">
+        Votre navigateur ne supporte pas la balise vidéo.
+    </video>
+</div>
+
+    <div class="page">
+      <!-- Page Header-->
+      <header class="section page-header">
+        <!-- RD Navbar-->
+        <div class="rd-navbar-wrap">
+          <nav class="rd-navbar rd-navbar-creative context-dark" data-layout="rd-navbar-fixed" data-sm-layout="rd-navbar-fixed" data-md-layout="rd-navbar-fixed" data-md-device-layout="rd-navbar-fixed" data-lg-layout="rd-navbar-static" data-lg-device-layout="rd-navbar-fixed" data-xl-layout="rd-navbar-static" data-xl-device-layout="rd-navbar-static" data-xxl-layout="rd-navbar-static" data-xxl-device-layout="rd-navbar-static" data-lg-stick-up-offset="80px" data-xl-stick-up-offset="80px" data-xxl-stick-up-offset="80px" data-lg-stick-up="true" data-xl-stick-up="true" data-xxl-stick-up="true">
+            <div class="rd-navbar-collapse-toggle rd-navbar-fixed-element-1" data-rd-navbar-toggle=".rd-navbar-collapse"><span></span></div>
+            <div class="rd-navbar-main-outer">
+              <div class="rd-navbar-main">
+                <!-- RD Navbar Panel-->
+                <div class="rd-navbar-panel">
+                  <!-- RD Navbar Toggle-->
+                  <button class="rd-navbar-toggle" data-rd-navbar-toggle=".rd-navbar-nav-wrap"><span></span></button>
+                  <!-- RD Navbar Brand-->
+                  <div class="rd-navbar-brand">
+                      <!--Brand--><a class="brand" href="index.html"><img class="brand-logo-dark" src="images/logoblanc.png" alt="" width="213" height="27"/><img class="brand-logo-light" src="images/logoblanc.png" alt="" width="213" height="27"/></a>
+                    </div>
+                </div>
+                <div class="rd-navbar-main-element">
+                    <div class="rd-navbar-nav-wrap">
+                      <!-- RD Navbar Nav-->
+                      <ul class="rd-navbar-nav">
+                        <li class="rd-nav-item"><a class="rd-nav-link" href="about-us.html">Dym Manufacture </a>
+                        </li>
+                        <li class="rd-nav-item"><a class="rd-nav-link" href="javascript:void(0)">Activités</a>
+                          <!-- RD Navbar Dropdown-->
+                          <ul class="rd-menu rd-navbar-dropdown">
+                            <li class="rd-dropdown-item"><a class="rd-dropdown-link" href="menusuirie.html">MENUISERIE METALLIQUE</a></li>
+                            <li class="rd-dropdown-item"><a class="rd-dropdown-link" href="agricole.html">UNITE DE TRANSFORMATION</a></li>
+                            <li class="rd-dropdown-item"><a class="rd-dropdown-link" href="usinage.html">USINAGE DE PIECES METALLIQUES</a></li>
+                            <li class="rd-dropdown-item"><a class="rd-dropdown-link" href="art.html">ART METALLIQUE CREATIF</a></li>
+                          </ul>
+                        </li>
+                        <li class="rd-nav-item">
+                          <a class="rd-nav-link" href="javascript:void(0)">Catalogues</a>
+                          <!-- RD Navbar Dropdown-->
+                          <ul class="rd-menu rd-navbar-dropdown">
+                            <li class="rd-dropdown-item">
+                              <a class="rd-dropdown-link" data-url="javascript:void(0)">AUVENT</a>
+                            </li>
+                            <li class="rd-dropdown-item">
+                              <a class="rd-dropdown-link" data-url="uploads/nos_catalogues/DYM_MANUFACTURE_CATALOGUE_PORTAIL.pdf">PORTAIL</a>
+                            </li>
+                            <li class="rd-dropdown-item">
+                              <a class="rd-dropdown-link" data-url="uploads/nos_catalogues/DYM_MANUFACTURE_CATALOGUE_PERGOLA.pdf">PERGOLA</a>
+                            </li>
+                            <li class="rd-dropdown-item">
+                              <a class="rd-dropdown-link" data-url="uploads/nos_catalogues/DYM_MANUFACTURE_CATALOGUE_BRISE_VUE.pdf">BRISE VUE</a>
+                            </li>
+                            <li class="rd-dropdown-item">
+                              <a class="rd-dropdown-link" data-url="javascript:void(0)">CHARPENTE</a>
+                            </li>
+                            <li class="rd-dropdown-item">
+                              <a class="rd-dropdown-link" data-url="uploads/nos_catalogues/DYM_MANUFACTURE_CATALOGUE_RAMPES_GARDE_CORPS.pdf">RAMPES & GARDE CORPS</a>
+                            </li>
+                          </ul>
+                        </li>
+                        
+                        <li class="rd-nav-item">
+                          <a class="rd-nav-link" href="javascript:void(0)">Motifs</a>
+                          <!-- RD Navbar Dropdown-->
+                          <ul class="rd-menu rd-navbar-dropdown">
+                            <li class="rd-dropdown-item">
+                              <a class="rd-dropdown-link" data-url="uploads/nos_motifs/DYM_MANUFACTURE_MOTIF_ABSTRAIT.pdf">THEME ABSTRAIT</a>
+                            </li>
+                            <li class="rd-dropdown-item">
+                              <a class="rd-dropdown-link" data-url="uploads/nos_motifs/DYM_MANUFACTURE_MOTIF_MOSAIQUE.pdf">THEME MOSAIQUE</a>
+                            </li>
+                            <li class="rd-dropdown-item">
+                              <a class="rd-dropdown-link" data-url="uploads/nos_motifs/DYM_MANUFACTURE_MOTIF_NATURE.pdf">THEME NATURE</a>
+                            </li>
+                          </ul>
+                        </li>
+                        <li class="rd-nav-item active"><a class="rd-nav-link" href="grid-blog.php">Actualités</a>
+                        </li>
+                      </ul>
+                    </div>
+                    <div class="rd-navbar-collapse">
+                      <ul class="rd-navbar-contacts-3">
+                        <li><a class="phone" href="tel:#">+225 078-930-3000</a></li>
+                        <li><a class="mail" href="mailto:#">info@dym.ci</a></li>
+                      </ul><a class="button button-xs button-outline button-default-outline-2 button-winona" href="contacts.html"><span class="button-text">Obtenez un devis</span><span class="icon linearicons-pencil"></span></a>
+                    </div>
+                  </div>
+              </div>
+            </div>
+          </nav>
+        </div>
+      </header>
+      <!-- Breadcrumbs -->
+      <section class="bg-gray-7">
+        <!--<div class="breadcrumbs-custom box-transform-wrap context-dark">
+          <div class="container">
+            <h3 class="breadcrumbs-custom-title">ACTUALITES</h3>
+            <div class="breadcrumbs-custom-decor"></div>
+          </div>
+          <div class="box-transform" style="background-image: url(images/bg-breadcrumbs.jpg);"></div>
+        </div>-->
+        <div class="container">
+          <ul class="breadcrumbs-custom-path">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="grid-blog.php">ACTUALITES</a></li>
+          </ul>
+        </div>
+      </section>
+      <!-- Grid Blog-->
+        <br>
+        <br>
+        <div class="news-container">
+      <header class="header-main">
+        <h1 id="main-header-title">Projet Corlay <a href="#"></a></h1>
+        <h3 id="main-header-subtitle">© DYM Manufacture - Illustration du Projet Corlay</h3>
+        <br>
+     </header>
+        <!-- Main Content and Sidebar Section -->
+         <div class="clearfix">
+            <div class="main-section">
+                <!-- Cards Section -->
+                <div class="cards-wrapper">
+                    <div class="card-item" id="card1" data-title="Un Projet d'Envergure pour la Station-Service Corlay" data-text="DYM Manufacture est fier de participer à un projet d'envergure avec la station-service Corlay. Ce projet, encore en cours, représente un nouveau défi pour notre équipe, avec la conception et la fabrication de divers équipements indispensables pour les opérations de la station. Ainsi, nous avons été chargés de la création de palettes, de têtes de réservoirs de gaz, et d'étagères de rangement pour les bouteilles de gaz, chacun de ces ouvrages étant conçu pour répondre aux normes de sécurité et de fonctionnalité les plus strictes." data-image="actualité/corlay/corlay.jpeg">
+                        <div class="card-content">
+                            <h3>Un Projet d'Envergure pour la Station-Service Corlay</h3>
+                            <p>DYM Manufacture est fier de participer à un projet d'envergure avec la station-service Corlay. Ce projet, encore en cours,  <a href="#">(...)</a></p>
+                        </div>
+                        <div class="card-image">
+                            <img src="" alt="Image for FEUGIAT TEMPUS">
+                        </div>
+                    </div>
+                    <div class="card-item" id="card2" data-title="Palettes : Robustesse et Adaptabilité" data-text="Tout d'abord, la conception des palettes pour Corlay a nécessité une attention particulière à la robustesse et à l'adaptabilité. En effet, ces palettes sont destinées à transporter et stocker divers matériaux au sein de la station-service. Grâce à l'utilisation de matériaux métalliques de haute qualité, nous avons pu développer des palettes capables de résister aux contraintes de poids et aux conditions rigoureuses du milieu industriel. De plus, leur design modulaire permet une grande flexibilité dans leur utilisation, facilitant ainsi les opérations quotidiennes de la station." data-image="actualité/corlay/corlay.jpeg">
+                        <div class="card-content">
+                            <h3>Palettes : Robustesse et Adaptabilité</h3>
+                            <p>Tout d'abord, la conception des palettes pour Corlay a nécessité une attention particulière à la robustesse et à <a href="#">(...)</a></p>
+                        </div>
+                        <div class="card-image">
+                            <img src="" alt="Image for MAECENAS LECTUS">
+                        </div>
+                    </div>
+                    <div class="card-item" id="card3" data-title="Têtes de Réservoirs de Gaz : Sécurité et Efficacité" data-text="Ensuite, la fabrication des têtes de réservoirs de gaz est un autre volet clé de ce projet. Conçues pour assurer une distribution sécurisée et efficace du gaz, ces têtes doivent respecter des normes de sécurité extrêmement strictes. Par conséquent, nous avons intégré des mécanismes de contrôle et de protection avancés, tout en veillant à ce que leur utilisation soit intuitive pour le personnel de la station. Ainsi, la sécurité et l’efficacité sont au cœur de notre approche pour ce type d’ouvrage." data-image="actualité/corlay/4.jpeg">
+                        <div class="card-content">
+                            <h3>Têtes de Réservoirs de Gaz : Sécurité et Efficacité</h3>
+                            <p>Ensuite, la fabrication des têtes de réservoirs de gaz est un autre volet clé de ce projet. Conçues pour <a href="#">(...)</a></p>
+                        </div>
+                        <div class="card-image">
+                            <img src="" alt="Image for LUCTUS LECTUS">
+                        </div>
+                    </div>
+                    <div class="card-item" id="card4" data-title="Étagères de Rangement : Organisation et Sécurité" data-text="Enfin, les étagères de rangement pour les bouteilles de gaz ont été conçues pour maximiser l'organisation et la sécurité au sein de la station-service Corlay. Ces étagères sont conçues pour stocker les bouteilles de gaz de manière sécurisée, tout en permettant un accès facile et rapide pour les employés. Grâce à leur conception robuste, ces étagères assurent non seulement la stabilité des bouteilles, mais elles contribuent également à prévenir tout risque potentiel, en respectant les standards de sécurité les plus élevés." data-image="actualité/corlay/3.jpeg">
+                        <div class="card-content">
+                            <h3>Étagères de Rangement : Organisation et Sécurité</h3>
+                            <p>Enfin, les étagères de rangement pour les bouteilles de gaz ont été conçues pour maximiser l'organisation et la <a href="#">(...)</a></p>
+                          </div>
+                        <div class="card-image">
+                            <img src="" alt="Image for POSUERE ELEIFEND">
+                        </div>
+                    </div>
+                    <div class="card-item" id="card4" data-title="Un Engagement Continu pour l'Excellence" data-text="Ce projet Corlay témoigne une fois de plus de l'engagement de DYM Manufacture à fournir des solutions métalliques sur mesure, alliant innovation, sécurité et efficacité. " data-image="actualité/corlay/1.jpeg">
+                       <div class="card-content">
+                          <h3>Un Engagement Continu pour l'Excellence</h3>
+                          <p>Ce projet Corlay témoigne une fois de plus de l'engagement de DYM Manufacture à fournir des solutions métalliques sur <a href="#">(...)</a></p>
+                        </div>
+                        <div class="card-image">
+                          <img src="" alt="Image for POSUERE ELEIFEND">
+                       </div>
+                   </div>
+                   <div class="card-item" id="card4" data-title="Perspectives et Projets Futurs" data-text="Alors que nous avançons dans ce projet, DYM Manufacture reste déterminé à poursuivre son engagement envers l'excellence dans chaque aspect de notre travail. Avec ce projet Corlay, nous renforçons notre position en tant que partenaire de confiance pour les infrastructures industrielles et les stations-service en Côte d'Ivoire. " data-image="https://via.placeholder.com/282x150">
+                    <div class="card-content">
+                       <h3>Perspectives et Projets Futurs</h3>
+                       <p>Alors que nous avançons dans ce projet, DYM Manufacture reste déterminé à poursuivre son engagement envers l'excellence dans <a href="#">(...)</a></p>
+                     </div>
+                </div>
+                </div>
+            </div>
+
+            <!-- Sidebar Section -->
+            <aside class="side-section">
+              <div class="sidebar-content">
+                  <h2>Plus Actualités</h2>
+                  <div class="sidebar-item">
+                    <a href="news_details_actu_syny.html" class="sidebar-item">
+                      <img src="actu_syny.jpeg" alt="Titre de l'Actualité 1">
+                      <div>
+                            <p>DYM Manufacture au service de l'éducation : Des dons pour les écoles</p>
+                      </div>
+                    </a>
+                  </div>
+                  <div class="sidebar-item">
+                    <a href="news_details_petro.html" class="sidebar-item">
+                      <img src="actu-details/petroci.jpg" alt="Titre de l'Actualité 1">
+                      <div>
+                          <p>Conception et production de supports de gaz butane : L'excellence de DYM Manufacture au service de PETROCI</p>
+                      </div>
+                    </a>
+                  </div>
+                  <div class="sidebar-item">
+                    <a href="news_details_anad.html" class="sidebar-item">
+                      <img src="actu-details/anader.jpg" alt="Titre de l'Actualité 3">
+                      <div>
+                          <p>Une vision de modernisation pour l'argriculture</p>
+                      </div>
+                    </a>
+                  </div>
+                  <div class="sidebar-item">
+                    <a href="news_details_marq.html" class="sidebar-item">
+                      <img src="actualité/journée de la marque 2.JPG" alt="Titre de l'Actualité 2">
+                      <div>
+                        <p>Participation de DYM Manufacture à la journée de la marque ivoirienne innovante</p>
+                      </div>
+                    </a>
+                  </div>
+                  <div class="sidebar-item">
+                    <a href="news_details_misoa.html" class="sidebar-item">
+                      <img src="actu-details/post2.jpg" alt="Titre de l'Actualité 3">
+                      <div>
+                        <p>Pose d'ouvrage à l'Hotel MI SOA</p>
+                      </div>
+                    </a>
+                  </div>
+                  <div class="sidebar-item">
+                    <a href="news_details_hvallon.html" class="sidebar-item">
+                      <img src="actu-details/actu11.jpg" alt="Titre de l'Actualité 2">
+                      <div>
+                        <p>Un Partenariat privilégié avec l'Hôtel Les Vallons</p>
+                      </div>
+                    </a>
+                  </div>
+                  
+              </div>
+          </aside>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.card-item');
+
+            // Store initial text and images
+            cards.forEach(card => {
+                card.dataset.originalText = card.querySelector('p').textContent;
+                card.dataset.originalImage = card.querySelector('.card-image img').src;
+            });
+
+            // Set the first card as active by default
+            if (cards.length > 0) {
+                const firstCard = cards[0];
+                firstCard.classList.add('active');
+                const title = firstCard.getAttribute('data-title');
+                const text = firstCard.getAttribute('data-text');
+                const image = firstCard.getAttribute('data-image');
+                
+                firstCard.querySelector('h3').textContent = title;
+                firstCard.querySelector('p').textContent = text;
+                firstCard.querySelector('.card-image img').src = image;
+                firstCard.querySelector('.card-image').style.display = 'block'; // Show image
+            }
+
+            cards.forEach(card => {
+                card.addEventListener('click', () => {
+                    cards.forEach(item => {
+                        if (item !== card) {
+                            item.classList.remove('active');
+                            // Reset content to initial values
+                            item.querySelector('p').textContent = item.dataset.originalText;
+                            item.querySelector('.card-image img').src = item.dataset.originalImage;
+                            item.querySelector('.card-image').style.display = 'none'; // Hide image
+                        }
+                    });
+
+                    if (card.classList.contains('active')) {
+                        card.classList.remove('active');
+                        // Reset content to initial values
+                        card.querySelector('p').textContent = card.dataset.originalText;
+                        card.querySelector('.card-image img').src = card.dataset.originalImage;
+                        card.querySelector('.card-image').style.display = 'none'; // Hide image
+                    } else {
+                        card.classList.add('active');
+                        // Update content dynamically
+                        const title = card.getAttribute('data-title');
+                        const text = card.getAttribute('data-text');
+                        const image = card.getAttribute('data-image');
+
+                        card.querySelector('h3').textContent = title;
+                        card.querySelector('p').textContent = text;
+                        card.querySelector('.card-image img').src = image;
+                        card.querySelector('.card-image').style.display = 'block'; // Show image
+                    }
+                });
+            });
+        });
+    </script>
+
+        <br>
+        <br>
+      <!-- Page Footer-->
+      <footer class="section footer-corporate context-dark">
+        <div class="container">
+          <div class="section-lg">
+            <div class="row row-50 justify-content-sm-between">
+              <div class="col-sm-6 col-md-4 col-xl-3">
+                <h6 class="footer-corporate-title oh-desktop"><span class="d-inline-block wow slideInUp">À PROPOS DE NOUS</span></h6>
+                <p class="wow fadeInRight">Chez DYM Manufacture, l'excellence est notre maître-mot. Chaque pièce que nous réalisons est le résultat d'un savoir-faire artisanal allié aux technologies les plus avancées.</p>
+                <ul class="list-inline footer-social-list footer-social-list-2 footer-social-list-4">
+          <li><a class="icon mdi mdi-facebook" href="https://www.facebook.com/dymanufacture/" target="_blank"></a></li>
+          <li><a class="icon mdi mdi-instagram" href="https://www.instagram.com/dym_manufacture?igsh=M2hrZWxqazA4aTJo" target="_blank"></a></li>
+                </ul>
+              </div>
+              <div class="col-sm-5 col-md-4 col-lg-3">
+                <h6 class="footer-corporate-title oh-desktop"><span class="d-inline-block wow slideInUp">CONTACT</span></h6>
+                <ul class="footer-creative-contacts d-inline-block d-md-block">
+                  <li class="wow fadeInLeft">
+                    <p class="footer-creative-contacts-title">CONSULTATION GRATUITE</p><a class="phone" href="tel:#">+225 078-930-3000</a>
+                  </li>
+                  <li class="wow fadeInLeft" data-wow-delay=".05s">
+                    <p class="footer-creative-contacts-title">Addresse</p><a class="address" href="#">Abidjan, CHU Angre<br>28 BP 1061 Abidjan 28</a>
+                  </li>
+                  <li class="wow fadeInLeft" data-wow-delay=".1s">
+                    <p class="footer-creative-contacts-title">E-mail</p><a class="mail" href="mailto:#">info@dym.ci</a>
+                  </li>
+                </ul>
+              </div>
+              <div class="col-md-4">
+                <h6 class="footer-corporate-title oh-desktop"><span class="d-inline-block wow slideInUp">LIENS UTILES</span></h6>
+                <ul class="footer-corporate-list d-inline-block d-sm-block wow fadeInUp">
+                  <li><a href="about-us.html">Notre Histoire</a></li>
+                  <li><a href="grid-blog.php">Actualités</a></li>
+                  <li><a href="contacts.html">Contactez-nous</a></li>
+                  <li><a href="agricole.html">Unité de transformation</a></li>
+                  <li><a href="usinage.html">Usinage de Pièces métallurgiques</a></li>
+                  <li><a href="art.html">Art Métalique Créatif</a></li>
+                  <li><a href="menusuirie.html">Ouvrage métallique</a></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="footer-corporate-panel">
+          <div class="container">
+            <!-- Rights-->
+            <p class="rights"><span>&copy;&nbsp;</span><span class="copyright-year"></span><span>.&nbsp;</span><span>All Rights Reserved</span><span>.&nbsp;</span><a href="privacy-policy.html"></a></p>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <!-- Global Mailform Output-->
+    <div class="snackbars" id="form-output-global"></div>
+    <!-- Javascript-->
+   <!-- before closing body tag -->
+<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+<script src="js/owl.carousel.min.js"></script>
+<script src="js/scripts.js"></script>
+<script src="js/core.min.js"></script>
+<script src="js/script.js"></script>
+</script>
+  <!-- Google Tag Manager --><noscript><iframe src="//www.googletagmanager.com/ns.html?id=GTM-P9FT69" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript><script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start': new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-P9FT69');</script><!-- End Google Tag Manager --></body>
+<script>
+  window.addEventListener('load', function() {
+    const preloader = document.getElementById('preloader');
+    if (preloader) {
+        // Ajoute la classe 'hidden' pour lancer la transition de fondu
+        setTimeout(() => {
+            preloader.classList.add('hidden');
+            // Cache complètement le préchargeur après un délai pour permettre à la transition de se terminer
+            setTimeout(() => {
+                preloader.style.display = 'none';
+            }, 500); // Correspond à la durée de la transition en CSS
+        }, 5000); // 5 secondes après le chargement complet
+    }
+});
+</script>
+
+    <script>
+            document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.rd-dropdown-link').forEach(link => {
+            link.addEventListener('click', function(event) {
+            event.preventDefault(); // Empêche le comportement par défaut
+            const url = this.getAttribute('data-url'); // Récupère l'URL depuis data-url
+            if (url && !url.startsWith('javascript:')) {
+                window.open(url, '_blank'); // Ouvre l'URL dans un nouvel onglet
+            }
+            });
+        });
+        });
+
+    </script>
+</html>

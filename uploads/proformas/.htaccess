@@ -1,0 +1,6 @@
+# Sécurité upload proformas
+Options -ExecCGI -Indexes
+AddHandler cgi-script .php .pl .py .jsp .asp .sh .cgi
+<Files ~ "\.(php|pl|py|jsp|asp|sh|cgi)$">
+    Deny from all
+</Files>

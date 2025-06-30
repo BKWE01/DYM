@@ -1,0 +1,14 @@
+# Empêcher l'accès direct au dossier logs
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^(.*)$ - [F,L]
+</IfModule>
+
+# Empêcher l'affichage du contenu du répertoire
+Options -Indexes
+
+# Refuser l'accès à tous les fichiers
+<FilesMatch "^.*$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>

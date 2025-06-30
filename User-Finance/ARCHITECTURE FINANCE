@@ -1,0 +1,19 @@
+📁 /User-Finance/
+├── 📁 classes/
+│   ├── 📄 FinanceController.php      (Contrôleur principal)
+│   ├── 📄 PurchaseOrderService.php   (Service métier)
+│   ├── 📄 DatabaseManager.php        (Gestionnaire BDD)
+│   └── 📄 ApiResponse.php           (Réponses API standardisées)
+├── 📁 assets/
+│   ├── 📁 js/
+│   │   ├── 📄 FinanceManager.js      (Gestionnaire principal JS)
+│   │   ├── 📄 ModalManager.js        (Gestion des modales)
+│   │   ├── 📄 DataTableManager.js    (Gestion des tableaux)
+│   │   └── 📄 NotificationManager.js (Système de notifications)
+│   └── 📁 css/
+│       └── 📄 finance-dashboard.css  (Styles personnalisés)
+├── 📄 dashboard.php                  (Interface principale v2.0)
+├── 📄 api_get_archived_orders.php    (API bons en attente)
+├── 📄 get_bon_details_finance.php    (API détails des bons)
+├── 📄 update_save_signature.php      (API signature)
+└── 📄 get_signed_bons.php           (API bons signés)

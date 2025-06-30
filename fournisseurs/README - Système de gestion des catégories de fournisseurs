@@ -1,0 +1,15 @@
+/fournisseurs/
+  ├─ categories/
+  │   ├─ index.php                # Page principale de gestion des catégories
+  │   ├─ view_fournisseurs.php    # Page pour afficher les fournisseurs d'une catégorie
+  │   └─ api/
+  │       ├─ get.php              # API pour récupérer les détails d'une catégorie
+  │       └─ list.php             # API pour récupérer la liste des catégories
+  ├─ fournisseurs.php             # Page existante de gestion des fournisseurs
+  ├─ add_supplier.php
+  ├─ edit_supplier.php
+  ├─ supplier_details.php
+  ├─ view_fournisseurs.php
+  ├─ get_supplier.php
+  ├─ get_fournisseur_categories.php # API pour récupérer les catégories d'un fournisseur
+  └─ update_fournisseur_categories.php # API pour mettre à jour les catégories d'un fournisseur

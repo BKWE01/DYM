@@ -1,0 +1,13 @@
+/DYM MANUFACTURE/expressions_besoins/User-Stock/stock/
+  ├── trace/
+  │   ├── logger.php (classe principale de journalisation)
+  │   ├── install.php 
+  │   └── include_logger.php (fichier d'inclusion pour initialiser le logger)
+  ├── logs/ (dossier pour les logs textuels en cas d'erreur)
+  │   └── .htaccess (protection du dossier)
+  └── admin/
+      ├──api_getLogDetails.php
+      ├──api_getLogs.php
+      ├──api_getUsers.php
+      ├──view_log_details.php
+      └── logs.php (interface de consultation des logs)
