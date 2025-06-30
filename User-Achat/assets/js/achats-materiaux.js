@@ -1,28 +1,11 @@
+
 /**
- * ====================================================================
- * MODULE DE GESTION DES ACHATS DE MATÉRIAUX - VERSION CORRIGÉE
- * ====================================================================
- * 
- * Fichier: achats-materiaux.js
- * Emplacement: /DYM MANUFACTURE/expressions_besoins/User-Achat/assets/js/
- * 
- * Correction complète du JavaScript pour correspondre au fichier PHP
- * et reprendre la logique de l'ancien script
- * 
- * Auteur: DYM MANUFACTURE
- * Version: 2.1 - Correction des incohérences
- * Date: Juin 2025
- * ====================================================================
+ * Module de gestion des achats de matériaux
+ * Architecture moderne avec organisation modulaire
+ * VERSION CORRIGÉE : Intégration complète des modes de paiement par ID
  */
-
-'use strict';
-
-// =====================================================
-// CONFIGURATION GLOBALE ET CONSTANTES
-// =====================================================
-
+// Configuration globale et constantes
 const CONFIG = {
-    // URLs des API - Correspondant au fichier PHP
     API_URLS: {
         FOURNISSEURS: 'get_fournisseurs.php',
         CHECK_MATERIALS: 'check_new_materials.php',
@@ -36,1726 +19,3670 @@ const CONFIG = {
         CHECK_FOURNISSEUR: 'api/fournisseurs/check_fournisseur.php',
         PROCESS_PURCHASE: 'api/fournisseurs/process_purchase.php',
         UPDATE_ORDER_STATUS: 'api/orders/update_order_status.php',
-        PAYMENT_METHODS: 'api/payment/get_payment_methods.php'
+        PAYMENT_METHODS: 'api/payment/get_payment_methods.php', // NOUVEAU : API pour les modes de paiement
     },
-
-    // Intervalles de rafraîchissement
     REFRESH_INTERVALS: {
-        DATETIME: 1000,                    // 1 seconde pour la date/heure
-        CHECK_MATERIALS: 5 * 60 * 1000,    // 5 minutes pour vérifier nouveaux matériaux
-        CHECK_VALIDATION: 5 * 60 * 1000    // 5 minutes pour validation
+        DATETIME: 1000,
+        CHECK_MATERIALS: 5 * 60 * 1000, // 5 minutes
+        CHECK_VALIDATION: 5 * 60 * 1000 // 5 minutes
     },
-
-    // Configuration DataTables
     DATATABLES: {
         LANGUAGE_URL: "//cdn.datatables.net/plug-ins/1.11.5/i18n/fr-FR.json",
         DOM: 'Blfrtip',
-        BUTTONS: [
-            {
-                extend: 'excelHtml5',
-                text: '<i class="fas fa-file-excel"></i> Excel',
-                className: 'btn btn-success btn-sm',
-                title: 'Achats_Materiaux_' + new Date().toISOString().slice(0, 10)
-            },
-            {
-                extend: 'pdfHtml5',
-                text: '<i class="fas fa-file-pdf"></i> PDF',
-                className: 'btn btn-danger btn-sm',
-                title: 'Achats_Materiaux_' + new Date().toISOString().slice(0, 10)
-            }
-        ]
-    },
-
-    // Messages utilisateur
-    MESSAGES: {
-        SUCCESS: {
-            PURCHASE_COMPLETE: 'Achat enregistré avec succès',
-            ORDER_CANCELLED: 'Commande annulée avec succès',
-            BULK_ACTION: 'Action groupée effectuée avec succès'
-        },
-        ERROR: {
-            GENERIC: 'Une erreur est survenue',
-            NETWORK: 'Erreur de connexion au serveur',
-            VALIDATION: 'Données invalides',
-            UNAUTHORIZED: 'Accès non autorisé'
-        },
-        CONFIRM: {
-            DELETE: 'Êtes-vous sûr de vouloir supprimer cette commande ?',
-            CANCEL: 'Êtes-vous sûr de vouloir annuler cette commande ?'
-        }
-    },
-
-    // Classes CSS pour les statuts
-    STATUS_CLASSES: {
-        'pas validé': 'bg-yellow-100 text-yellow-800',
-        'validé': 'bg-green-100 text-green-800',
-        'en_cours': 'bg-blue-100 text-blue-800',
-        'commandé': 'bg-purple-100 text-purple-800',
-        'reçu': 'bg-gray-100 text-gray-800',
-        'annulé': 'bg-red-100 text-red-800',
-        'valide_en_cours': 'bg-indigo-100 text-indigo-800'
+        BUTTONS: ['excel', 'print'],
+        PAGE_LENGTH: 15
     }
 };
-
-// =====================================================
-// VARIABLES GLOBALES
-// =====================================================
-
-// Tables DataTables
-let materialsTable = null;
-let orderedMaterialsTable = null;
-let partialOrdersTable = null;
-let receivedMaterialsTable = null;
-let supplierReturnsTable = null;
-
-// Variables pour la gestion des données
-let allMaterials = [];
-let selectedMaterials = [];
-let currentFilters = {};
-let fournisseurs = [];
-
-// Variables pour les modals et formulaires
-let currentModal = null;
-let formData = {};
-
-// Intervalles pour les tâches automatiques
-let refreshIntervals = {
-    datetime: null,
-    materials: null,
-    validation: null
-};
-
-// Variable globale pour marquer l'initialisation
-let achatsModuleInitialized = false;
-
-// =====================================================
-// INITIALISATION PRINCIPALE
-// =====================================================
-
 /**
- * Point d'entrée principal - Initialisation complète au chargement du DOM
+ * MODULE DE GESTION DES MODES DE PAIEMENT - VERSION 2.0
+ * 
+ * Mise à jour : Utilisation du champ icon_path au lieu de icon
+ * Améliorations : Gestion dynamique et optimisée des modes de paiement
+ * Date : 30/06/2025
  */
-$(document).ready(function () {
-    console.log('🚀 Initialisation du module Achats de Matériaux...');
-
-    try {
-        initializeApplication();
-        achatsModuleInitialized = true;
-        console.log('✅ Module Achats de Matériaux initialisé avec succès');
-    } catch (error) {
-        console.error('❌ Erreur lors de l\'initialisation:', error);
-        showNotification('Erreur lors de l\'initialisation de l\'application', 'error');
-    }
-});
-
-/**
- * Fonction principale d'initialisation
- */
-function initializeApplication() {
-    // 1. Initialisation de base
-    initializeBasicComponents();
-
-    // 2. Configuration des gestionnaires d'événements
-    setupEventHandlers();
-
-    // 3. Initialisation des DataTables
-    initializeDataTables();
-
-    // 4. Chargement des données initiales
-    loadInitialData();
-
-    // 5. Configuration des tâches automatiques
-    setupAutomaticTasks();
-
-    // 6. Configuration des gestionnaires d'erreurs
-    setupErrorHandlers();
-}
-
-/**
- * Initialisation des composants de base
- */
-function initializeBasicComponents() {
-    // Affichage de la date courante
-    displayCurrentDate();
-
-    // Initialisation des tooltips
-    initializeTooltips();
-
-    // Configuration des sélecteurs multiples
-    initializeMultiSelect();
-
-    // Configuration des dropdowns
-    initializeDropdowns();
-}
-
-/**
- * Configuration des gestionnaires d'événements
- */
-function setupEventHandlers() {
-    // Gestionnaires pour les filtres
-    setupFilterHandlers();
-
-    // Gestionnaires pour les actions en lot
-    setupBulkActionHandlers();
-
-    // Gestionnaires pour les modals
-    setupModalHandlers();
-
-    // Gestionnaires pour les formulaires
-    setupFormHandlers();
-
-    // Gestionnaires pour les checkboxes
-    setupCheckboxHandlers();
-
-    // Gestionnaires pour les boutons d'action
-    setupActionButtonHandlers();
-}
-
-// =====================================================
-// INITIALISATION DES DATATABLES
-// =====================================================
-
-/**
- * Initialisation de tous les DataTables
- */
-function initializeDataTables() {
-    console.log('📊 Initialisation des DataTables...');
-
-    // Table des matériaux en attente
-    initializeMaterialsTable();
-
-    // Table des matériaux commandés
-    initializeOrderedMaterialsTable();
-
-    // Table des commandes partielles
-    initializePartialOrdersTable();
-
-    // Table des matériaux reçus
-    initializeReceivedMaterialsTable();
-
-    // Table des retours fournisseurs
-    initializeSupplierReturnsTable();
-}
-
-/**
- * Initialisation de la table des matériaux en attente
- */
-function initializeMaterialsTable() {
-    if ($.fn.DataTable.isDataTable('#materialsTable')) {
-        $('#materialsTable').DataTable().destroy();
-    }
-
-    materialsTable = $('#materialsTable').DataTable({
-        language: {
-            url: CONFIG.DATATABLES.LANGUAGE_URL
-        },
-        dom: CONFIG.DATATABLES.DOM,
-        buttons: CONFIG.DATATABLES.BUTTONS,
-        responsive: true,
-        processing: true,
-        pageLength: 25,
-        lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "Tout"]],
-        columnDefs: [
-            {
-                targets: 0,
-                orderable: false,
-                className: 'select-checkbox',
-                render: function (data, type, row) {
-                    return `<input type="checkbox" class="material-checkbox" 
-                            value="${row.id}" data-expression="${row.idExpression}">`;
-                }
-            },
-            {
-                targets: [6], // Colonne statut
-                render: function (data, type, row) {
-                    const statusClass = CONFIG.STATUS_CLASSES[data] || 'bg-gray-100 text-gray-800';
-                    return `<span class="px-2 py-1 text-xs rounded-full ${statusClass}">${data}</span>`;
-                }
-            },
-            {
-                targets: [7], // Colonne prix
-                render: function (data, type, row) {
-                    return data ? formatCurrency(data) : 'Non défini';
-                }
-            },
-            {
-                targets: [-1], // Dernière colonne (Actions)
-                orderable: false,
-                render: function (data, type, row) {
-                    return generateActionButtons(row);
-                }
-            }
-        ],
-        order: [[9, 'desc']], // Trier par date de création
-        initComplete: function () {
-            console.log('✅ Table des matériaux en attente initialisée');
-            setupTableFilters(this.api());
-        }
-    });
-}
-
-/**
- * Initialisation de la table des matériaux commandés
- */
-function initializeOrderedMaterialsTable() {
-    if ($.fn.DataTable.isDataTable('#orderedMaterialsTable')) {
-        $('#orderedMaterialsTable').DataTable().destroy();
-    }
-
-    orderedMaterialsTable = $('#orderedMaterialsTable').DataTable({
-        language: {
-            url: CONFIG.DATATABLES.LANGUAGE_URL
-        },
-        dom: CONFIG.DATATABLES.DOM,
-        buttons: CONFIG.DATATABLES.BUTTONS,
-        responsive: true,
-        processing: true,
-        pageLength: 25,
-        lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "Tout"]],
-        columnDefs: [
-            {
-                targets: 0,
-                orderable: false,
-                className: 'select-checkbox',
-                render: function (data, type, row) {
-                    return `<input type="checkbox" class="ordered-material-checkbox" 
-                            value="${row.id}" data-expression="${row.idExpression}">`;
-                }
-            },
-            {
-                targets: [6], // Colonne statut
-                render: function (data, type, row) {
-                    const statusClass = CONFIG.STATUS_CLASSES[data] || 'bg-gray-100 text-gray-800';
-                    return `<span class="px-2 py-1 text-xs rounded-full ${statusClass}">${data}</span>`;
-                }
-            },
-            {
-                targets: [-1], // Dernière colonne (Actions)
-                orderable: false,
-                render: function (data, type, row) {
-                    return generateOrderedMaterialActions(row);
-                }
-            }
-        ],
-        order: [[9, 'desc']], // Trier par date
-        initComplete: function () {
-            console.log('✅ Table des matériaux commandés initialisée');
-        }
-    });
-}
-
-/**
- * Initialisation de la table des commandes partielles
- */
-function initializePartialOrdersTable() {
-    if ($.fn.DataTable.isDataTable('#partialOrdersTable')) {
-        $('#partialOrdersTable').DataTable().destroy();
-    }
-
-    partialOrdersTable = $('#partialOrdersTable').DataTable({
-        language: {
-            url: CONFIG.DATATABLES.LANGUAGE_URL
-        },
-        dom: CONFIG.DATATABLES.DOM,
-        buttons: CONFIG.DATATABLES.BUTTONS,
-        responsive: true,
-        processing: true,
-        pageLength: 25,
-        columnDefs: [
-            {
-                targets: 0,
-                orderable: false,
-                className: 'select-checkbox',
-                render: function (data, type, row) {
-                    return `<input type="checkbox" class="partial-order-checkbox" 
-                            value="${row.id}" data-expression="${row.idExpression}">`;
-                }
-            },
-            {
-                targets: [-1], // Actions
-                orderable: false,
-                render: function (data, type, row) {
-                    return generatePartialOrderActions(row);
-                }
-            }
-        ],
-        initComplete: function () {
-            console.log('✅ Table des commandes partielles initialisée');
-        }
-    });
-}
-
-/**
- * Initialisation de la table des matériaux reçus
- */
-function initializeReceivedMaterialsTable() {
-    if ($.fn.DataTable.isDataTable('#receivedMaterialsTable')) {
-        $('#receivedMaterialsTable').DataTable().destroy();
-    }
-
-    receivedMaterialsTable = $('#receivedMaterialsTable').DataTable({
-        language: {
-            url: CONFIG.DATATABLES.LANGUAGE_URL
-        },
-        dom: CONFIG.DATATABLES.DOM,
-        buttons: CONFIG.DATATABLES.BUTTONS,
-        responsive: true,
-        processing: true,
-        pageLength: 25,
-        columnDefs: [
-            {
-                targets: [-1], // Actions
-                orderable: false,
-                render: function (data, type, row) {
-                    return generateReceivedMaterialActions(row);
-                }
-            }
-        ],
-        order: [[5, 'desc']], // Trier par date de réception
-        initComplete: function () {
-            console.log('✅ Table des matériaux reçus initialisée');
-        }
-    });
-}
-
-/**
- * Initialisation de la table des retours fournisseurs
- */
-function initializeSupplierReturnsTable() {
-    if ($.fn.DataTable.isDataTable('#supplierReturnsTable')) {
-        $('#supplierReturnsTable').DataTable().destroy();
-    }
-
-    supplierReturnsTable = $('#supplierReturnsTable').DataTable({
-        language: {
-            url: CONFIG.DATATABLES.LANGUAGE_URL
-        },
-        dom: CONFIG.DATATABLES.DOM,
-        buttons: CONFIG.DATATABLES.BUTTONS,
-        responsive: true,
-        processing: true,
-        pageLength: 25,
-        columnDefs: [
-            {
-                targets: [-1], // Actions
-                orderable: false,
-                render: function (data, type, row) {
-                    return generateSupplierReturnActions(row);
-                }
-            }
-        ],
-        initComplete: function () {
-            console.log('✅ Table des retours fournisseurs initialisée');
-        }
-    });
-}
-
-// =====================================================
-// GESTIONNAIRES D'ÉVÉNEMENTS
-// =====================================================
-
-/**
- * Configuration des gestionnaires de filtres
- */
-function setupFilterHandlers() {
-    // Filtre de recherche générale
-    $('#search-materials').on('input', debounce(function () {
-        const searchTerm = $(this).val();
-        filterMaterialsBySearch(searchTerm);
-    }, 300));
-
-    // Filtres par date
-    $('#dateDebut, #dateFin').on('change', function () {
-        applyDateFilters();
-    });
-
-    // Filtre par client
-    $('#clientFilter').on('change', function () {
-        const client = $(this).val();
-        filterMaterialsByClient(client);
-    });
-
-    // Filtre par fournisseur
-    $('#fournisseurFilter').on('change', function () {
-        const fournisseur = $(this).val();
-        filterMaterialsByFournisseur(fournisseur);
-    });
-
-    // Filtre par statut
-    $('#statusFilter').on('change', function () {
-        const status = $(this).val();
-        filterMaterialsByStatus(status);
-    });
-
-    // Bouton de réinitialisation des filtres
-    $('#reset-filters-btn').on('click', function () {
-        resetAllFilters();
-    });
-
-    // Bouton d'application des filtres
-    $('#apply-filters-btn').on('click', function () {
-        applyAllFilters();
-    });
-}
-
-/**
- * Configuration des gestionnaires d'actions en lot
- */
-function setupBulkActionHandlers() {
-    // Sélection de tous les matériaux
-    $('#select-all-materials').on('change', function () {
-        const isChecked = $(this).is(':checked');
-        $('.material-checkbox').prop('checked', isChecked).trigger('change');
-    });
-
-    // Sélection de tous les matériaux commandés
-    $('#select-all-ordered-materials').on('change', function () {
-        const isChecked = $(this).is(':checked');
-        $('.ordered-material-checkbox').prop('checked', isChecked).trigger('change');
-    });
-
-    // Achat en lot
-    $('#bulk-purchase-btn').on('click', function () {
-        const selectedItems = getSelectedMaterials();
-        if (selectedItems.length === 0) {
-            showNotification('Aucun matériau sélectionné', 'warning');
-            return;
-        }
-        openBulkPurchaseModal(selectedItems);
-    });
-
-    // Annulation en lot
-    $('#bulk-cancel-btn').on('click', function () {
-        const selectedItems = getSelectedOrderedMaterials();
-        if (selectedItems.length === 0) {
-            showNotification('Aucune commande sélectionnée', 'warning');
-            return;
-        }
-        cancelMultipleOrders(selectedItems);
-    });
-
-    // Complétion en lot des commandes partielles
-    $('#bulk-complete-btn').on('click', function () {
-        const selectedItems = getSelectedPartialOrders();
-        if (selectedItems.length === 0) {
-            showNotification('Aucune commande partielle sélectionnée', 'warning');
-            return;
-        }
-        completeMultiplePartialOrders(selectedItems);
-    });
-}
-
-/**
- * Configuration des gestionnaires de modals
- */
-function setupModalHandlers() {
-    // Modal d'achat individuel
-    $(document).on('click', '.purchase-btn', function () {
-        const row = $(this).closest('tr');
-        const materialData = getMaterialDataFromRow(row);
-        openPurchaseModal(materialData);
-    });
-
-    // Modal de modification de commande
-    $(document).on('click', '.edit-order-btn', function () {
-        const orderId = $(this).data('order-id');
-        const expressionId = $(this).data('expression-id');
-        openEditOrderModal(orderId, expressionId);
-    });
-
-    // Modal de détails de commande
-    $(document).on('click', '.view-details-btn', function () {
-        const orderId = $(this).data('order-id');
-        viewOrderDetails(orderId);
-    });
-
-    // Fermeture des modals
-    $('.modal .close, .modal [data-dismiss="modal"]').on('click', function () {
-        $(this).closest('.modal').hide();
-    });
-
-    // Fermeture des modals en cliquant à l'extérieur
-    $(window).on('click', function (event) {
-        if ($(event.target).hasClass('modal')) {
-            $(event.target).hide();
-        }
-    });
-}
-
-/**
- * Configuration des gestionnaires de formulaires
- */
-function setupFormHandlers() {
-    // Formulaire d'achat individuel
-    $('#purchase-form').on('submit', function (e) {
-        e.preventDefault();
-        handleIndividualPurchase(this);
-    });
-
-    // Formulaire d'achat en lot
-    $('#bulk-purchase-form').on('submit', function (e) {
-        e.preventDefault();
-        handleBulkPurchase(this);
-    });
-
-    // Formulaire de modification de commande
-    $('#edit-order-form').on('submit', function (e) {
-        e.preventDefault();
-        handleOrderEdit(this);
-    });
-
-    // Gestion des changements de fournisseur
-    $(document).on('change', '#fournisseur', function () {
-        const fournisseur = $(this).val();
-        updateFournisseurInfo(fournisseur);
-    });
-
-    // Validation en temps réel
-    $(document).on('input', '.required-field', function () {
-        validateField(this);
-    });
-}
-
-/**
- * Configuration des gestionnaires de checkboxes
- */
-function setupCheckboxHandlers() {
-    // Gestion des checkboxes individuelles
-    $(document).on('change', '.material-checkbox', function () {
-        updateMaterialSelection();
-        updateBulkActionButtons();
-    });
-
-    $(document).on('change', '.ordered-material-checkbox', function () {
-        updateOrderedMaterialSelection();
-        updateBulkActionButtons();
-    });
-
-    $(document).on('change', '.partial-order-checkbox', function () {
-        updatePartialOrderSelection();
-        updateBulkActionButtons();
-    });
-}
-
-/**
- * Configuration des gestionnaires de boutons d'action
- */
-function setupActionButtonHandlers() {
-    // Bouton de substitution
-    $(document).on('click', '.substitute-btn', function () {
-        const materialId = $(this).data('material-id');
-        const designation = $(this).data('designation');
-        const expressionId = $(this).data('expression-id');
-        openSubstitutionModal(materialId, designation, expressionId);
-    });
-
-    // Bouton de génération de bon de commande
-    $(document).on('click', '.generate-bon-commande-btn', function () {
-        const expressionId = $(this).data('expression-id');
-        generateBonCommande(expressionId);
-    });
-
-    // Bouton de téléchargement de bon de commande
-    $(document).on('click', '.download-bon-commande-btn', function () {
-        const bonCommandeId = $(this).data('bon-commande-id');
-        downloadBonCommande(bonCommandeId);
-    });
-
-    // Bouton de visualisation du stock
-    $(document).on('click', '.view-stock-btn', function () {
-        const designation = $(this).data('designation');
-        viewStockDetails(designation);
-    });
-}
-
-// =====================================================
-// CHARGEMENT DES DONNÉES INITIALES
-// =====================================================
-
-/**
- * Chargement de toutes les données initiales avec les nouveaux gestionnaires
- */
-function loadInitialData() {
-    console.log('📊 Chargement des données initiales...');
-
-    // Chargement des fournisseurs avec le nouveau module
-    FournisseursModule.loadFournisseurs();
-
-    // Chargement des modes de paiement avec le nouveau gestionnaire
-    PaymentMethodsManager.loadPaymentMethods();
-
-    // Mise à jour des compteurs de notifications
-    updateNotificationCounters();
-
-    // Chargement des filtres sauvegardés
-    loadSavedFilters();
-
-    // Configuration de la validation en temps réel
-    setupRealTimeValidation();
-}
-
-/**
- * Configuration des tâches automatiques et intervalles avec nouvelles vérifications
- */
-function setupAutomaticTasks() {
-    // Mise à jour de l'heure toutes les secondes
-    refreshIntervals.datetime = setInterval(() => {
-        displayCurrentDate();
-    }, CONFIG.REFRESH_INTERVALS.DATETIME);
-
-    // Vérification des nouveaux matériaux toutes les 5 minutes
-    refreshIntervals.materials = setInterval(() => {
-        updateNotificationCounters();
-    }, CONFIG.REFRESH_INTERVALS.CHECK_MATERIALS);
-
-    // Vérification des validations en attente toutes les 5 minutes
-    refreshIntervals.validation = setInterval(() => {
-        checkOrderValidationStatus();
-    }, CONFIG.REFRESH_INTERVALS.CHECK_VALIDATION);
-
-    // Nouveau : Vérification des changements de statut toutes les 2 minutes
-    refreshIntervals.statusCheck = setInterval(() => {
-        checkOrderStatusChanges();
-    }, 2 * 60 * 1000);
-}
-
-/**
- * Vérification des changements de statut des commandes
- */
-async function checkOrderStatusChanges() {
-    try {
-        const response = await fetch('api/orders/check_status_changes.php');
-        const data = await response.json();
-
-        if (data.success && data.changes.length > 0) {
-            // Rafraîchir les tables
-            refreshDataTables();
-
-            // Notification discrète
-            showNotification(`${data.changes.length} changement(s) de statut détecté(s)`, 'info');
-        }
-
-    } catch (error) {
-        console.warn('⚠️ Impossible de vérifier les changements de statut:', error);
-    }
-}
-
-/**
- * Configuration améliorée des gestionnaires d'événements avec nouveaux gestionnaires
- */
-function setupEventHandlers() {
-    // Gestionnaires pour les filtres
-    setupFilterHandlers();
-
-    // Gestionnaires pour les actions en lot avec nouveaux managers
-    setupBulkActionHandlers();
-
-    // Gestionnaires pour les modals
-    setupModalHandlers();
-
-    // Gestionnaires pour les formulaires avec validation
-    setupFormHandlers();
-
-    // Gestionnaires pour les checkboxes avec nouveaux managers
-    setupCheckboxHandlers();
-
-    // Gestionnaires pour les boutons d'action
-    setupActionButtonHandlers();
-
-    // Nouveau : Gestionnaires pour les fonctions avancées
-    setupAdvancedEventHandlers();
-}
-
-/**
- * Configuration des gestionnaires d'événements avancés
- */
-function setupAdvancedEventHandlers() {
-    // Gestionnaire pour les formulaires d'achat en lot
-    $('#bulk-purchase-form').on('submit', async function (e) {
-        e.preventDefault();
-        await BulkPurchaseManager.handleBulkPurchase(this);
-    });
-
-    // Gestionnaire pour les formulaires de complétion partielle
-    $('#complete-partial-form').on('submit', async function (e) {
-        e.preventDefault();
-        await PartialOrdersManager.handleCompletionSubmit(this);
-    });
-
-    // Gestionnaire pour les formulaires de modification
-    $('#edit-order-form').on('submit', function (e) {
-        EditOrderManager.handleSubmit(e);
-    });
-
-    // Gestionnaire pour les formulaires de substitution
-    $('#substitution-form').on('submit', async function (e) {
-        e.preventDefault();
-        await SubstitutionManager.handleSubstitution(this);
-    });
-
-    // Gestionnaires pour l'autocomplétion des fournisseurs
-    $(document).on('focus', 'input[name*="fournisseur"]', function () {
-        const inputId = $(this).attr('id');
-        const suggestionsId = inputId + '-suggestions';
-        FournisseursModule.setupAutocomplete(inputId, suggestionsId);
-    });
-
-    // Gestionnaire pour les changements de mode de paiement
-    $(document).on('change', 'select[name*="payment"]', function () {
-        const paymentMethodId = $(this).val();
-        updatePaymentMethodInfo(paymentMethodId);
-    });
-}
-
-/**
- * Mise à jour des informations de mode de paiement
- */
-function updatePaymentMethodInfo(paymentMethodId) {
-    if (!paymentMethodId) return;
-
-    const method = PaymentMethodsManager.paymentMethods.find(m => m.id == paymentMethodId);
-    if (method) {
-        // Afficher les informations du mode de paiement
-        const infoContainer = $('.payment-method-info');
-        if (infoContainer.length) {
-            infoContainer.html(`
-                <div class="alert alert-info">
-                    <strong>${method.nom}</strong><br>
-                    ${method.description || 'Mode de paiement sélectionné'}
-                </div>
-            `);
-        }
-    }
-}
-
-/**
- * Configuration améliorée des gestionnaires d'actions en lot
- */
-function setupBulkActionHandlers() {
-    // Sélection de tous les matériaux
-    $('#select-all-materials').on('change', function () {
-        const isChecked = $(this).is(':checked');
-        $('.material-checkbox').prop('checked', isChecked).trigger('change');
-    });
-
-    // Sélection de tous les matériaux commandés
-    $('#select-all-ordered-materials').on('change', function () {
-        const isChecked = $(this).is(':checked');
-        $('.ordered-material-checkbox').prop('checked', isChecked).trigger('change');
-    });
-
-    // Achat en lot avec nouveau gestionnaire
-    $('#bulk-purchase-btn').on('click', function () {
-        BulkPurchaseManager.openModal();
-    });
-
-    // Annulation en lot avec nouveau gestionnaire
-    $('#bulk-cancel-btn').on('click', function () {
-        CancelManager.cancelMultipleOrders();
-    });
-
-    // Complétion en lot des commandes partielles
-    $('#bulk-complete-btn').on('click', function () {
-        const selectedItems = getSelectedPartialOrders();
-        if (selectedItems.length === 0) {
-            showNotification('Aucune commande partielle sélectionnée', 'warning');
-            return;
-        }
-        completeMultiplePartialOrders(selectedItems);
-    });
-
-    // Nouveau : Annulation en lot des matériaux en attente
-    $('#bulk-cancel-pending-btn').on('click', function () {
-        CancelManager.cancelMultiplePending();
-    });
-
-    // Nouveau : Export en lot
-    $('#bulk-export-btn').on('click', function () {
-        exportSelectedMaterials();
-    });
-}
-
-/**
- * Fonction de complétion multiple des commandes partielles
- */
-async function completeMultiplePartialOrders(selectedItems) {
-    const result = await Swal.fire({
-        title: 'Complétion multiple',
-        text: `Êtes-vous sûr de vouloir compléter ${selectedItems.length} commande(s) partielle(s) ?`,
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonColor: '#28a745',
-        cancelButtonColor: '#6c757d',
-        confirmButtonText: 'Oui, compléter',
-        cancelButtonText: 'Annuler'
-    });
-
-    if (result.isConfirmed) {
+const PaymentMethodsManager = {
+    // Cache des données
+    paymentMethods: [],
+    isLoaded: false,
+    cache: {
+        lastUpdate: null,
+        cacheDuration: 5 * 60 * 1000 // 5 minutes en millisecondes
+    },
+    /**
+     * Initialisation du gestionnaire des modes de paiement
+     */
+    async init() {
         try {
-            showProcessingLoader('Complétion des commandes en cours...');
-
-            const completionPromises = selectedItems.map(item =>
-                PartialOrdersManager.completeOrder(item.id, item.designation, item.qt_restante, item.unit, item.sourceTable)
-            );
-
-            await Promise.all(completionPromises);
-
-            hideProcessingLoader();
-            showNotification(`${selectedItems.length} commande(s) complétée(s) avec succès`, 'success');
-            refreshDataTables();
-            updateNotificationCounters();
-            clearSelection();
-
+            console.log('🔄 Initialisation du PaymentMethodsManager v2.0...');
+            await this.loadPaymentMethods();
+            this.populateAllSelectors();
+            this.setupEventListeners();
+            console.log('✅ PaymentMethodsManager initialisé avec succès');
+            console.log(`📊 ${this.paymentMethods.length} modes de paiement disponibles`);
         } catch (error) {
-            hideProcessingLoader();
-            console.error('Erreur lors de la complétion multiple:', error);
-            showNotification('Erreur lors de la complétion des commandes', 'error');
+            console.error('❌ Erreur lors de l\'initialisation des modes de paiement:', error);
+            this.handleError('Erreur d\'initialisation des modes de paiement');
         }
-    }
-}
-
-/**
- * Export des matériaux sélectionnés
- */
-function exportSelectedMaterials() {
-    const selectedMaterials = getSelectedMaterials();
-
-    if (selectedMaterials.length === 0) {
-        showNotification('Aucun matériau sélectionné', 'warning');
-        return;
-    }
-
-    Swal.fire({
-        title: 'Format d\'export',
-        text: 'Choisissez le format d\'export souhaité',
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonText: 'Excel',
-        cancelButtonText: 'PDF',
-        showDenyButton: true,
-        denyButtonText: 'Annuler'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            exportMaterialsToExcel(selectedMaterials);
-        } else if (result.isDismissed && result.dismiss !== Swal.DismissReason.cancel) {
-            exportMaterialsToPDF(selectedMaterials);
-        }
-    });
-}
-
-/**
- * Export Excel des matériaux
- */
-function exportMaterialsToExcel(materials) {
-    const formData = new FormData();
-    formData.append('materials', JSON.stringify(materials));
-    formData.append('format', 'excel');
-
-    fetch('export/export_materials.php', {
-        method: 'POST',
-        body: formData
-    })
-        .then(response => response.blob())
-        .then(blob => {
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `materiaux_${new Date().toISOString().slice(0, 10)}.xlsx`;
-            document.body.appendChild(a);
-            a.click();
-            window.URL.revokeObjectURL(url);
-            document.body.removeChild(a);
-
-            showNotification('Export Excel terminé', 'success');
-        })
-        .catch(error => {
-            console.error('Erreur lors de l\'export Excel:', error);
-            showNotification('Erreur lors de l\'export Excel', 'error');
-        });
-}
-
-/**
- * Export PDF des matériaux
- */
-function exportMaterialsToPDF(materials) {
-    const formData = new FormData();
-    formData.append('materials', JSON.stringify(materials));
-    formData.append('format', 'pdf');
-
-    fetch('export/export_materials.php', {
-        method: 'POST',
-        body: formData
-    })
-        .then(response => response.blob())
-        .then(blob => {
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `materiaux_${new Date().toISOString().slice(0, 10)}.pdf`;
-            document.body.appendChild(a);
-            a.click();
-            window.URL.revokeObjectURL(url);
-            document.body.removeChild(a);
-
-            showNotification('Export PDF terminé', 'success');
-        })
-        .catch(error => {
-            console.error('Erreur lors de l\'export PDF:', error);
-            showNotification('Erreur lors de l\'export PDF', 'error');
-        });
-}
-
-/**
- * Chargement de la liste des fournisseurs
- */
-function loadFournisseurs() {
-    $.ajax({
-        url: CONFIG.API_URLS.FOURNISSEURS,
-        type: 'GET',
-        dataType: 'json',
-        success: function (response) {
-            if (response.success) {
-                fournisseurs = response.fournisseurs;
-                populateFournisseurSelects();
-                console.log('✅ Fournisseurs chargés:', fournisseurs.length);
-            } else {
-                console.error('❌ Erreur lors du chargement des fournisseurs:', response.message);
-            }
-        },
-        error: function (xhr, status, error) {
-            console.error('❌ Erreur AJAX lors du chargement des fournisseurs:', error);
-        }
-    });
-}
-
-/**
- * Chargement des modes de paiement
- */
-function loadPaymentMethods() {
-    $.ajax({
-        url: CONFIG.API_URLS.PAYMENT_METHODS,
-        type: 'GET',
-        dataType: 'json',
-        success: function (response) {
-            if (response.success) {
-                populatePaymentMethodSelects(response.payment_methods);
-                console.log('✅ Modes de paiement chargés');
-            }
-        },
-        error: function (xhr, status, error) {
-            console.error('❌ Erreur lors du chargement des modes de paiement:', error);
-        }
-    });
-}
-
-// =====================================================
-// GESTIONNAIRES SPÉCIALISÉS MANQUANTS
-// =====================================================
-
-/**
- * Gestionnaire des achats en lot
- */
-const BulkPurchaseManager = {
-    selectedMaterials: [],
-
-    async openModal() {
-        const selectedMaterials = getSelectedMaterials();
-        if (selectedMaterials.length === 0) {
-            showNotification('Aucun matériau sélectionné', 'warning');
-            return;
-        }
-
-        this.selectedMaterials = selectedMaterials;
-        await this.prepareBulkPurchaseModal(selectedMaterials);
     },
-
-    async prepareBulkPurchaseModal(materials) {
-        const container = document.getElementById('selected-materials-container');
-        const tbody = document.getElementById('individual-prices-tbody');
-
-        if (!container || !tbody) return;
-
-        // Réinitialiser le contenu
-        container.innerHTML = `<p class="mb-2">Vous avez sélectionné <strong>${materials.length}</strong> matériaux à acheter.</p>`;
-        tbody.innerHTML = '';
-
-        // Ajouter les champs cachés
-        materials.forEach(material => {
-            container.innerHTML += `
-                <input type="hidden" name="material_ids[]" value="${material.id}">
-                <input type="hidden" name="source_table[${material.id}]" value="${material.sourceTable || 'expression_dym'}">
-            `;
-        });
-
-        // Initialiser l'autocomplétion des fournisseurs
-        FournisseursModule.setupAutocomplete('fournisseur-bulk', 'fournisseurs-suggestions-bulk');
-
-        // Peupler les modes de paiement
-        PaymentMethodsManager.populatePaymentSelect('payment-method-bulk');
-
-        // Afficher le modal
-        const modal = document.getElementById('bulk-purchase-modal');
-        if (modal) {
-            modal.style.display = 'flex';
-        }
-
-        // Charger les prix
-        await this.loadBulkPrices(materials);
-    },
-
-    async loadBulkPrices(materials) {
-        const tbody = document.getElementById('individual-prices-tbody');
-
+    /**
+     * Chargement des modes de paiement depuis l'API - MISE À JOUR
+     */
+    async loadPaymentMethods() {
         try {
-            const pricePromises = materials.map(async (material) => {
-                const apiUrl = material.sourceTable === 'besoins' ?
-                    'commandes-traitement/besoins/get_besoin_info.php' :
-                    CONFIG.API_URLS.MATERIAL_INFO;
-
-                const response = await fetch(`${apiUrl}?id=${material.id}`);
-                const data = await response.json();
-
-                return {
-                    ...material,
-                    prix_unitaire: data.prix_unitaire || 0,
-                    fournisseur: data.fournisseur || ''
-                };
+            // Vérification du cache
+            if (this.isLoaded && this.isCacheValid()) {
+                console.log('📋 Utilisation du cache des modes de paiement');
+                return;
+            }
+            console.log('🔄 Chargement des modes de paiement depuis l\'API...');
+            // Appel à la nouvelle API
+            const response = await fetch(CONFIG.API_URLS.PAYMENT_METHODS, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
             });
-
-            const materialsWithPrices = await Promise.all(pricePromises);
-            this.populatePricesTable(materialsWithPrices);
-
+            if (!response.ok) {
+                throw new Error(`Erreur HTTP ${response.status}: ${response.statusText}`);
+            }
+            const data = await response.json();
+            if (data.success) {
+                this.paymentMethods = data.methods || [];
+                this.isLoaded = true;
+                this.cache.lastUpdate = Date.now();
+                console.log(`✅ ${data.count} modes de paiement chargés depuis l'API`);
+                console.log('📋 Version API:', data.metadata?.version || 'inconnue');
+            } else {
+                throw new Error(data.message || 'Erreur lors du chargement des modes de paiement');
+            }
         } catch (error) {
-            console.error('Erreur lors du chargement des prix:', error);
-            showNotification('Erreur lors du chargement des prix', 'error');
+            console.warn('⚠️ Erreur API, utilisation des modes par défaut:', error.message);
+            this.loadFallbackMethods();
         }
     },
-
-    populatePricesTable(materials) {
-        const tbody = document.getElementById('individual-prices-tbody');
-        if (!tbody) return;
-
-        tbody.innerHTML = '';
-
-        materials.forEach(material => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td class="px-4 py-2">${material.designation}</td>
-                <td class="px-4 py-2">${material.qt_acheter}</td>
-                <td class="px-4 py-2">
-                    <input type="number" 
-                           name="prix_individuel[${material.id}]" 
-                           value="${material.prix_unitaire || ''}"
-                           step="0.01" 
-                           min="0"
-                           class="w-full px-2 py-1 border rounded individual-price-input"
-                           placeholder="Prix unitaire">
-                </td>
-                <td class="px-4 py-2 total-price">0 €</td>
-            `;
-            tbody.appendChild(row);
-        });
-
-        // Calculer les totaux
-        this.calculateTotals();
-
-        // Écouter les changements de prix
-        $('.individual-price-input').on('input', () => this.calculateTotals());
-    },
-
-    calculateTotals() {
-        let grandTotal = 0;
-
-        $('#individual-prices-tbody tr').each(function () {
-            const quantity = parseFloat($(this).find('td:nth-child(2)').text()) || 0;
-            const price = parseFloat($(this).find('input').val()) || 0;
-            const total = quantity * price;
-
-            $(this).find('.total-price').text(formatCurrency(total));
-            grandTotal += total;
-        });
-
-        $('#grand-total').text(formatCurrency(grandTotal));
-    }
-};
-
-/**
- * Gestionnaire des commandes partielles
- */
-const PartialOrdersManager = {
-    async completeOrder(id, designation, remaining, unit, sourceTable = 'expression_dym') {
-        try {
-            console.log(`🔄 Complétion de la commande ${id} (${sourceTable})`);
-
-            let apiUrl = `${CONFIG.API_URLS.PARTIAL_ORDERS}?action=get_material_info&id=${id}`;
-            if (sourceTable === 'besoins') {
-                apiUrl = `commandes-traitement/besoins/get_besoin_with_remaining.php?id=${id}`;
-            }
-
-            const response = await fetch(apiUrl);
-            const materialInfo = await response.json();
-
-            if (materialInfo.success === false) {
-                throw new Error(materialInfo.message || 'Impossible de récupérer les informations du matériau');
-            }
-
-            this.showCompleteOrderModal(id, designation, remaining, unit, materialInfo, sourceTable);
-
-        } catch (error) {
-            console.error("❌ Erreur lors de la récupération des infos du matériau:", error);
-            showNotification('Erreur lors du chargement des données', 'error');
-        }
-    },
-
-    showCompleteOrderModal(id, designation, remaining, unit, materialInfo, sourceTable) {
-        const modal = document.getElementById('complete-partial-modal');
-        if (!modal) {
-            console.error('Modal de complétion non trouvé');
+    /**
+     * Peupler un sélecteur avec les modes de paiement - CORRIGÉE
+     */
+    populatePaymentSelect(selectId) {
+        const select = document.getElementById(selectId);
+        if (!select) {
+            console.warn('⚠️ Sélecteur non trouvé:', selectId);
             return;
         }
-
-        // Remplir les données
-        document.getElementById('complete-order-id').value = id;
-        document.getElementById('complete-source-table').value = sourceTable;
-        document.getElementById('complete-designation').value = designation;
-        document.getElementById('complete-remaining').value = remaining;
-        document.getElementById('complete-unit').value = unit;
-
-        // Afficher les informations
-        modal.querySelector('.modal-title').textContent = `Compléter: ${designation}`;
-        modal.querySelector('#remaining-info').textContent = `Quantité restante: ${remaining} ${unit}`;
-
-        // Préremplir avec les données existantes si disponibles
-        if (materialInfo.data) {
-            const data = materialInfo.data;
-            if (data.fournisseur) document.getElementById('complete-fournisseur').value = data.fournisseur;
-            if (data.prix_unitaire) document.getElementById('complete-prix').value = data.prix_unitaire;
+        // Garder l'option par défaut
+        const defaultOption = select.querySelector('option[value=""]');
+        select.innerHTML = '';
+        if (defaultOption) {
+            select.appendChild(defaultOption);
         }
-
-        modal.style.display = 'flex';
+        // Ajouter les modes de paiement actifs
+        this.paymentMethods
+            .filter(method => method.is_active !== false)
+            .forEach(method => {
+                const option = document.createElement('option');
+                // CORRECTION PRINCIPALE : Utiliser l'ID comme valeur
+                option.value = method.id;
+                option.textContent = method.label;
+                // Stocker les données supplémentaires
+                if (method.description) option.dataset.description = method.description;
+                if (method.icon) option.dataset.icon = method.icon;
+                select.appendChild(option);
+            });
+        console.log(`✅ Sélecteur ${selectId} peuplé avec ${this.paymentMethods.length} modes de paiement`);
     },
-
-    async viewDetails(id, sourceTable = 'expression_dym') {
-        try {
-            let apiUrl = `commandes-traitement/api.php?action=get_order_details&id=${id}`;
-            if (sourceTable === 'besoins') {
-                apiUrl = `commandes-traitement/besoins/get_besoin_details.php?id=${id}`;
-            }
-
-            const response = await fetch(apiUrl);
-            const data = await response.json();
-
-            if (data.success) {
-                this.showDetailsModal(data);
-            } else {
-                showNotification('Erreur lors du chargement des détails', 'error');
-            }
-
-        } catch (error) {
-            console.error('Erreur lors de la récupération des détails:', error);
-            showNotification('Erreur de connexion', 'error');
+    /**
+     * Méthodes de paiement par défaut (fallback)
+     */
+    loadFallbackMethods() {
+        this.paymentMethods = [{
+            id: 1,
+            label: 'Virement bancaire',
+            description: 'Paiement par virement bancaire',
+            icon_path: null, // Pas d'icône en mode fallback
+            display_order: 1,
+            is_active: true
+        },
+        {
+            id: 2,
+            label: 'Espèces',
+            description: 'Paiement en espèces',
+            icon_path: null,
+            display_order: 2,
+            is_active: true
+        },
+        {
+            id: 3,
+            label: 'Chèque',
+            description: 'Paiement par chèque',
+            icon_path: null,
+            display_order: 3,
+            is_active: true
         }
+        ];
+        this.isLoaded = true;
+        this.cache.lastUpdate = Date.now();
+        console.log('📋 Modes de paiement par défaut chargés');
     },
-
-    showDetailsModal(data) {
-        // Utiliser SweetAlert2 pour afficher les détails
-        Swal.fire({
-            title: 'Détails de la commande partielle',
-            html: this.buildDetailsHTML(data),
-            width: 600,
-            showCloseButton: true,
-            confirmButtonText: 'Fermer'
+    /**
+     * Vérification de la validité du cache
+     */
+    isCacheValid() {
+        if (!this.cache.lastUpdate) return false;
+        return (Date.now() - this.cache.lastUpdate) < this.cache.cacheDuration;
+    },
+    /**
+     * Population de tous les sélecteurs de modes de paiement
+     */
+    populateAllSelectors() {
+        const selectors = [
+            'payment-method', // Sélecteur principal
+            'edit-payment-method', // Modal d'édition
+            'payment-method-partial' // Commandes partielles
+        ];
+        selectors.forEach(selectorId => {
+            this.populateSelector(selectorId);
         });
     },
-
-    buildDetailsHTML(data) {
-        const order = data.order;
-        return `
-            <div class="text-left space-y-4">
-                <div>
-                    <h4 class="font-semibold">Informations du matériau</h4>
-                    <p><strong>Désignation:</strong> ${order.designation}</p>
-                    <p><strong>Quantité commandée:</strong> ${order.qt_acheter} ${order.unit}</p>
-                    <p><strong>Quantité restante:</strong> ${order.qt_restante} ${order.unit}</p>
-                    <p><strong>Fournisseur:</strong> ${order.fournisseur || 'Non défini'}</p>
-                    <p><strong>Prix unitaire:</strong> ${order.prix_unitaire ? formatCurrency(order.prix_unitaire) : 'Non défini'}</p>
-                </div>
-                
-                <div>
-                    <h4 class="font-semibold">Informations du projet</h4>
-                    <p><strong>Projet:</strong> ${order.code_projet || 'N/A'}</p>
-                    <p><strong>Client:</strong> ${order.nom_client || 'N/A'}</p>
-                    <p><strong>Date de commande:</strong> ${new Date(order.created_at).toLocaleDateString('fr-FR')}</p>
-                </div>
-            </div>
-        `;
+    /**
+     * Remplissage d'un sélecteur spécifique - MISE À JOUR ICON_PATH
+     */
+    populateSelector(selectorId) {
+        const selector = document.getElementById(selectorId);
+        if (!selector) {
+            console.warn(`⚠️ Sélecteur #${selectorId} non trouvé`);
+            return;
+        }
+        // Sauvegarde de la valeur actuelle
+        const currentValue = selector.value;
+        // Nettoyage du sélecteur
+        selector.innerHTML = '<option value="">Sélectionnez un mode de paiement</option>';
+        // Ajout des options avec ICON_PATH
+        this.paymentMethods.forEach(method => {
+            if (!method.is_active) return;
+            const option = document.createElement('option');
+            option.value = method.id;
+            option.textContent = method.label;
+            // NOUVEAU : Ajout des données pour icon_path
+            if (method.icon_path) {
+                option.setAttribute('data-icon-path', method.icon_path);
+            }
+            if (method.description) {
+                option.setAttribute('data-description', method.description);
+            }
+            selector.appendChild(option);
+        });
+        // Restauration de la valeur si elle existe encore
+        if (currentValue && this.paymentMethods.find(m => m.id.toString() === currentValue)) {
+            selector.value = currentValue;
+            this.updatePaymentDescription(this.getDescriptionElementId(selectorId), currentValue);
+        }
+        console.log(`✅ Sélecteur #${selectorId} mis à jour avec ${this.paymentMethods.length} options`);
+    },
+    /**
+     * Mise à jour de la description d'un mode de paiement - AVEC ICON_PATH
+     */
+    updatePaymentDescription(descriptionElementId, paymentMethodId) {
+        const descriptionElement = document.getElementById(descriptionElementId);
+        if (!descriptionElement) return;
+        if (!paymentMethodId) {
+            descriptionElement.innerHTML = '';
+            return;
+        }
+        const method = this.paymentMethods.find(m => m.id.toString() === paymentMethodId.toString());
+        if (!method) {
+            descriptionElement.innerHTML = '<span class="text-red-500">Mode de paiement non trouvé</span>';
+            return;
+        }
+        // Construction du HTML avec icon_path
+        let html = '';
+        // NOUVEAU : Affichage de l'icône via icon_path
+        if (method.icon_path) {
+            html += `<img src="${method.icon_path}" alt="${method.label}" class="inline-block w-4 h-4 mr-2 align-middle">`;
+        } else {
+            // Icône par défaut si pas d'icon_path
+            html += '<span class="material-icons text-sm mr-2 align-middle">payment</span>';
+        }
+        // Description
+        if (method.description) {
+            html += `<span class="text-gray-600">${method.description}</span>`;
+        } else {
+            html += `<span class="text-gray-500 italic">Mode de paiement : ${method.label}</span>`;
+        }
+        descriptionElement.innerHTML = html;
+    },
+    /**
+     * Configuration des événements
+     */
+    setupEventListeners() {
+        // Événements pour tous les sélecteurs
+        const selectorIds = ['payment-method', 'edit-payment-method', 'payment-method-partial'];
+        selectorIds.forEach(selectorId => {
+            const selector = document.getElementById(selectorId);
+            if (selector) {
+                // Suppression des anciens événements
+                selector.removeEventListener('change', this.handlePaymentMethodChange);
+                // Ajout du nouvel événement
+                selector.addEventListener('change', (event) => {
+                    this.handlePaymentMethodChange(event, selectorId);
+                });
+            }
+        });
+        // Événement pour le rechargement des modes de paiement
+        document.addEventListener('refreshPaymentMethods', () => {
+            this.refreshPaymentMethods();
+        });
+    },
+    /**
+     * Gestionnaire de changement de mode de paiement
+     */
+    handlePaymentMethodChange(event, selectorId) {
+        const selectedValue = event.target.value;
+        const descriptionElementId = this.getDescriptionElementId(selectorId);
+        // Mise à jour de la description
+        this.updatePaymentDescription(descriptionElementId, selectedValue);
+        // Validation en temps réel
+        this.validatePaymentMethod(event.target);
+        console.log(`💳 Mode de paiement sélectionné: ${selectedValue} pour #${selectorId}`);
+    },
+    /**
+     * Obtention de l'ID de l'élément de description
+     */
+    getDescriptionElementId(selectorId) {
+        const descriptionMap = {
+            'payment-method': 'payment-method-description',
+            'edit-payment-method': 'edit-payment-method-description',
+            'payment-method-partial': 'payment-method-description-partial'
+        };
+        return descriptionMap[selectorId] || `${selectorId}-description`;
+    },
+    /**
+     * Validation d'un champ mode de paiement
+     */
+    validatePaymentMethod(selector) {
+        if (!selector) return true;
+        const isValid = selector.value !== '';
+        // Mise à jour visuelle
+        if (isValid) {
+            selector.classList.remove('border-red-500', 'bg-red-50');
+            selector.classList.add('border-green-500');
+        } else {
+            selector.classList.remove('border-green-500');
+            selector.classList.add('border-red-500', 'bg-red-50');
+        }
+        return isValid;
+    },
+    /**
+     * Rechargement forcé des modes de paiement
+     */
+    async refreshPaymentMethods() {
+        try {
+            console.log('🔄 Rechargement forcé des modes de paiement...');
+            // Réinitialisation du cache
+            this.isLoaded = false;
+            this.cache.lastUpdate = null;
+            // Rechargement
+            await this.loadPaymentMethods();
+            this.populateAllSelectors();
+            // Notification
+            this.showNotification('Modes de paiement mis à jour', 'success');
+        } catch (error) {
+            console.error('❌ Erreur lors du rechargement:', error);
+            this.handleError('Erreur lors du rechargement des modes de paiement');
+        }
+    },
+    /**
+     * Récupération d'un mode de paiement par ID
+     */
+    getPaymentMethod(id) {
+        return this.paymentMethods.find(method => method.id.toString() === id.toString());
+    },
+    /**
+     * Vérification de la disponibilité d'un mode de paiement
+     */
+    isPaymentMethodAvailable(id) {
+        const method = this.getPaymentMethod(id);
+        return method && method.is_active;
+    },
+    /**
+     * Gestion des erreurs
+     */
+    handleError(message) {
+        console.error('❌ PaymentMethodsManager:', message);
+        this.showNotification(message, 'error');
+    },
+    /**
+     * Affichage des notifications
+     */
+    showNotification(message, type = 'info') {
+        // Intégration avec le système de notifications existant
+        if (typeof showNotification === 'function') {
+            showNotification(message, type);
+        } else {
+            console.log(`${type.toUpperCase()}: ${message}`);
+        }
+    },
+    /**
+     * Nettoyage et destruction
+     */
+    destroy() {
+        this.paymentMethods = [];
+        this.isLoaded = false;
+        this.cache.lastUpdate = null;
+        console.log('🧹 PaymentMethodsManager détruit');
     }
 };
-
 /**
  * Gestionnaire de modification des commandes
  */
 const EditOrderManager = {
-    openModal(orderId, expressionId, designation, sourceTable, quantity, unit, price, supplier) {
+    /**
+     * Ouvre la modal de modification d'une commande
+     */
+    async openModal(orderId, expressionId, designation, sourceTable, quantity, unit, price, supplier) {
         const modal = document.getElementById('edit-order-modal');
         if (!modal) {
-            console.error('Modal de modification non trouvé');
+            console.error('Modal de modification introuvable');
             return;
         }
-
-        // Remplir les champs
+        // Remplir les champs du formulaire
         document.getElementById('edit-order-id').value = orderId;
         document.getElementById('edit-expression-id').value = expressionId;
-        document.getElementById('edit-designation').value = designation;
         document.getElementById('edit-source-table').value = sourceTable;
-        document.getElementById('edit-quantite').value = quantity;
-        document.getElementById('edit-unite').value = unit;
-        document.getElementById('edit-prix-unitaire').value = price;
-        document.getElementById('edit-fournisseur').value = supplier;
-
-        // Charger les modes de paiement
-        PaymentMethodsManager.populatePaymentSelect('edit-mode-paiement');
-
+        document.getElementById('edit-designation').value = designation;
+        document.getElementById('edit-quantity').value = quantity;
+        document.getElementById('edit-unit').value = unit;
+        document.getElementById('edit-price').value = price;
+        document.getElementById('edit-supplier').value = supplier;
+        // Réinitialiser les notes
+        document.getElementById('edit-notes').value = '';
+        // CORRECTION : Charger les modes de paiement avec le nouveau gestionnaire
+        await this.loadPaymentMethods();
+        // Configurer l'autocomplétion des fournisseurs
+        this.setupSupplierAutocomplete();
+        // Afficher la modal
         modal.style.display = 'flex';
     },
-
+    /**
+     * Ferme la modal de modification
+     */
     closeModal() {
         const modal = document.getElementById('edit-order-modal');
         if (modal) {
             modal.style.display = 'none';
         }
     },
-
-    async handleSubmit(event) {
-        event.preventDefault();
-
-        const formData = new FormData(event.target);
-
+    /**
+     * Charge les modes de paiement - VERSION CORRIGÉE
+     */
+    async loadPaymentMethods() {
         try {
-            const response = await fetch('api/orders/update_order.php', {
+            // CORRECTION : Utiliser le PaymentMethodsManager
+            if (!PaymentMethodsManager.isLoaded) {
+                await PaymentMethodsManager.init();
+            }
+            PaymentMethodsManager.populatePaymentSelect('edit-payment-method');
+        } catch (error) {
+            console.error('Erreur lors du chargement des modes de paiement:', error);
+        }
+    },
+    /**
+     * Configure l'autocomplétion des fournisseurs
+     */
+    setupSupplierAutocomplete() {
+        const input = document.getElementById('edit-supplier');
+        const suggestions = document.getElementById('edit-fournisseurs-suggestions');
+        if (!input || !suggestions) return;
+        // Supprimer les anciens écouteurs
+        input.replaceWith(input.cloneNode(true));
+        const newInput = document.getElementById('edit-supplier');
+        newInput.addEventListener('input', () => {
+            this.handleSupplierInput(newInput, suggestions);
+        });
+        document.addEventListener('click', (e) => {
+            if (e.target !== newInput && !suggestions.contains(e.target)) {
+                suggestions.classList.add('hidden');
+            }
+        });
+    },
+    /**
+     * Gère la saisie dans le champ fournisseur
+     */
+    handleSupplierInput(input, suggestions) {
+        const value = input.value.toLowerCase().trim();
+        suggestions.innerHTML = '';
+        if (value.length < 2) {
+            suggestions.classList.add('hidden');
+            return;
+        }
+        const matches = AppState.suppliersList
+            .filter(supplier => supplier.toLowerCase().includes(value))
+            .slice(0, 8);
+        if (matches.length > 0) {
+            suggestions.classList.remove('hidden');
+            matches.forEach(supplier => {
+                const div = document.createElement('div');
+                div.className = 'fournisseur-suggestion';
+                const index = supplier.toLowerCase().indexOf(value);
+                if (index !== -1) {
+                    const before = supplier.substring(0, index);
+                    const match = supplier.substring(index, index + value.length);
+                    const after = supplier.substring(index + value.length);
+                    div.innerHTML = `${Utils.escapeHtml(before)}<strong>${Utils.escapeHtml(match)}</strong>${Utils.escapeHtml(after)}`;
+                } else {
+                    div.textContent = supplier;
+                }
+                div.onclick = () => {
+                    input.value = supplier;
+                    suggestions.innerHTML = '';
+                    suggestions.classList.add('hidden');
+                };
+                suggestions.appendChild(div);
+            });
+        } else {
+            suggestions.classList.add('hidden');
+        }
+    },
+    /**
+     * Traite la soumission du formulaire de modification
+     */
+    async handleSubmit(e) {
+        e.preventDefault();
+        const form = e.target;
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const originalBtnText = submitBtn.innerHTML;
+        // Validation
+        if (!this.validateForm(form)) return;
+        // Afficher un indicateur de chargement
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="material-icons animate-spin mr-1">refresh</span>Sauvegarde...';
+        try {
+            const formData = new FormData(form);
+            const response = await fetch(form.action, {
                 method: 'POST',
                 body: formData
             });
-
-            const result = await response.json();
-
-            if (result.success) {
-                showNotification('Commande modifiée avec succès', 'success');
+            const data = await response.json();
+            if (data.success) {
                 this.closeModal();
-                refreshDataTables();
+                Swal.fire({
+                    title: 'Succès!',
+                    text: data.message || 'Commande modifiée avec succès!',
+                    icon: 'success',
+                    timer: 2000,
+                    showConfirmButton: false
+                }).then(() => {
+                    window.location.reload();
+                });
             } else {
-                showNotification(result.message || 'Erreur lors de la modification', 'error');
+                Swal.fire({
+                    title: 'Erreur',
+                    text: data.message || 'Une erreur est survenue lors de la modification.',
+                    icon: 'error'
+                });
             }
-
         } catch (error) {
-            console.error('Erreur lors de la modification:', error);
-            showNotification('Erreur de connexion', 'error');
+            console.error('Erreur:', error);
+            Swal.fire({
+                title: 'Erreur',
+                text: 'Une erreur est survenue lors de la communication avec le serveur.',
+                icon: 'error'
+            });
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalBtnText;
+        }
+    },
+    /**
+     * Valide le formulaire de modification - VERSION CORRIGÉE
+     */
+    validateForm(form) {
+        const quantity = parseFloat(form.quantity.value);
+        const price = parseFloat(form.prix_unitaire.value);
+        const supplier = form.fournisseur.value.trim();
+        const paymentMethod = form.payment_method.value;
+        if (isNaN(quantity) || quantity <= 0) {
+            Swal.fire({
+                title: 'Quantité invalide',
+                text: 'Veuillez saisir une quantité valide supérieure à 0.',
+                icon: 'error'
+            });
+            return false;
+        }
+        if (isNaN(price) || price <= 0) {
+            Swal.fire({
+                title: 'Prix invalide',
+                text: 'Veuillez saisir un prix unitaire valide supérieur à 0.',
+                icon: 'error'
+            });
+            return false;
+        }
+        if (!supplier) {
+            Swal.fire({
+                title: 'Fournisseur manquant',
+                text: 'Veuillez sélectionner un fournisseur.',
+                icon: 'error'
+            });
+            return false;
+        }
+        // CORRECTION : Utiliser PaymentMethodsManager pour la validation
+        if (!PaymentMethodsManager.validatePaymentMethod(paymentMethod)) {
+            return false;
+        }
+        return true;
+    }
+};
+// État global de l'application
+const AppState = {
+    suppliersList: [],
+    selectedMaterials: new Set(),
+    selectedPartialMaterials: new Set(),
+    selectedOrderedMaterials: new Set(),
+    selectedPendingMaterials: new Set()
+};
+/**
+ * Module principal de l'application
+ */
+const AchatsMateriauxApp = {
+    /**
+     * Initialisation de l'application
+     */
+    init() {
+        console.log('Initialisation de l\'application Achats Matériaux');
+        // Attendre que le DOM soit chargé
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => this.onDOMReady());
+        } else {
+            this.onDOMReady();
+        }
+    },
+    /**
+     * Actions à effectuer une fois le DOM chargé
+     */
+    async onDOMReady() {
+        // CORRECTION : Initialiser les modes de paiement en premier
+        await PaymentMethodsManager.init();
+        // Initialisation des autres modules
+        DateTimeModule.init();
+        TabsManager.init();
+        EventHandlers.init();
+        DataTablesManager.init();
+        FournisseursModule.init();
+        PartialOrdersManager.init();
+        // Vérifications initiales
+        this.performInitialChecks();
+    },
+    /**
+     * Vérifications initiales au chargement
+     */
+    performInitialChecks() {
+        // Vérifier les nouveaux matériaux
+        this.checkNewMaterials();
+        // Vérifier les validations finance après un court délai
+        setTimeout(() => {
+            OrderValidationChecker.check();
+        }, 1000);
+        // Configurer les intervalles de rafraîchissement
+        setInterval(() => this.checkNewMaterials(), CONFIG.REFRESH_INTERVALS.CHECK_MATERIALS);
+        setInterval(() => OrderValidationChecker.check(), CONFIG.REFRESH_INTERVALS.CHECK_VALIDATION);
+    },
+    /**
+     * Vérification des nouveaux matériaux
+     */
+    async checkNewMaterials() {
+        try {
+            const response = await fetch(CONFIG.API_URLS.CHECK_MATERIALS);
+            const data = await response.json();
+            NotificationsManager.updateMaterialsNotification(data);
+        } catch (error) {
+            console.error('Erreur lors de la vérification des matériaux:', error);
         }
     }
 };
-
 /**
- * Gestionnaire d'annulation des commandes
+ * Module de gestion de la date et heure
  */
-const CancelManager = {
-    async cancelSingleOrder(id, expressionId, designation, sourceTable = 'expression_dym') {
-        const result = await Swal.fire({
-            title: 'Confirmer l\'annulation',
-            text: `Êtes-vous sûr de vouloir annuler la commande pour "${designation}" ?`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Oui, annuler',
-            cancelButtonText: 'Non, garder'
-        });
-
-        if (result.isConfirmed) {
-            try {
-                const formData = new FormData();
-                formData.append('order_id', id);
-                formData.append('expression_id', expressionId);
-                formData.append('source_table', sourceTable);
-                formData.append('action', 'cancel_single');
-
-                const response = await fetch(CONFIG.API_URLS.CANCEL_ORDERS, {
-                    method: 'POST',
-                    body: formData
+const DateTimeModule = {
+    init() {
+        this.updateDateTime();
+        setInterval(() => this.updateDateTime(), CONFIG.REFRESH_INTERVALS.DATETIME);
+    },
+    updateDateTime() {
+        const element = document.getElementById('date-time-display');
+        if (element) {
+            const now = new Date();
+            element.textContent = `${now.toLocaleDateString('fr-FR')} ${now.toLocaleTimeString('fr-FR')}`;
+        }
+    }
+};
+/**
+ * Gestionnaire des onglets
+ */
+const TabsManager = {
+    tabs: [{
+        tabId: 'tab-materials',
+        contentId: 'content-materials'
+    },
+    {
+        tabId: 'tab-grouped',
+        contentId: 'content-grouped'
+    },
+    {
+        tabId: 'tab-recents',
+        contentId: 'content-recents'
+    },
+    {
+        tabId: 'tab-returns',
+        contentId: 'content-returns'
+    },
+    {
+        tabId: 'tab-canceled',
+        contentId: 'content-canceled'
+    }
+    ],
+    init() {
+        this.setupMainTabs();
+        this.setupMaterialTabs();
+        this.checkURLParams();
+    },
+    setupMainTabs() {
+        this.tabs.forEach(({
+            tabId,
+            contentId
+        }) => {
+            const tab = document.getElementById(tabId);
+            const content = document.getElementById(contentId);
+            if (tab && content) {
+                tab.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.activateTab(tab, content);
                 });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    showNotification('Commande annulée avec succès', 'success');
-                    refreshDataTables();
-                    updateNotificationCounters();
-                } else {
-                    showNotification(data.message || 'Erreur lors de l\'annulation', 'error');
-                }
-
-            } catch (error) {
-                console.error('Erreur lors de l\'annulation:', error);
-                showNotification('Erreur de connexion', 'error');
             }
+        });
+    },
+    setupMaterialTabs() {
+        document.querySelectorAll('.materials-tab').forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.activateMaterialTab(tab);
+            });
+        });
+    },
+    activateTab(activeTab, activeContent) {
+        // Réinitialiser tous les onglets
+        this.tabs.forEach(({
+            tabId
+        }) => {
+            const tab = document.getElementById(tabId);
+            if (tab) {
+                tab.classList.remove('border-blue-500', 'text-blue-600');
+                tab.classList.add('border-transparent', 'text-gray-500');
+            }
+        });
+        // Cacher tous les contenus
+        this.tabs.forEach(({
+            contentId
+        }) => {
+            const content = document.getElementById(contentId);
+            if (content) content.classList.add('hidden');
+        });
+        // Activer l'onglet sélectionné
+        activeTab.classList.remove('border-transparent', 'text-gray-500');
+        activeTab.classList.add('border-blue-500', 'text-blue-600');
+        activeContent.classList.remove('hidden');
+        // Réajuster les DataTables
+        DataTablesManager.adjustTables();
+    },
+    activateMaterialTab(tab) {
+        const tabs = document.querySelectorAll('.materials-tab');
+        // Désactiver tous les onglets
+        tabs.forEach(t => {
+            t.classList.remove('active', 'text-blue-600', 'border-blue-600');
+            t.classList.add('text-gray-500', 'border-transparent');
+        });
+        // Activer l'onglet cliqué
+        tab.classList.add('active', 'text-blue-600', 'border-blue-600');
+        tab.classList.remove('text-gray-500', 'border-transparent');
+        // Gérer l'affichage des sections
+        const targetId = tab.getAttribute('data-target');
+        document.querySelectorAll('.materials-section').forEach(section => {
+            section.classList.add('hidden');
+        });
+        const targetSection = document.getElementById(targetId);
+        if (targetSection) {
+            targetSection.classList.remove('hidden');
+            // Charger les données si nécessaire
+            if (targetId === 'materials-partial') {
+                PartialOrdersManager.load(false);
+            }
+            DataTablesManager.adjustMaterialTable(targetId);
         }
     },
-
-    async cancelPendingMaterial(id, expressionId, designation, sourceTable = 'expression_dym') {
-        const result = await Swal.fire({
-            title: 'Annuler le matériau en attente',
-            text: `Êtes-vous sûr de vouloir annuler "${designation}" ?`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Oui, annuler',
-            cancelButtonText: 'Non, garder'
-        });
-
-        if (result.isConfirmed) {
-            try {
-                const formData = new FormData();
-                formData.append('material_id', id);
-                formData.append('expression_id', expressionId);
-                formData.append('source_table', sourceTable);
-
-                const response = await fetch(CONFIG.API_URLS.CANCEL_PENDING, {
-                    method: 'POST',
-                    body: formData
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    showNotification('Matériau annulé avec succès', 'success');
-                    refreshDataTables();
-                    updateNotificationCounters();
-                } else {
-                    showNotification(data.message || 'Erreur lors de l\'annulation', 'error');
-                }
-
-            } catch (error) {
-                console.error('Erreur lors de l\'annulation:', error);
-                showNotification('Erreur de connexion', 'error');
+    checkURLParams() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const tabParam = urlParams.get('tab');
+        if (tabParam === 'recents') {
+            const recentsTab = document.getElementById('tab-recents');
+            const recentsContent = document.getElementById('content-recents');
+            if (recentsTab && recentsContent) {
+                this.activateTab(recentsTab, recentsContent);
             }
         }
+    }
+};
+/**
+ * Gestionnaire des événements
+ */
+const EventHandlers = {
+    init() {
+        this.setupGeneralEvents();
+        this.setupModalEvents();
+        this.setupFormEvents();
+        this.setupCheckboxEvents();
+        this.setupButtonEvents();
     },
-
-    async cancelMultipleOrders() {
-        const selectedOrders = getSelectedOrderedMaterials();
-
-        if (selectedOrders.length === 0) {
-            showNotification('Aucune commande sélectionnée', 'warning');
+    setupGeneralEvents() {
+        // Case à cocher "Tout sélectionner" pour les matériaux en attente
+        const selectAllPending = document.getElementById('select-all-pending-materials');
+        if (selectAllPending) {
+            selectAllPending.addEventListener('change', (e) => {
+                const isChecked = e.target.checked;
+                document.querySelectorAll('#materials-pending .material-checkbox').forEach(checkbox => {
+                    checkbox.checked = isChecked;
+                    SelectionManager.updateSelection('pending', checkbox);
+                });
+                ButtonStateManager.updateAllButtons();
+            });
+        }
+        // Case à cocher "Tout sélectionner" pour les matériaux commandés
+        const selectAllOrdered = document.getElementById('select-all-ordered-materials');
+        if (selectAllOrdered) {
+            selectAllOrdered.addEventListener('change', (e) => {
+                const isChecked = e.target.checked;
+                document.querySelectorAll('.ordered-material-checkbox').forEach(checkbox => {
+                    checkbox.checked = isChecked;
+                    SelectionManager.updateSelection('ordered', checkbox);
+                });
+                ButtonStateManager.updateCancelButton();
+            });
+        }
+        // Case à cocher "Tout sélectionner" pour les commandes partielles
+        const selectAllPartial = document.getElementById('select-all-partial-materials');
+        if (selectAllPartial) {
+            selectAllPartial.addEventListener('change', (e) => {
+                const isChecked = e.target.checked;
+                document.querySelectorAll('.partial-material-checkbox').forEach(checkbox => {
+                    checkbox.checked = isChecked;
+                    SelectionManager.updateSelection('partial', checkbox);
+                });
+                ButtonStateManager.updateAllButtons();
+            });
+        }
+    },
+    setupModalEvents() {
+        // Fermeture des modals
+        document.querySelectorAll('.close-modal-btn, .modal').forEach(element => {
+            element.addEventListener('click', (e) => {
+                if (e.target.classList.contains('close-modal-btn') ||
+                    e.target.classList.contains('modal')) {
+                    const modal = e.target.closest('.modal') || e.target;
+                    ModalManager.close(modal);
+                }
+            });
+        });
+    },
+    setupFormEvents() {
+        // Formulaire d'achat individuel
+        const purchaseForm = document.getElementById('purchase-form');
+        if (purchaseForm) {
+            purchaseForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                PurchaseManager.handleIndividualPurchase(e);
+            });
+        }
+        // Formulaire d'achat groupé
+        const bulkPurchaseForm = document.getElementById('bulk-purchase-form');
+        if (bulkPurchaseForm) {
+            bulkPurchaseForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                PurchaseManager.handleBulkPurchase(e);
+            });
+        }
+        // Formulaire de substitution
+        const substitutionForm = document.getElementById('substitution-form');
+        if (substitutionForm) {
+            substitutionForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                SubstitutionManager.handleSubmit(e);
+            });
+        }
+        // Changement de type de prix
+        const priceTypeSelect = document.getElementById('price-type');
+        if (priceTypeSelect) {
+            priceTypeSelect.addEventListener('change', () => {
+                PurchaseManager.togglePriceInputs();
+            });
+        }
+        // Changement de raison de substitution
+        const substitutionReason = document.getElementById('substitution-reason');
+        if (substitutionReason) {
+            substitutionReason.addEventListener('change', function () {
+                const otherReasonContainer = document.getElementById('other-reason-container');
+                if (otherReasonContainer) {
+                    otherReasonContainer.style.display = this.value === 'autre' ? 'block' : 'none';
+                }
+            });
+        }
+    },
+    setupCheckboxEvents() {
+        // Checkboxes des matériaux en attente
+        document.querySelectorAll('#materials-pending .material-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', () => {
+                SelectionManager.updateSelection('pending', checkbox);
+                ButtonStateManager.updateAllButtons();
+            });
+        });
+        // Checkboxes des matériaux commandés
+        document.querySelectorAll('.ordered-material-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', () => {
+                SelectionManager.updateSelection('ordered', checkbox);
+                ButtonStateManager.updateCancelButton();
+            });
+        });
+    },
+    setupButtonEvents() {
+        // Bouton d'achat groupé
+        const bulkPurchaseBtn = document.getElementById('bulk-purchase-btn');
+        if (bulkPurchaseBtn) {
+            bulkPurchaseBtn.addEventListener('click', () => {
+                ModalManager.openBulkPurchase();
+            });
+        }
+        // Bouton de complétion des commandes partielles
+        const bulkCompleteBtn = document.getElementById('bulk-complete-btn');
+        if (bulkCompleteBtn) {
+            bulkCompleteBtn.addEventListener('click', () => {
+                ModalManager.openBulkComplete();
+            });
+        }
+        // Bouton d'annulation multiple pour matériaux en attente
+        const bulkCancelPendingBtn = document.getElementById('bulk-cancel-pending-btn');
+        if (bulkCancelPendingBtn) {
+            bulkCancelPendingBtn.addEventListener('click', () => {
+                CancelManager.cancelMultiplePending();
+            });
+        }
+        // Bouton d'annulation multiple pour matériaux commandés
+        const bulkCancelBtn = document.getElementById('bulk-cancel-btn');
+        if (bulkCancelBtn) {
+            bulkCancelBtn.addEventListener('click', () => {
+                CancelManager.cancelMultipleOrders();
+            });
+        }
+        // Bouton d'actualisation des commandes partielles
+        const refreshListBtn = document.getElementById('refresh-list');
+        if (refreshListBtn) {
+            refreshListBtn.addEventListener('click', () => {
+                PartialOrdersManager.load(false);
+            });
+        }
+        // Bouton d'export Excel
+        const exportExcelBtn = document.getElementById('export-excel');
+        if (exportExcelBtn) {
+            exportExcelBtn.addEventListener('click', () => {
+                ExportManager.exportPartialOrdersToExcel();
+            });
+        }
+    }
+};
+/**
+ * Gestionnaire de DataTables
+ */
+const DataTablesManager = {
+    tables: {
+        pending: null,
+        ordered: null,
+        grouped: null,
+        recent: null,
+        returns: null,
+        partial: null,
+        canceled: null
+    },
+    init() {
+        if (typeof jQuery === 'undefined' || typeof jQuery.fn.DataTable === 'undefined') {
+            console.error('jQuery ou DataTables non chargé');
             return;
         }
-
-        const result = await Swal.fire({
-            title: 'Annulation multiple',
-            text: `Êtes-vous sûr de vouloir annuler ${selectedOrders.length} commande(s) ?`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Oui, annuler tout',
-            cancelButtonText: 'Non, garder'
+        jQuery(document).ready(() => {
+            this.initializeTables();
         });
-
-        if (result.isConfirmed) {
-            try {
-                const formData = new FormData();
-                formData.append('orders', JSON.stringify(selectedOrders));
-                formData.append('action', 'cancel_multiple');
-
-                const response = await fetch(CONFIG.API_URLS.CANCEL_ORDERS, {
-                    method: 'POST',
-                    body: formData
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    showNotification(`${selectedOrders.length} commande(s) annulée(s) avec succès`, 'success');
-                    refreshDataTables();
-                    updateNotificationCounters();
-                    clearSelection();
-                } else {
-                    showNotification(data.message || 'Erreur lors de l\'annulation', 'error');
-                }
-
-            } catch (error) {
-                console.error('Erreur lors de l\'annulation multiple:', error);
-                showNotification('Erreur de connexion', 'error');
+    },
+    initializeTables() {
+        this.initPendingMaterialsTable();
+        this.initOrderedMaterialsTable();
+        this.initGroupedProjectsTable();
+        this.initRecentPurchasesTable();
+        this.initSupplierReturnsTable();
+        this.initCanceledOrdersTable();
+    },
+    initPendingMaterialsTable() {
+        if (!jQuery('#pendingMaterialsTable').length) return;
+        this.tables.pending = jQuery('#pendingMaterialsTable').DataTable({
+            responsive: true,
+            language: {
+                url: CONFIG.DATATABLES.LANGUAGE_URL
+            },
+            dom: CONFIG.DATATABLES.DOM,
+            buttons: CONFIG.DATATABLES.BUTTONS,
+            columnDefs: [{
+                orderable: false,
+                targets: [0, 9]
+            },
+            {
+                type: 'date-fr',
+                targets: 8
             }
+            ],
+            order: [
+                [8, 'desc']
+            ],
+            pageLength: CONFIG.DATATABLES.PAGE_LENGTH,
+            drawCallback: function () {
+                // Réinitialiser l'état de la checkbox "Tout sélectionner"
+                const selectAllCheckbox = document.getElementById('select-all-pending-materials');
+                if (selectAllCheckbox) selectAllCheckbox.checked = false;
+                // Restaurer l'état des checkboxes basé sur notre Map de sélection
+                document.querySelectorAll('#pendingMaterialsTable .material-checkbox').forEach(checkbox => {
+                    if (checkbox.dataset.id) {
+                        checkbox.checked = SelectionManager.isSelected('pending', checkbox.dataset.id);
+                        checkbox.addEventListener('change', () => {
+                            SelectionManager.updateSelection('pending', checkbox);
+                        });
+                    }
+                });
+                ButtonStateManager.updateBulkPurchaseButton();
+                ButtonStateManager.updateCancelPendingButton();
+            },
+            stateSave: true
+        });
+    },
+    initOrderedMaterialsTable() {
+        if (!jQuery('#orderedMaterialsTable').length) return;
+        this.tables.ordered = jQuery('#orderedMaterialsTable').DataTable({
+            responsive: true,
+            language: {
+                url: CONFIG.DATATABLES.LANGUAGE_URL
+            },
+            dom: CONFIG.DATATABLES.DOM,
+            buttons: CONFIG.DATATABLES.BUTTONS,
+            columnDefs: [{
+                orderable: false,
+                targets: [0, 11]
+            },
+            {
+                type: 'date-fr',
+                targets: 9
+            },
+            {
+                type: 'num',
+                targets: 10
+            }
+            ],
+            order: [
+                [9, 'desc']
+            ],
+            pageLength: CONFIG.DATATABLES.PAGE_LENGTH,
+            drawCallback: () => {
+                this.resetSelectAll('select-all-ordered-materials');
+                this.attachCheckboxEvents('.ordered-material-checkbox', 'ordered');
+                ButtonStateManager.updateCancelButton();
+            }
+        });
+    },
+    initGroupedProjectsTable() {
+        if (!jQuery('#groupedProjectsTable').length) return;
+        this.tables.grouped = jQuery('#groupedProjectsTable').DataTable({
+            responsive: true,
+            language: {
+                url: CONFIG.DATATABLES.LANGUAGE_URL
+            },
+            order: [
+                [0, 'desc']
+            ],
+            pageLength: 10
+        });
+    },
+    initRecentPurchasesTable() {
+        if (!jQuery('#recentPurchasesTable').length) return;
+        this.tables.recent = jQuery('#recentPurchasesTable').DataTable({
+            responsive: true,
+            language: {
+                url: CONFIG.DATATABLES.LANGUAGE_URL
+            },
+            dom: CONFIG.DATATABLES.DOM,
+            buttons: CONFIG.DATATABLES.BUTTONS,
+            columnDefs: [{
+                type: 'date-fr',
+                targets: 8
+            },
+            {
+                targets: 9,
+                render: (data, type, row) => {
+                    const expressionId = row[10] || '';
+                    const orderId = row[11] || '';
+                    let designation = row[2] || '';
+                    designation = designation.replace(/<[^>]*>/g, '');
+                    const cleanDesignation = Utils.escapeString(designation);
+                    return `
+                                <button onclick="generateBonCommande('${expressionId}')" 
+                                    class="btn-action text-green-600 hover:text-green-800 mr-2" 
+                                    title="Générer bon de commande">
+                                    <span class="material-icons">receipt</span>
+                                </button>
+                                <button onclick="viewOrderDetails('${orderId}', '${expressionId}', '${cleanDesignation}')" 
+                                    class="btn-action text-blue-600 hover:text-blue-800 mr-2" 
+                                    title="Voir les détails">
+                                    <span class="material-icons">visibility</span>
+                                </button>
+                                <button onclick="viewStockDetails('${cleanDesignation}')" 
+                                    class="btn-action text-purple-600 hover:text-purple-800" 
+                                    title="Voir dans le stock">
+                                    <span class="material-icons">inventory_2</span>
+                                </button>
+                            `;
+                }
+            }
+            ],
+            order: [
+                [8, 'desc']
+            ],
+            pageLength: CONFIG.DATATABLES.PAGE_LENGTH
+        });
+    },
+    initSupplierReturnsTable() {
+        if (!jQuery('#supplierReturnsTable').length) return;
+        this.tables.returns = jQuery('#supplierReturnsTable').DataTable({
+            responsive: true,
+            language: {
+                url: CONFIG.DATATABLES.LANGUAGE_URL
+            },
+            dom: CONFIG.DATATABLES.DOM,
+            buttons: CONFIG.DATATABLES.BUTTONS,
+            columnDefs: [{
+                type: 'date-fr',
+                targets: 4
+            }],
+            order: [
+                [4, 'desc']
+            ],
+            pageLength: CONFIG.DATATABLES.PAGE_LENGTH,
+            ajax: {
+                url: 'statistics/retour-fournisseur/api_getSupplierReturns.php',
+                type: 'GET',
+                dataSrc: (json) => {
+                    const uniqueData = [];
+                    const seenIds = new Set();
+                    if (json.data && Array.isArray(json.data)) {
+                        json.data.forEach(item => {
+                            if (!seenIds.has(item.id)) {
+                                seenIds.add(item.id);
+                                uniqueData.push(item);
+                            }
+                        });
+                    }
+                    return uniqueData;
+                }
+            },
+            columns: [{
+                data: 'product_name'
+            },
+            {
+                data: 'supplier_name'
+            },
+            {
+                data: 'quantity'
+            },
+            {
+                data: 'reason'
+            },
+            {
+                data: 'created_at'
+            },
+            {
+                data: 'status',
+                render: (data) => {
+                    const statusMap = {
+                        'completed': {
+                            class: 'bg-green-100 text-green-800',
+                            text: 'Complété'
+                        },
+                        'cancelled': {
+                            class: 'bg-red-100 text-red-800',
+                            text: 'Annulé'
+                        },
+                        'default': {
+                            class: 'bg-yellow-100 text-yellow-800',
+                            text: 'En attente'
+                        }
+                    };
+                    const status = statusMap[data] || statusMap.default;
+                    return `<span class="px-2 py-1 text-xs rounded-full ${status.class}">${status.text}</span>`;
+                }
+            },
+            {
+                data: 'id',
+                render: (data) => `
+                            <button onclick="viewReturnDetails(${data})" class="text-blue-600 hover:text-blue-800" title="Voir les détails">
+                                <span class="material-icons text-sm">visibility</span>
+                            </button>
+                        `
+            }
+            ]
+        });
+    },
+    initCanceledOrdersTable() {
+        if (!jQuery('#canceledOrdersTable').length) return;
+        this.tables.canceled = jQuery('#canceledOrdersTable').DataTable({
+            responsive: true,
+            language: {
+                url: CONFIG.DATATABLES.LANGUAGE_URL
+            },
+            ajax: {
+                url: 'api_canceled/api_getCanceledOrders.php',
+                dataSrc: (json) => {
+                    NotificationsManager.updateCanceledOrdersStats(json.stats);
+                    return json.data || [];
+                }
+            },
+            columns: [{
+                data: 'code_projet'
+            },
+            {
+                data: 'nom_client'
+            },
+            {
+                data: 'designation'
+            },
+            {
+                data: 'original_status',
+                orderable: false
+            },
+            {
+                data: 'quantity'
+            },
+            {
+                data: 'fournisseur'
+            },
+            {
+                data: 'canceled_at'
+            },
+            {
+                data: 'cancel_reason'
+            },
+            {
+                data: 'id',
+                render: (data) => `
+                            <button onclick="viewCanceledOrderDetails(${data})" class="text-blue-600 hover:text-blue-800">
+                                <span class="material-icons text-sm">visibility</span>
+                            </button>
+                        `,
+                orderable: false
+            }
+            ],
+            columnDefs: [{
+                type: 'date-fr',
+                targets: 6
+            }],
+            order: [
+                [6, 'desc']
+            ],
+            pageLength: CONFIG.DATATABLES.PAGE_LENGTH
+        });
+    },
+    resetSelectAll(checkboxId) {
+        const checkbox = document.getElementById(checkboxId);
+        if (checkbox) checkbox.checked = false;
+    },
+    attachCheckboxEvents(selector, type) {
+        document.querySelectorAll(selector).forEach(checkbox => {
+            checkbox.addEventListener('change', () => {
+                SelectionManager.updateSelection(type, checkbox);
+                switch (type) {
+                    case 'pending':
+                        ButtonStateManager.updateAllButtons();
+                        break;
+                    case 'ordered':
+                        ButtonStateManager.updateCancelButton();
+                        break;
+                    case 'partial':
+                        ButtonStateManager.updateAllButtons();
+                        break;
+                }
+            });
+        });
+    },
+    adjustTables() {
+        Object.entries(this.tables).forEach(([key, table]) => {
+            if (table) {
+                table.columns.adjust().responsive.recalc();
+            }
+        });
+    },
+    adjustMaterialTable(targetId) {
+        const tableMap = {
+            'materials-pending': 'pending',
+            'materials-ordered': 'ordered',
+            'materials-partial': 'partial'
+        };
+        const tableKey = tableMap[targetId];
+        if (tableKey && this.tables[tableKey]) {
+            this.tables[tableKey].columns.adjust().responsive.recalc();
         }
     }
 };
-
 /**
- * Module de gestion des fournisseurs avec autocomplétion
+ * Gestionnaire des sélections - VERSION AMÉLIORÉE
+ */
+const SelectionManager = {
+    // Utiliser des Maps pour stocker les données complètes des matériaux sélectionnés par type
+    selectionMaps: {
+        'pending': new Map(),
+        'ordered': new Map(),
+        'partial': new Map()
+    },
+    /**
+     * Met à jour la sélection d'un matériau
+     */
+    updateSelection(type, checkbox) {
+        if (!this.selectionMaps[type]) return;
+        const materialData = this.extractMaterialData(checkbox);
+        const materialId = materialData.id;
+        if (checkbox.checked) {
+            this.selectionMaps[type].set(materialId, materialData);
+        } else {
+            this.selectionMaps[type].delete(materialId);
+        }
+        this.updateSelectionCounter(type);
+    },
+    /**
+     * Extrait les données du matériau depuis les attributs data-* de la checkbox
+     */
+    extractMaterialData(checkbox) {
+        return {
+            id: checkbox.dataset.id || checkbox.getAttribute('data-id'),
+            expressionId: checkbox.dataset.expression || checkbox.dataset.expressionId || checkbox.getAttribute('data-expression'),
+            designation: checkbox.dataset.designation || checkbox.getAttribute('data-designation'),
+            quantity: checkbox.dataset.quantity || checkbox.getAttribute('data-quantity'),
+            unit: checkbox.dataset.unit || checkbox.getAttribute('data-unit'),
+            sourceTable: checkbox.dataset.sourceTable || checkbox.getAttribute('data-source-table') || 'expression_dym',
+            project: checkbox.dataset.project || checkbox.getAttribute('data-project') || ''
+        };
+    },
+    /**
+     * Récupère les matériaux sélectionnés d'un type donné
+     */
+    getSelectedMaterials(type) {
+        if (!this.selectionMaps[type]) return [];
+        return Array.from(this.selectionMaps[type].values());
+    },
+    /**
+     * Récupère les matériaux directement depuis le DOM pour plus de fiabilité
+     */
+    getSelectedMaterialsFromDOM(type) {
+        const materials = [];
+        let selector = '';
+        switch (type) {
+            case 'pending':
+                selector = '#pendingMaterialsTable .material-checkbox:checked';
+                break;
+            case 'ordered':
+                selector = '.ordered-material-checkbox:checked';
+                break;
+            case 'partial':
+                selector = '.partial-material-checkbox:checked';
+                break;
+        }
+        if (selector) {
+            document.querySelectorAll(selector).forEach(checkbox => {
+                if (checkbox.dataset.id) {
+                    materials.push(this.extractMaterialData(checkbox));
+                }
+            });
+        }
+        return materials;
+    },
+    /**
+     * Met à jour le compteur dans le bouton correspondant au type
+     */
+    updateSelectionCounter(type) {
+        switch (type) {
+            case 'pending':
+                ButtonStateManager.updateBulkPurchaseButton();
+                ButtonStateManager.updateCancelPendingButton();
+                break;
+            case 'ordered':
+                ButtonStateManager.updateCancelButton();
+                break;
+            case 'partial':
+                ButtonStateManager.updateBulkCompleteButton();
+                break;
+        }
+    },
+    /**
+     * Vérifie si un matériau est sélectionné
+     */
+    isSelected(type, id) {
+        return this.selectionMaps[type] ? this.selectionMaps[type].has(id) : false;
+    },
+    /**
+     * Réinitialise les sélections d'un type
+     */
+    clearSelections(type) {
+        if (this.selectionMaps[type]) {
+            this.selectionMaps[type].clear();
+            this.updateSelectionCounter(type);
+        }
+    },
+    /**
+     * Synchronise les sélections entre la Map et le DOM
+     */
+    syncSelections(type) {
+        const domMaterials = this.getSelectedMaterialsFromDOM(type);
+        this.selectionMaps[type].clear();
+        domMaterials.forEach(material => {
+            this.selectionMaps[type].set(material.id, material);
+        });
+        this.updateSelectionCounter(type);
+    }
+};
+/**
+ * Gestionnaire des états des boutons
+ */
+const ButtonStateManager = {
+    updateAllButtons() {
+        this.updateBulkPurchaseButton();
+        this.updateBulkCompleteButton();
+        this.updateCancelPendingButton();
+    },
+    updateBulkPurchaseButton() {
+        const button = document.getElementById('bulk-purchase-btn');
+        if (!button) return;
+        const selectedCount = SelectionManager.selectionMaps.pending.size;
+        button.disabled = selectedCount === 0;
+        button.innerHTML = `
+                <span class="material-icons align-middle mr-1">shopping_basket</span>
+                Commander les éléments sélectionnés${selectedCount > 0 ? ' (' + selectedCount + ')' : ''}
+            `;
+    },
+    updateBulkCompleteButton() {
+        const button = document.getElementById('bulk-complete-btn');
+        if (!button) return;
+        const selectedCount = document.querySelectorAll('.partial-material-checkbox:checked').length;
+        button.disabled = selectedCount === 0;
+        button.innerHTML = `
+                <span class="material-icons text-sm mr-1">shopping_basket</span>
+                Compléter les commandes sélectionnées${selectedCount > 0 ? ' (' + selectedCount + ')' : ''}
+            `;
+    },
+    updateCancelPendingButton() {
+        const button = document.getElementById('bulk-cancel-pending-btn');
+        if (!button) return;
+        const selectedCount = document.querySelectorAll('#pendingMaterialsTable .material-checkbox:checked').length;
+        button.disabled = selectedCount === 0;
+        button.innerHTML = `
+                <span class="material-icons text-sm mr-1">cancel</span>
+                Annuler les matériaux sélectionnés${selectedCount > 0 ? ' (' + selectedCount + ')' : ''}
+            `;
+    },
+    updateCancelButton() {
+        const button = document.getElementById('bulk-cancel-btn');
+        if (!button) return;
+        const selectedCount = document.querySelectorAll('.ordered-material-checkbox:checked').length;
+        button.disabled = selectedCount === 0;
+        button.innerHTML = `
+                <span class="material-icons text-sm mr-1">cancel</span>
+                Annuler les commandes sélectionnées${selectedCount > 0 ? ' (' + selectedCount + ')' : ''}
+            `;
+    }
+};
+/**
+ * Gestionnaire des fournisseurs
  */
 const FournisseursModule = {
-    fournisseurs: [],
-
-    async loadFournisseurs() {
+    async init() {
         try {
             const response = await fetch(CONFIG.API_URLS.FOURNISSEURS);
             const data = await response.json();
-
-            if (data.success) {
-                this.fournisseurs = data.fournisseurs;
-                console.log('✅ Fournisseurs chargés:', this.fournisseurs.length);
-            }
-
+            AppState.suppliersList = data;
+            this.initializeAutocomplete();
+            console.log(`${data.length} fournisseurs chargés avec succès`);
         } catch (error) {
-            console.error('❌ Erreur lors du chargement des fournisseurs:', error);
+            console.error('Erreur lors du chargement des fournisseurs:', error);
+            this.showError();
         }
     },
-
+    initializeAutocomplete() {
+        this.setupAutocomplete('fournisseur', 'fournisseurs-suggestions');
+        this.setupAutocomplete('fournisseur-bulk', 'fournisseurs-suggestions-bulk');
+    },
     setupAutocomplete(inputId, suggestionsId) {
         const input = document.getElementById(inputId);
         const suggestions = document.getElementById(suggestionsId);
-
         if (!input || !suggestions) return;
-
-        input.addEventListener('input', (e) => {
-            const value = e.target.value.toLowerCase();
-
-            if (value.length < 2) {
-                suggestions.innerHTML = '';
-                suggestions.style.display = 'none';
-                return;
-            }
-
-            const matches = this.fournisseurs.filter(f =>
-                f.nom.toLowerCase().includes(value)
-            ).slice(0, 5);
-
-            if (matches.length > 0) {
-                suggestions.innerHTML = matches.map(f => `
-                    <div class="suggestion-item p-2 cursor-pointer hover:bg-gray-100" 
-                         onclick="FournisseursModule.selectFournisseur('${inputId}', '${suggestionsId}', '${f.nom}')">
-                        ${f.nom}
-                    </div>
-                `).join('');
-                suggestions.style.display = 'block';
-            } else {
-                suggestions.style.display = 'none';
-            }
+        input.addEventListener('input', () => {
+            this.handleAutocompleteInput(input, suggestions);
         });
-
-        // Fermer les suggestions en cliquant ailleurs
         document.addEventListener('click', (e) => {
-            if (!input.contains(e.target) && !suggestions.contains(e.target)) {
-                suggestions.style.display = 'none';
+            if (e.target !== input && !suggestions.contains(e.target)) {
+                suggestions.classList.remove('active');
             }
         });
     },
-
-    selectFournisseur(inputId, suggestionsId, nom) {
-        document.getElementById(inputId).value = nom;
-        document.getElementById(suggestionsId).style.display = 'none';
-    }
-};
-
-/**
- * Gestionnaire des modes de paiement
- */
-const PaymentMethodsManager = {
-    paymentMethods: [],
-
-    async loadPaymentMethods() {
-        try {
-            const response = await fetch(CONFIG.API_URLS.PAYMENT_METHODS);
-            const data = await response.json();
-
-            if (data.success) {
-                this.paymentMethods = data.payment_methods;
-                console.log('✅ Modes de paiement chargés:', this.paymentMethods.length);
-            }
-
-        } catch (error) {
-            console.error('❌ Erreur lors du chargement des modes de paiement:', error);
+    handleAutocompleteInput(input, suggestions) {
+        const value = input.value.toLowerCase().trim();
+        suggestions.innerHTML = '';
+        if (value.length < 2) {
+            suggestions.classList.remove('active');
+            return;
+        }
+        const matches = AppState.suppliersList
+            .filter(supplier => supplier.toLowerCase().includes(value))
+            .slice(0, 8);
+        if (matches.length > 0) {
+            suggestions.classList.add('active');
+            matches.forEach(supplier => {
+                const div = this.createSuggestionItem(supplier, value);
+                div.onclick = () => {
+                    input.value = supplier;
+                    suggestions.innerHTML = '';
+                    suggestions.classList.remove('active');
+                };
+                suggestions.appendChild(div);
+            });
+            // Ajouter l'option de gestion des fournisseurs
+            const manageDiv = this.createManageOption();
+            suggestions.appendChild(manageDiv);
+        } else {
+            suggestions.classList.remove('active');
         }
     },
-
-    populatePaymentSelect(selectId) {
-        const select = document.getElementById(selectId);
-        if (!select) return;
-
-        select.innerHTML = '<option value="">Sélectionner un mode de paiement</option>';
-
-        this.paymentMethods.forEach(method => {
-            const option = document.createElement('option');
-            option.value = method.id;
-            option.textContent = method.nom;
-            select.appendChild(option);
+    createSuggestionItem(supplier, searchValue) {
+        const div = document.createElement('div');
+        div.className = 'fournisseur-suggestion';
+        const index = supplier.toLowerCase().indexOf(searchValue);
+        if (index !== -1) {
+            const before = supplier.substring(0, index);
+            const match = supplier.substring(index, index + searchValue.length);
+            const after = supplier.substring(index + searchValue.length);
+            div.innerHTML = `${Utils.escapeHtml(before)}<strong>${Utils.escapeHtml(match)}</strong>${Utils.escapeHtml(after)}`;
+        } else {
+            div.textContent = supplier;
+        }
+        return div;
+    },
+    createManageOption() {
+        const div = document.createElement('div');
+        div.className = 'fournisseur-suggestion text-blue-600';
+        div.innerHTML = `<span class="material-icons text-sm mr-1 align-middle">add</span> Gérer les fournisseurs`;
+        div.onclick = () => window.open('../fournisseurs/fournisseurs.php', '_blank');
+        return div;
+    },
+    async checkAndCreate(fournisseurName) {
+        if (!fournisseurName || fournisseurName.trim() === '') {
+            throw new Error('Veuillez saisir un nom de fournisseur');
+        }
+        const formData = new FormData();
+        formData.append('fournisseur', fournisseurName);
+        try {
+            const response = await fetch(CONFIG.API_URLS.CHECK_FOURNISSEUR, {
+                method: 'POST',
+                body: formData
+            });
+            const data = await response.json();
+            if (data.success) {
+                return {
+                    success: true,
+                    newFournisseur: !data.exists,
+                    name: fournisseurName,
+                    id: data.id
+                };
+            } else {
+                throw new Error(data.message || 'Erreur lors de la vérification du fournisseur');
+            }
+        } catch (error) {
+            console.error('Erreur lors de la vérification du fournisseur:', error);
+            throw error;
+        }
+    },
+    showError() {
+        Swal.fire({
+            title: 'Information',
+            text: 'Impossible de charger la liste des fournisseurs. Vous pouvez quand même saisir manuellement le nom du fournisseur.',
+            icon: 'info',
+            confirmButtonText: 'OK'
         });
     }
 };
-
 /**
- * Gestionnaire de substitution de matériaux
+ * Gestionnaire des modals
  */
-const SubstitutionManager = {
+const ModalManager = {
+    openPurchase(expressionId, designation, quantity, unit, fournisseur = '') {
+        // Remplir les champs du formulaire
+        document.getElementById('expression_id').value = expressionId;
+        document.getElementById('designation').value = designation;
+        document.getElementById('quantite').value = quantity;
+        document.getElementById('unite').value = unit;
+        if (fournisseur) {
+            document.getElementById('fournisseur').value = fournisseur;
+        }
+        // Afficher le modal
+        const modal = document.getElementById('purchase-modal');
+        if (modal) modal.style.display = 'flex';
+        // Chercher et charger le prix si possible
+        this.loadMaterialPrice(expressionId, designation);
+    },
+    async loadMaterialPrice(expressionId, designation) {
+        // Chercher l'ID du matériau correspondant
+        const checkboxes = document.querySelectorAll('.material-checkbox');
+        let materialId = null;
+        for (const checkbox of checkboxes) {
+            if (checkbox.dataset.expression === expressionId &&
+                checkbox.dataset.designation === designation) {
+                materialId = checkbox.dataset.id;
+                break;
+            }
+        }
+        if (!materialId) return;
+        try {
+            const response = await fetch(`${CONFIG.API_URLS.MATERIAL_INFO}?material_id=${materialId}`);
+            const data = await response.json();
+            if (data && data.prix_unitaire && parseFloat(data.prix_unitaire) > 0) {
+                const prixField = document.getElementById('prix');
+                if (prixField) {
+                    prixField.value = data.prix_unitaire;
+                }
+            }
+        } catch (error) {
+            console.error("Erreur lors de la récupération des infos matériau:", error);
+        }
+    },
+    async openBulkPurchase() {
+        const selectedMaterials = SelectionManager.getSelectedMaterials('pending');
+        if (selectedMaterials.length === 0) {
+            Swal.fire({
+                title: 'Aucun matériau sélectionné',
+                text: 'Veuillez sélectionner au moins un matériau à acheter.',
+                icon: 'warning'
+            });
+            return;
+        }
+        this.prepareBulkPurchaseModal(selectedMaterials);
+    },
+    async prepareBulkPurchaseModal(materials) {
+        const container = document.getElementById('selected-materials-container');
+        const tbody = document.getElementById('individual-prices-tbody');
+        if (!container || !tbody) return;
+        // Réinitialiser le contenu
+        container.innerHTML = `<p class="mb-2">Vous avez sélectionné <strong>${materials.length}</strong> matériaux à acheter.</p>`;
+        tbody.innerHTML = '';
+        // Ajouter les champs cachés
+        materials.forEach(material => {
+            container.innerHTML += `
+                    <input type="hidden" name="material_ids[]" value="${material.id}">
+                    <input type="hidden" name="source_table[${material.id}]" value="${material.sourceTable || 'expression_dym'}">
+                `;
+        });
+        // Initialiser l'autocomplétion
+        FournisseursModule.setupAutocomplete('fournisseur-bulk', 'fournisseurs-suggestions-bulk');
+        // CORRECTION : Peupler les modes de paiement
+        PaymentMethodsManager.populatePaymentSelect('payment-method-bulk');
+        // Afficher le modal
+        const modal = document.getElementById('bulk-purchase-modal');
+        if (modal) {
+            const modalTitle = modal.querySelector('h2');
+            if (modalTitle) modalTitle.textContent = 'Achat groupé de matériaux';
+            const confirmButton = modal.querySelector('#confirm-bulk-purchase');
+            if (confirmButton) confirmButton.textContent = 'Passer la commande';
+            modal.style.display = 'flex';
+        }
+        // Charger les prix
+        await this.loadBulkPrices(materials);
+    },
+    async loadBulkPrices(materials) {
+        const tbody = document.getElementById('individual-prices-tbody');
+        const commonPrice = document.getElementById('common-price');
+        try {
+            const pricePromises = materials.map(material => {
+                const apiUrl = material.sourceTable === 'besoins' ?
+                    `api/besoins/get_besoin_info.php?besoin_id=${material.id}` :
+                    `${CONFIG.API_URLS.MATERIAL_INFO}?material_id=${material.id}`;
+                return fetch(apiUrl)
+                    .then(response => response.json())
+                    .catch(() => null);
+            });
+            const results = await Promise.all(pricePromises);
+            // Calculer le prix moyen
+            const validPrices = results
+                .filter(data => data && data.prix_unitaire && parseFloat(data.prix_unitaire) > 0)
+                .map(data => parseFloat(data.prix_unitaire));
+            if (validPrices.length > 0 && commonPrice) {
+                const averagePrice = validPrices.reduce((sum, price) => sum + price, 0) / validPrices.length;
+                commonPrice.value = averagePrice.toFixed(2);
+            }
+            // Créer les lignes du tableau
+            tbody.innerHTML = '';
+            materials.forEach((material, index) => {
+                const prix = results[index]?.prix_unitaire || '';
+                const row = this.createPriceRow(material, prix);
+                tbody.appendChild(row);
+            });
+        } catch (error) {
+            console.error("Erreur lors du chargement des prix:", error);
+        }
+    },
+    createPriceRow(material, prix) {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+                <td class="px-6 py-4 whitespace-nowrap text-sm">${Utils.escapeHtml(material.designation)}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                    <input type="number" name="quantities[${material.id}]" 
+                        class="shadow border rounded w-full py-1 px-2 text-gray-700" 
+                        step="0.01" min="0.01" value="${material.quantity}" required>
+                    <input type="hidden" name="original_quantities[${material.id}]" value="${material.quantity}">
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm">${Utils.escapeHtml(material.unit || 'N/A')}</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <input type="number" name="prices[${material.id}]" 
+                        class="shadow border rounded w-full py-1 px-2 text-gray-700" 
+                        step="0.01" min="0" value="${prix}" required>
+                </td>
+            `;
+        return row;
+    },
+    async openBulkComplete() {
+        const selectedMaterials = SelectionManager.getSelectedMaterials('partial');
+        if (selectedMaterials.length === 0) {
+            Swal.fire({
+                title: 'Aucun matériau sélectionné',
+                text: 'Veuillez sélectionner au moins un matériau à compléter.',
+                icon: 'warning'
+            });
+            return;
+        }
+        // Utiliser la même modal que pour l'achat groupé mais avec des adaptations
+        const container = document.getElementById('selected-materials-container');
+        const tbody = document.getElementById('individual-prices-tbody');
+        const modal = document.getElementById('bulk-purchase-modal');
+        if (!container || !tbody || !modal) return;
+        // Adapter le contenu pour la complétion
+        container.innerHTML = `<p class="mb-2">Vous avez sélectionné <strong>${selectedMaterials.length}</strong> matériaux à compléter.</p>`;
+        tbody.innerHTML = '';
+        // Ajouter les champs cachés avec indicateur de commande partielle
+        selectedMaterials.forEach(material => {
+            container.innerHTML += `
+                    <input type="hidden" name="material_ids[]" value="${material.id}">
+                    <input type="hidden" name="source_table[${material.id}]" value="${material.sourceTable || 'expression_dym'}">
+                    <input type="hidden" name="is_partial[${material.id}]" value="1">
+                `;
+        });
+        // Initialiser l'autocomplétion des fournisseurs
+        FournisseursModule.setupAutocomplete('fournisseur-bulk', 'fournisseurs-suggestions-bulk');
+        // CORRECTION : Peupler le sélecteur de modes de paiement
+        PaymentMethodsManager.populatePaymentSelect('payment-method-bulk');
+        // Réinitialiser le champ de mode de paiement
+        const paymentSelect = document.getElementById('payment-method-bulk');
+        const paymentDescription = document.getElementById('payment-method-description');
+        if (paymentSelect) paymentSelect.value = '';
+        if (paymentDescription) paymentDescription.innerHTML = '';
+        // Modifier le titre et le bouton
+        const modalTitle = modal.querySelector('h2');
+        if (modalTitle) modalTitle.textContent = 'Compléter les commandes partielles';
+        const confirmButton = modal.querySelector('#confirm-bulk-purchase');
+        if (confirmButton) confirmButton.textContent = 'Compléter les commandes';
+        // Afficher le modal
+        modal.style.display = 'flex';
+        // Charger les prix et informations
+        await this.loadPartialOrderPrices(selectedMaterials);
+    },
+    async loadPartialOrderPrices(materials) {
+        const tbody = document.getElementById('individual-prices-tbody');
+        const commonPrice = document.getElementById('common-price');
+        const fournisseurInput = document.getElementById('fournisseur-bulk');
+        try {
+            const pricePromises = materials.map(material => {
+                const apiUrl = material.sourceTable === 'besoins' ?
+                    `commandes-traitement/besoins/get_besoin_with_remaining.php?id=${material.id}` :
+                    `commandes-traitement/api.php?action=get_material_info&id=${material.id}`;
+                return fetch(apiUrl)
+                    .then(response => response.json())
+                    .catch(() => null);
+            });
+            const results = await Promise.all(pricePromises);
+            // Calculer le prix moyen et récupérer le dernier fournisseur
+            const validPrices = results
+                .filter(data => data && data.prix_unitaire && parseFloat(data.prix_unitaire) > 0)
+                .map(data => parseFloat(data.prix_unitaire));
+            if (validPrices.length > 0 && commonPrice) {
+                const averagePrice = validPrices.reduce((sum, price) => sum + price, 0) / validPrices.length;
+                commonPrice.value = averagePrice.toFixed(2);
+            }
+            // Suggérer le dernier fournisseur utilisé
+            const fournisseurSuggested = results.find(data => data?.fournisseur)?.fournisseur;
+            if (fournisseurSuggested && fournisseurInput && !fournisseurInput.value) {
+                fournisseurInput.value = fournisseurSuggested;
+            }
+            // Créer les lignes du tableau
+            tbody.innerHTML = '';
+            materials.forEach((material, index) => {
+                const prix = results[index]?.prix_unitaire || '';
+                const row = this.createPartialPriceRow(material, prix);
+                tbody.appendChild(row);
+            });
+        } catch (error) {
+            console.error("Erreur lors du chargement des prix pour commandes partielles:", error);
+        }
+    },
+    createPartialPriceRow(material, prix) {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+                <td class="px-6 py-4 whitespace-nowrap text-sm">${Utils.escapeHtml(material.designation)}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                    <input type="number" name="quantities[${material.id}]" 
+                        class="shadow border rounded w-full py-1 px-2 text-gray-700" 
+                        step="0.01" min="0.01" max="${material.quantity}" value="${material.quantity}" required>
+                    <input type="hidden" name="original_quantities[${material.id}]" value="${material.quantity}">
+                    <input type="hidden" name="is_partial[${material.id}]" value="1">
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm">${Utils.escapeHtml(material.unit || 'N/A')}</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <input type="number" name="prices[${material.id}]" 
+                        class="shadow border rounded w-full py-1 px-2 text-gray-700" 
+                        step="0.01" min="0" value="${prix}" required>
+                </td>
+            `;
+        return row;
+    },
     openSubstitution(materialId, designation, expressionId, sourceTable = 'expression_dym') {
         const modal = document.getElementById('substitution-modal');
         const originalProductInput = document.getElementById('original-product');
         const materialIdInput = document.getElementById('substitute-material-id');
         const expressionIdInput = document.getElementById('substitute-expression-id');
         const sourceTableInput = document.getElementById('substitute-source-table');
-
-        if (!modal || !originalProductInput || !materialIdInput || !expressionIdInput || !sourceTableInput) {
-            console.error('Éléments de substitution manquants');
-            return;
-        }
-
+        if (!modal || !originalProductInput || !materialIdInput || !expressionIdInput || !sourceTableInput) return;
         // Remplir les champs
         originalProductInput.value = designation;
         materialIdInput.value = materialId;
         expressionIdInput.value = expressionId;
         sourceTableInput.value = sourceTable;
-
         // Afficher le modal
         modal.style.display = 'flex';
-
-        // Configurer l'autocomplétion des produits
-        this.setupProductAutocomplete();
+        // Configurer l'autocomplétion
+        SubstitutionManager.setupProductAutocomplete();
     },
-
-    setupProductAutocomplete() {
-        const input = document.getElementById('substitute-product');
-        const suggestions = document.getElementById('product-suggestions');
-
-        if (!input || !suggestions) return;
-
-        input.addEventListener('input', debounce(async (e) => {
-            const value = e.target.value;
-
-            if (value.length < 3) {
-                suggestions.innerHTML = '';
-                suggestions.style.display = 'none';
-                return;
-            }
-
-            try {
-                const response = await fetch(`${CONFIG.API_URLS.PRODUCT_SUGGESTIONS}?q=${encodeURIComponent(value)}`);
-                const data = await response.json();
-
-                if (data.success && data.products.length > 0) {
-                    suggestions.innerHTML = data.products.map(product => `
-                        <div class="suggestion-item p-2 cursor-pointer hover:bg-gray-100" 
-                             onclick="SubstitutionManager.selectProduct('${product.designation}', '${product.id}')">
-                            ${product.designation}
-                        </div>
-                    `).join('');
-                    suggestions.style.display = 'block';
-                } else {
-                    suggestions.style.display = 'none';
-                }
-
-            } catch (error) {
-                console.error('Erreur lors de la recherche de produits:', error);
-            }
-        }, 300));
-    },
-
-    selectProduct(designation, productId) {
-        document.getElementById('substitute-product').value = designation;
-        document.getElementById('substitute-product-id').value = productId;
-        document.getElementById('product-suggestions').style.display = 'none';
-    },
-
     close(modal) {
         if (modal) modal.style.display = 'none';
     }
 };
-
-// =====================================================
-// FONCTIONS DE GÉNÉRATION DE CONTENU
-// =====================================================
-
 /**
- * Génération d'un bon de commande
+ * Gestionnaire des achats - VERSION CORRIGÉE
  */
-function generateBonCommande(expressionId) {
-    if (!expressionId) {
-        showNotification('ID d\'expression manquant', 'error');
-        return;
-    }
-
-    Swal.fire({
-        title: 'Génération du bon de commande',
-        text: 'Voulez-vous générer un bon de commande pour cette expression ?',
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Oui, générer',
-        cancelButtonText: 'Annuler'
-    }).then(async (result) => {
-        if (result.isConfirmed) {
-            try {
-                const response = await fetch(CONFIG.API_URLS.BON_COMMANDE, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ expression_id: expressionId })
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    Swal.fire({
-                        title: 'Bon de commande généré',
-                        text: 'Le bon de commande a été généré avec succès.',
-                        icon: 'success',
-                        confirmButtonText: 'Télécharger',
-                        showCancelButton: true,
-                        cancelButtonText: 'Fermer'
-                    }).then((downloadResult) => {
-                        if (downloadResult.isConfirmed && data.file_path) {
-                            window.open(data.file_path, '_blank');
-                        }
-                    });
-
-                    // Rafraîchir les tables
-                    refreshDataTables();
-                } else {
-                    showNotification(data.message || 'Erreur lors de la génération', 'error');
+const PurchaseManager = {
+    async handleIndividualPurchase(e) {
+        e.preventDefault();
+        const form = e.target;
+        const fournisseur = document.getElementById('fournisseur').value;
+        const prix = document.getElementById('prix').value;
+        const paymentMethod = document.getElementById('payment-method').value; // NOUVEAU
+        // CORRECTION : Validation incluant le mode de paiement
+        if (!this.validateIndividualPurchase(fournisseur, prix, paymentMethod)) return;
+        try {
+            // Vérifier et créer le fournisseur si nécessaire
+            const fournisseurResult = await FournisseursModule.checkAndCreate(fournisseur);
+            // Afficher un indicateur de chargement
+            Swal.fire({
+                title: 'Traitement en cours...',
+                text: 'Enregistrement de la commande',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
                 }
-
-            } catch (error) {
-                console.error('Erreur lors de la génération du bon de commande:', error);
-                showNotification('Erreur de connexion', 'error');
+            });
+            // Préparer et envoyer les données
+            const formData = new FormData(form);
+            if (fournisseurResult.newFournisseur) {
+                formData.append('create_fournisseur', '1');
+            }
+            const response = await fetch(form.action, {
+                method: 'POST',
+                body: formData
+            });
+            const data = await response.json();
+            if (data.success) {
+                ModalManager.close(document.getElementById('purchase-modal'));
+                Swal.fire({
+                    title: 'Succès!',
+                    text: data.message || 'Commande enregistrée avec succès!',
+                    icon: 'success',
+                    timer: 2000,
+                    showConfirmButton: false
+                }).then(() => {
+                    window.location.reload();
+                });
+            } else {
+                Swal.fire({
+                    title: 'Erreur',
+                    text: data.message || 'Une erreur est survenue lors du traitement de la commande.',
+                    icon: 'error'
+                });
+            }
+        } catch (error) {
+            console.error('Erreur:', error);
+            Swal.fire({
+                title: 'Erreur',
+                text: error.message || 'Une erreur est survenue lors de la communication avec le serveur.',
+                icon: 'error'
+            });
+        }
+    },
+    async handleBulkPurchase(e) {
+        e.preventDefault();
+        const form = e.target;
+        const priceType = document.getElementById('price-type').value;
+        const fournisseur = document.getElementById('fournisseur-bulk').value;
+        // CORRECTION : Validation incluant le mode de paiement
+        if (!this.validateBulkPurchase(priceType, fournisseur)) return;
+        // Déterminer l'URL de soumission
+        const isPartialCompletion = form.querySelector('input[name^="is_partial["]') !== null;
+        const submitUrl = isPartialCompletion ?
+            'commandes-traitement/api.php?action=complete_multiple_partial' :
+            'process_bulk_purchase.php';
+        try {
+            // Vérifier et créer le fournisseur si nécessaire
+            const fournisseurResult = await FournisseursModule.checkAndCreate(fournisseur);
+            Swal.fire({
+                title: 'Traitement en cours...',
+                text: isPartialCompletion ? 'Complétion des commandes en cours' : 'Enregistrement de la commande',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+            // Préparer les données
+            const formData = new FormData(form);
+            if (!formData.has('bulk_purchase')) {
+                formData.append('bulk_purchase', '1');
+            }
+            if (fournisseurResult.newFournisseur) {
+                formData.append('create_fournisseur', '1');
+            }
+            const response = await fetch(submitUrl, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+            const data = await response.json();
+            if (data.success) {
+                ModalManager.close(document.getElementById('bulk-purchase-modal'));
+                // Gérer le téléchargement du PDF si disponible
+                if (data.pdf_url) {
+                    window.open(data.pdf_url, '_blank');
+                    Swal.fire({
+                        title: 'Succès!',
+                        text: 'Commande enregistrée avec succès et le bon de commande est en cours de téléchargement.',
+                        icon: 'success',
+                        timer: 3000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'Succès!',
+                        text: data.message || (isPartialCompletion ?
+                            'Commandes complétées avec succès!' :
+                            'Matériaux commandés avec succès!'),
+                        icon: 'success',
+                        timer: 2000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                }
+            } else {
+                Swal.fire({
+                    title: 'Erreur',
+                    text: data.message || 'Une erreur est survenue lors du traitement de la commande.',
+                    icon: 'error'
+                });
+            }
+        } catch (error) {
+            console.error('Erreur:', error);
+            Swal.fire({
+                title: 'Erreur',
+                text: 'Une erreur est survenue lors de la communication avec le serveur.',
+                icon: 'error'
+            });
+        }
+    },
+    validateIndividualPurchase(fournisseur, prix, paymentMethod) {
+        if (!fournisseur.trim()) {
+            Swal.fire({
+                title: 'Fournisseur manquant',
+                text: 'Veuillez sélectionner un fournisseur.',
+                icon: 'error'
+            });
+            return false;
+        }
+        if (!prix || parseFloat(prix) <= 0) {
+            Swal.fire({
+                title: 'Prix invalide',
+                text: 'Veuillez saisir un prix unitaire valide.',
+                icon: 'error'
+            });
+            return false;
+        }
+        // CORRECTION : Validation du mode de paiement
+        if (!PaymentMethodsManager.validatePaymentMethod(paymentMethod)) {
+            return false;
+        }
+        return true;
+    },
+    validateBulkPurchase(priceType, fournisseur) {
+        if (!fournisseur.trim()) {
+            Swal.fire({
+                title: 'Fournisseur manquant',
+                text: 'Veuillez sélectionner un fournisseur.',
+                icon: 'error'
+            });
+            return false;
+        }
+        // CORRECTION PRINCIPALE : Validation du mode de paiement
+        const paymentMethodSelect = document.getElementById('payment-method-bulk');
+        if (!paymentMethodSelect) {
+            console.error('❌ Sélecteur de mode de paiement non trouvé');
+            return false;
+        }
+        const paymentMethodId = paymentMethodSelect.value;
+        if (!PaymentMethodsManager.validatePaymentMethod(paymentMethodId)) {
+            return false;
+        }
+        // Validation du pro-forma (si applicable)
+        if (window.ProformaUploadManager) {
+            const proformaValidation = ProformaUploadManager.validateForSubmission();
+            if (!proformaValidation.isValid) {
+                Swal.fire({
+                    title: 'Erreur Pro-forma',
+                    text: proformaValidation.message,
+                    icon: 'error',
+                    confirmButtonColor: '#4F46E5'
+                });
+                return false;
             }
         }
-    });
-}
-
+        // Validation des quantités
+        const quantityInputs = document.querySelectorAll('input[name^="quantities["]');
+        for (const input of quantityInputs) {
+            if (!input.value || parseFloat(input.value) <= 0) {
+                Swal.fire({
+                    title: 'Quantités invalides',
+                    text: 'Veuillez saisir une quantité valide supérieure à 0 pour chaque matériau.',
+                    icon: 'warning',
+                    confirmButtonColor: '#4F46E5'
+                });
+                return false;
+            }
+        }
+        // Validation des prix
+        if (priceType === 'common') {
+            const commonPriceInput = document.getElementById('common-price');
+            if (!commonPriceInput || !commonPriceInput.value || parseFloat(commonPriceInput.value) <= 0) {
+                Swal.fire({
+                    title: 'Prix invalide',
+                    text: 'Veuillez saisir un prix unitaire commun valide.',
+                    icon: 'error',
+                    confirmButtonColor: '#4F46E5'
+                });
+                return false;
+            }
+        } else {
+            const priceInputs = document.querySelectorAll('input[name^="prices["]');
+            for (const input of priceInputs) {
+                if (!input.value || parseFloat(input.value) <= 0) {
+                    Swal.fire({
+                        title: 'Prix manquants',
+                        text: 'Veuillez saisir un prix valide pour chaque matériau.',
+                        icon: 'error',
+                        confirmButtonColor: '#4F46E5'
+                    });
+                    return false;
+                }
+            }
+        }
+        return true;
+    },
+    togglePriceInputs() {
+        const priceType = document.getElementById('price-type');
+        const commonPriceContainer = document.getElementById('common-price-container');
+        const individualPricesContainer = document.getElementById('individual-prices-container');
+        if (priceType && commonPriceContainer && individualPricesContainer) {
+            const isCommon = priceType.value === 'common';
+            commonPriceContainer.classList.toggle('hidden', !isCommon);
+            individualPricesContainer.classList.toggle('hidden', isCommon);
+        }
+    }
+};
 /**
- * Visualisation des détails de commande
+ * Gestionnaire des annulations - VERSION CORRIGÉE
  */
-async function viewOrderDetails(orderId, expressionId, designation, sourceTable = 'expression_dym') {
-    try {
+const CancelManager = {
+    cancelSingleOrder(id, expressionId, designation, sourceTable = 'expression_dym') {
+        this.openCancelConfirmationModal([{
+            id: id,
+            expressionId: expressionId,
+            designation: designation,
+            project: '',
+            sourceTable: sourceTable
+        }]);
+    },
+    cancelMultipleOrders() {
+        const selectedMaterials = SelectionManager.getSelectedMaterials('ordered');
+        if (selectedMaterials.length === 0) {
+            Swal.fire({
+                title: 'Aucune commande sélectionnée',
+                text: 'Veuillez sélectionner au moins une commande à annuler.',
+                icon: 'warning'
+            });
+            return;
+        }
+        this.openCancelConfirmationModal(selectedMaterials);
+    },
+    cancelPendingMaterial(id, expressionId, designation, sourceTable = 'expression_dym') {
+        this.openCancelPendingMaterialModal([{
+            id: id,
+            expressionId: expressionId,
+            designation: designation,
+            project: '',
+            sourceTable: sourceTable
+        }]);
+    },
+    cancelMultiplePending() {
+        const selectedMaterials = SelectionManager.getSelectedMaterialsFromDOM('pending');
+        if (selectedMaterials.length === 0) {
+            Swal.fire({
+                title: 'Aucun matériau sélectionné',
+                text: 'Veuillez sélectionner au moins un matériau à annuler.',
+                icon: 'warning'
+            });
+            return;
+        }
+        SelectionManager.syncSelections('pending');
+        this.openCancelPendingMaterialModal(selectedMaterials);
+    },
+    openCancelConfirmationModal(materials) {
+        const materialsList = this.createMaterialsList(materials);
         Swal.fire({
-            title: 'Chargement des détails...',
+            title: materials.length === 1 ? 'Annuler la commande?' : `Annuler ${materials.length} commandes?`,
+            html: `Êtes-vous sûr de vouloir annuler ${materials.length === 1 ? 'cette commande' : 'ces commandes'}?<br>${materialsList}`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Oui, annuler',
+            cancelButtonText: 'Non, garder',
+            confirmButtonColor: '#d33',
+            reverseButtons: true,
+            input: 'text',
+            inputLabel: 'Raison de l\'annulation',
+            inputPlaceholder: 'Veuillez indiquer la raison de l\'annulation',
+            inputValidator: (value) => {
+                if (!value || value.trim() === '') {
+                    return 'Vous devez indiquer une raison d\'annulation';
+                }
+            },
+            showLoaderOnConfirm: true,
+            preConfirm: (reasonText) => this.performCancellation(reasonText, materials, CONFIG.API_URLS.CANCEL_ORDERS),
+            allowOutsideClick: () => !Swal.isLoading()
+        }).then(result => {
+            if (result.isConfirmed) {
+                this.showSuccessMessage(materials.length);
+            }
+        });
+    },
+    openCancelPendingMaterialModal(materials) {
+        const materialsList = this.createMaterialsList(materials);
+        Swal.fire({
+            title: materials.length === 1 ? 'Annuler ce matériau?' : `Annuler ${materials.length} matériaux?`,
+            html: `Êtes-vous sûr de vouloir annuler ${materials.length === 1 ? 'ce matériau' : 'ces matériaux'} en attente?<br>${materialsList}`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Oui, annuler',
+            cancelButtonText: 'Non, garder',
+            confirmButtonColor: '#d33',
+            reverseButtons: true,
+            input: 'text',
+            inputLabel: 'Raison de l\'annulation',
+            inputPlaceholder: 'Veuillez indiquer la raison de l\'annulation',
+            inputValidator: (value) => {
+                if (!value || value.trim() === '') {
+                    return 'Vous devez indiquer une raison d\'annulation';
+                }
+            },
+            showLoaderOnConfirm: true,
+            preConfirm: (reasonText) => this.performPendingCancellation(reasonText, materials),
+            allowOutsideClick: () => !Swal.isLoading()
+        }).then(result => {
+            if (result.isConfirmed) {
+                this.showSuccessMessage(materials.length, 'Matériau(x) annulé(s)!',
+                    materials.length === 1 ? 'Le matériau a été annulé avec succès' :
+                        'Les matériaux ont été annulés avec succès');
+            }
+        });
+    },
+    createMaterialsList(materials) {
+        if (materials.length === 1) {
+            const sourceLabel = materials[0].sourceTable === 'besoins' ? 'Système' : 'Projet';
+            return `<p><strong>${materials[0].designation}</strong></p>
+                        <p class="text-sm text-gray-600">(Source: ${sourceLabel})</p>`;
+        } else {
+            let list = '<ul class="text-left mt-2 mb-4 max-h-40 overflow-y-auto">';
+            materials.forEach(material => {
+                const sourceLabel = material.sourceTable === 'besoins' ? 'Système' : 'Projet';
+                list += `<li class="py-1 border-b border-gray-200 flex justify-between">
+                                <span class="font-medium">${material.designation}</span>
+                                <span class="text-sm text-gray-600">${material.project || ''} (${sourceLabel})</span>
+                            </li>`;
+            });
+            list += '</ul>';
+            return list;
+        }
+    },
+    async performPendingCancellation(reasonText, materials) {
+        const formData = new FormData();
+        formData.append('reason', reasonText);
+        formData.append('materials', JSON.stringify(materials));
+        try {
+            const response = await fetch('api/orders/cancel_pending_materials.php', {
+                method: 'POST',
+                body: formData
+            });
+            if (!response.ok) {
+                throw new Error(`Erreur HTTP: ${response.status}`);
+            }
+            const data = await response.json();
+            if (!data.success) {
+                throw new Error(data.message || 'Erreur lors de l\'annulation');
+            }
+            return data;
+        } catch (error) {
+            console.error("Erreur lors de l'annulation:", error);
+            Swal.showValidationMessage(`Erreur: ${error.message}`);
+        }
+    },
+    async performCancellation(reasonText, materials, apiUrl, type = null) {
+        const formData = new FormData();
+        formData.append('reason', reasonText);
+        formData.append('materials', JSON.stringify(materials));
+        if (type) formData.append('type', type);
+        try {
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                body: formData
+            });
+            if (!response.ok) {
+                throw new Error('Erreur réseau');
+            }
+            const data = await response.json();
+            if (!data.success) {
+                throw new Error(data.message || 'Erreur lors de l\'annulation');
+            }
+            return data;
+        } catch (error) {
+            console.error("Erreur lors de l'annulation:", error);
+            Swal.showValidationMessage(`Erreur: ${error.message}`);
+        }
+    },
+    showSuccessMessage(count, title = 'Commande(s) annulée(s)!', message = null) {
+        const defaultMessage = count === 1 ?
+            'La commande a été annulée avec succès' :
+            'Les commandes ont été annulées avec succès';
+        Swal.fire({
+            title: title,
+            text: message || defaultMessage,
+            icon: 'success',
+            timer: 3000,
+            showConfirmButton: false
+        }).then(() => {
+            window.location.reload();
+        });
+    }
+};
+/**
+ * GESTIONNAIRE DES COMMANDES PARTIELLES - VERSION 2.0 COMPLÈTE
+ * 
+ * MISE À JOUR PRINCIPALE :
+ * - Intégration complète du système de modes de paiement avec icon_path
+ * - Validation robuste et gestion d'erreurs améliorée
+ * - Interface utilisateur optimisée
+ * - Performance et cache améliorés
+ * 
+ * À remplacer dans : /DYM MANUFACTURE/expressions_besoins/User-Achat/achats_materiaux.php
+ * Section : PartialOrdersManager (Remplacer complètement)
+ * 
+ * Date : 30/06/2025
+ */
+const PartialOrdersManager = {
+    // Cache et configuration
+    cache: {
+        lastUpdate: null,
+        cacheDuration: 3 * 60 * 1000 // 3 minutes
+    },
+    /**
+     * Initialisation du gestionnaire
+     */
+    init() {
+        this.load(false);
+    },
+    /**
+     * Chargement des données avec gestion du cache
+     */
+    async load(switchTab = true) {
+        try {
+            this.showLoading();
+            const response = await fetch(`${CONFIG.API_URLS.PARTIAL_ORDERS}?action=get_remaining&_t=${Date.now()}`);
+            if (!response.ok) {
+                throw new Error(`Erreur HTTP: ${response.status} - ${response.statusText}`);
+            }
+            const data = await response.json();
+            if (data.success) {
+                // Mettre à jour le cache
+                this.cache.lastUpdate = Date.now();
+                // Mettre à jour les statistiques
+                NotificationsManager.updatePartialOrdersStats(data.stats);
+                // Mettre à jour le compteur dans l'onglet
+                this.updateTabCounter(data.materials ? data.materials.length : 0);
+                // Afficher l'onglet si demandé
+                if (switchTab || this.isTabActive()) {
+                    if (switchTab) this.showTab();
+                    this.renderTable(data.materials || []);
+                }
+                console.log(`✅ ${data.materials?.length || 0} commandes partielles chargées`);
+            } else {
+                this.showError(data.message);
+            }
+        } catch (error) {
+            console.error("❌ Erreur lors du chargement des commandes partielles:", error);
+            this.showError(error.message);
+        }
+    },
+    /**
+     * Affichage du loader
+     */
+    showLoading() {
+        const tbody = document.getElementById('partial-orders-body');
+        if (tbody) {
+            tbody.innerHTML = `
+            <tr>
+                <td colspan="9" class="px-6 py-4 text-center text-sm text-gray-500">
+                    <div class="flex items-center justify-center">
+                        <svg class="animate-spin h-5 w-5 mr-3" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Chargement des données...
+                    </div>
+                </td>
+            </tr>
+        `;
+        }
+    },
+    /**
+     * Affichage des erreurs
+     */
+    showError(message) {
+        const tbody = document.getElementById('partial-orders-body');
+        if (tbody) {
+            tbody.innerHTML = `
+            <tr>
+                <td colspan="9" class="px-6 py-4 text-center text-sm text-red-500">
+                    <div class="flex items-center justify-center">
+                        <span class="material-icons mr-2">error_outline</span>
+                        Erreur: ${message || 'Veuillez réessayer'}
+                    </div>
+                    <button onclick="PartialOrdersManager.load(false)" 
+                        class="mt-2 text-blue-600 hover:text-blue-800 underline">
+                        Réessayer
+                    </button>
+                </td>
+            </tr>
+        `;
+        }
+    },
+    /**
+     * Vérification si l'onglet est actif
+     */
+    isTabActive() {
+        const section = document.getElementById('materials-partial');
+        return section && !section.classList.contains('hidden');
+    },
+    /**
+     * Affichage de l'onglet
+     */
+    showTab() {
+        TabsManager.activateMaterialTab(document.getElementById('materials-partial-tab'));
+    },
+    /**
+     * Mise à jour du compteur dans l'onglet
+     */
+    updateTabCounter(count) {
+        const counter = document.querySelector('#materials-partial-tab .rounded-full');
+        if (counter) {
+            counter.textContent = count;
+            counter.classList.toggle('bg-yellow-100', count > 0);
+            counter.classList.toggle('text-yellow-800', count > 0);
+            counter.classList.toggle('bg-gray-100', count === 0);
+            counter.classList.toggle('text-gray-800', count === 0);
+        }
+    },
+    /**
+     * Rendu du tableau avec gestion optimisée
+     */
+    renderTable(materials) {
+        const tbody = document.getElementById('partial-orders-body');
+        if (!tbody) return;
+        // Sauvegarder les sélections actuelles
+        const selectedIds = this.getSelectedIds();
+        // Détruire le DataTable existant
+        if (jQuery.fn.DataTable.isDataTable('#partialOrdersTable')) {
+            jQuery('#partialOrdersTable').DataTable().destroy();
+        }
+        if (!materials || materials.length === 0) {
+            tbody.innerHTML = `
+            <tr>
+                <td colspan="9" class="px-6 py-4 text-center text-sm text-gray-500">
+                    <div class="flex flex-col items-center">
+                        <span class="material-icons text-4xl mb-2 text-gray-300">inventory_2</span>
+                        <span>Aucune commande partielle trouvée.</span>
+                    </div>
+                </td>
+            </tr>
+        `;
+            return;
+        }
+        // Construire le HTML
+        const html = materials.map(material => this.createTableRow(material, selectedIds)).join('');
+        tbody.innerHTML = html;
+        // Réattacher les événements
+        this.attachEvents();
+        // Initialiser DataTable
+        this.initDataTable();
+    },
+    /**
+     * Récupération des IDs sélectionnés
+     */
+    getSelectedIds() {
+        const selectedIds = [];
+        document.querySelectorAll('.partial-material-checkbox:checked').forEach(checkbox => {
+            if (checkbox.dataset && checkbox.dataset.id) {
+                selectedIds.push(checkbox.dataset.id);
+            }
+        });
+        return selectedIds;
+    },
+    /**
+     * Création d'une ligne de tableau
+     */
+    createTableRow(material, selectedIds) {
+        const sourceTable = material.source_table || 'expression_dym';
+        // Adapter les variables selon la source
+        const designation = sourceTable === 'besoins' ?
+            material.designation || material.designation_article || 'Sans désignation' :
+            material.designation || 'Sans désignation';
+        const unit = sourceTable === 'besoins' ?
+            material.unit || material.caracteristique || '' :
+            material.unit || '';
+        const restante = parseFloat(material.qt_restante || 0);
+        const expressionId = sourceTable === 'besoins' ?
+            material.idExpression || material.idBesoin || '' :
+            material.idExpression || '';
+        // Calculer les valeurs
+        const initialQty = parseFloat(material.quantite_initiale || material.initial_qt_acheter || 0);
+        const orderedQty = parseFloat(material.quantite_commandee || material.quantite_deja_commandee || 0);
+        const progress = initialQty > 0 ? Math.round((orderedQty / initialQty) * 100) : 0;
+        // Déterminer la couleur de progression
+        let progressColor = 'bg-yellow-500';
+        if (progress >= 75) progressColor = 'bg-green-500';
+        if (progress < 25) progressColor = 'bg-red-500';
+        // Vérifier la sélection
+        const isChecked = selectedIds.includes(material.id?.toString()) ? 'checked' : '';
+        return `
+        <tr class="${progress < 50 ? 'bg-yellow-50 pulse-animation' : ''}" data-id="${material.id}">
+            <td class="px-6 py-4 whitespace-nowrap">
+                <input type="checkbox" class="material-checkbox partial-material-checkbox"
+                    data-id="${material.id}"
+                    data-expression="${expressionId}"
+                    data-designation="${Utils.escapeHtml(designation)}"
+                    data-quantity="${restante}"
+                    data-unit="${Utils.escapeHtml(unit)}"
+                    data-source-table="${sourceTable}"
+                    ${isChecked}>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">${material.code_projet || '-'}</td>
+            <td class="px-6 py-4 whitespace-nowrap">${material.nom_client || '-'}</td>
+            <td class="px-6 py-4 whitespace-nowrap font-medium">${Utils.escapeHtml(designation)}</td>
+            <td class="px-6 py-4 whitespace-nowrap">${Utils.formatQuantity(initialQty)} ${Utils.escapeHtml(unit)}</td>
+            <td class="px-6 py-4 whitespace-nowrap">${Utils.formatQuantity(orderedQty)} ${Utils.escapeHtml(unit)}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-yellow-600 font-medium">${Utils.formatQuantity(restante)} ${Utils.escapeHtml(unit)}</td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center">
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div class="${progressColor} h-2 rounded-full transition-all duration-300" style="width: ${progress}%"></div>
+                    </div>
+                    <span class="ml-2 text-xs font-medium">${progress}%</span>
+                </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex space-x-2">
+                    <button onclick="PartialOrdersManager.completeOrder('${material.id}', '${Utils.escapeString(designation)}', ${restante}, '${Utils.escapeHtml(unit)}', '${sourceTable}')" 
+                        class="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50 transition-colors"
+                        title="Commander le restant">
+                        <span class="material-icons text-sm">add_shopping_cart</span>
+                    </button>
+                    <button onclick="PartialOrdersManager.viewDetails('${material.id}', '${sourceTable}')" 
+                        class="text-gray-600 hover:text-gray-900 p-1 rounded hover:bg-gray-50 transition-colors"
+                        title="Voir les détails">
+                        <span class="material-icons text-sm">visibility</span>
+                    </button>
+                </div>
+            </td>
+        </tr>
+    `;
+    },
+    /**
+     * Attachement des événements
+     */
+    attachEvents() {
+        const selectAllCheckbox = document.getElementById('select-all-partial-materials');
+        if (selectAllCheckbox) {
+            selectAllCheckbox.checked = false;
+            selectAllCheckbox.removeEventListener('change', this.handleSelectAll);
+            selectAllCheckbox.addEventListener('change', (e) => this.handleSelectAll(e, 'partial'));
+        }
+        document.querySelectorAll('.partial-material-checkbox').forEach(checkbox => {
+            checkbox.removeEventListener('change', ButtonStateManager.updateAllButtons);
+            checkbox.addEventListener('change', () => {
+                SelectionManager.updateSelection('partial', checkbox);
+                ButtonStateManager.updateAllButtons();
+            });
+        });
+    },
+    /**
+     * Gestion de la sélection globale
+     */
+    handleSelectAll(e, type) {
+        const isChecked = e.target.checked;
+        // Mettre à jour toutes les checkboxes visibles
+        document.querySelectorAll(`.${type}-material-checkbox`).forEach(checkbox => {
+            checkbox.checked = isChecked;
+            SelectionManager.updateSelection(type, checkbox);
+        });
+        // Si on décoche "tout sélectionner", on vide complètement la sélection
+        if (!isChecked) {
+            SelectionManager.clearSelections(type);
+        }
+        ButtonStateManager.updateAllButtons();
+    },
+    /**
+     * Initialisation du DataTable
+     */
+    initDataTable() {
+        DataTablesManager.tables.partial = jQuery('#partialOrdersTable').DataTable({
+            responsive: true,
+            language: {
+                url: CONFIG.DATATABLES.LANGUAGE_URL
+            },
+            dom: CONFIG.DATATABLES.DOM,
+            buttons: CONFIG.DATATABLES.BUTTONS,
+            columnDefs: [{
+                orderable: false,
+                targets: [0, 8]
+            }, {
+                responsivePriority: 1,
+                targets: [3, 6]
+            }],
+            order: [
+                [4, 'desc']
+            ],
+            pageLength: 10,
+            drawCallback: () => {
+                // Réattacher les événements après le redessinage
+                document.querySelectorAll('.partial-material-checkbox').forEach(checkbox => {
+                    checkbox.removeEventListener('change', ButtonStateManager.updateAllButtons);
+                    checkbox.addEventListener('change', () => {
+                        SelectionManager.updateSelection('partial', checkbox);
+                        ButtonStateManager.updateAllButtons();
+                    });
+                });
+                ButtonStateManager.updateAllButtons();
+            }
+        });
+    },
+    /**
+     * FONCTION PRINCIPALE : Compléter une commande - MISE À JOUR COMPLÈTE
+     */
+    async completeOrder(id, designation, remaining, unit, sourceTable = 'expression_dym') {
+        try {
+            console.log(`🔄 Complétion de la commande ${id} (${sourceTable})`);
+            // Déterminer l'URL de l'API pour récupérer les infos
+            let apiUrl = `${CONFIG.API_URLS.PARTIAL_ORDERS}?action=get_material_info&id=${id}`;
+            if (sourceTable === 'besoins') {
+                apiUrl = `commandes-traitement/besoins/get_besoin_with_remaining.php?id=${id}`;
+            }
+            // Récupération des informations du matériau
+            const response = await fetch(apiUrl);
+            const materialInfo = await response.json();
+            if (materialInfo.success === false) {
+                throw new Error(materialInfo.message || 'Impossible de récupérer les informations du matériau');
+            }
+            this.showCompleteOrderModal(id, designation, remaining, unit, materialInfo, sourceTable);
+        } catch (error) {
+            console.error("❌ Erreur lors de la récupération des infos du matériau:", error);
+            Swal.fire({
+                title: 'Erreur de chargement',
+                text: 'Impossible de charger les données complètes du matériau. Voulez-vous continuer quand même?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Continuer',
+                cancelButtonText: 'Annuler',
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    this.showCompleteOrderModal(id, designation, remaining, unit, {}, sourceTable);
+                }
+            });
+        }
+    },
+    /**
+     * MODAL DE COMPLÉTION - MISE À JOUR COMPLÈTE AVEC NOUVEAUX MODES DE PAIEMENT
+     */
+    showCompleteOrderModal(id, designation, remaining, unit, materialInfo, sourceTable = 'expression_dym') {
+        Swal.fire({
+            title: 'Compléter la commande',
+            html: `
+            <div class="text-left space-y-4">
+                <!-- Informations du matériau -->
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <h4 class="font-semibold text-gray-800 mb-2">Informations du matériau</h4>
+                    <p class="text-sm"><strong>Désignation :</strong> ${designation}</p>
+                    <p class="text-sm"><strong>Quantité restante :</strong> 
+                        <span class="text-orange-600 font-medium">${remaining} ${unit}</span>
+                    </p>
+                </div>
+                
+                <!-- Quantité à commander -->
+                <div>
+                    <label for="quantity" class="block text-sm font-medium text-gray-700 mb-1">
+                        Quantité à commander <span class="text-red-500">*</span>
+                    </label>
+                    <input type="number" id="quantity" 
+                        class="w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+                        value="${remaining}" min="0.01" max="${remaining}" step="0.01"
+                        placeholder="Entrez la quantité">
+                    <div class="text-xs text-gray-500 mt-1">Maximum: ${remaining} ${unit}</div>
+                </div>
+                
+                <!-- Fournisseur avec autocomplétion -->
+                <div class="relative">
+                    <label for="supplier" class="block text-sm font-medium text-gray-700 mb-1">
+                        Fournisseur <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" id="supplier" 
+                        class="w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        value="${materialInfo.fournisseur || ''}"
+                        placeholder="Nom du fournisseur">
+                    <div id="supplier-suggestions-partial" 
+                        class="absolute w-full bg-white mt-1 shadow-lg rounded-md z-50 max-h-60 overflow-y-auto hidden border">
+                    </div>
+                    <div class="mt-2">
+                        <a href="../fournisseurs/fournisseurs.php" target="_blank" 
+                            class="text-xs text-blue-600 hover:text-blue-800 flex items-center">
+                            <span class="material-icons text-sm mr-1">add_circle</span>
+                            Gérer les fournisseurs
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- MODE DE PAIEMENT - SECTION MISE À JOUR -->
+                <div>
+                    <label for="payment-method" class="block text-sm font-medium text-gray-700 mb-1">
+                        Mode de paiement <span class="text-red-500">*</span>
+                    </label>
+                    <div class="relative">
+                        <select id="payment-method" required
+                            class="w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 pr-10">
+                            <option value="">Sélectionnez un mode de paiement</option>
+                            <!-- Les options seront chargées dynamiquement -->
+                        </select>
+                        <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none">
+                            <span class="material-icons text-gray-400">payment</span>
+                        </div>
+                    </div>
+                    <div class="mt-2 text-xs text-gray-600" id="payment-method-description-partial">
+                        <!-- Description du mode de paiement sélectionné -->
+                    </div>
+                </div>
+                
+                <!-- Prix unitaire -->
+                <div>
+                    <label for="price" class="block text-sm font-medium text-gray-700 mb-1">
+                        Prix unitaire (FCFA) <span class="text-red-500">*</span>
+                    </label>
+                    <input type="number" id="price" 
+                        class="w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+                        min="0.01" step="0.01" value="${materialInfo.prix_unitaire || ''}"
+                        placeholder="Prix par unité">
+                </div>
+                
+                <!-- Champ caché pour la table source -->
+                <input type="hidden" id="source_table" value="${sourceTable}">
+                
+                <!-- Résumé de la commande -->
+                <div class="bg-blue-50 p-3 rounded-lg" id="order-summary" style="display: none;">
+                    <h5 class="font-medium text-blue-800 mb-2">Résumé de la commande</h5>
+                    <div class="text-sm text-blue-700" id="summary-content">
+                        <!-- Contenu généré dynamiquement -->
+                    </div>
+                </div>
+            </div>
+        `,
+            showCancelButton: true,
+            confirmButtonText: 'Commander',
+            cancelButtonText: 'Annuler',
+            confirmButtonColor: '#059669',
+            cancelButtonColor: '#6b7280',
+            showLoaderOnConfirm: true,
+            width: '600px',
+            customClass: {
+                popup: 'swal2-popup-custom'
+            },
+            didOpen: () => {
+                // Initialiser les fonctionnalités
+                this.initPartialSupplierAutocomplete();
+                this.initPartialPaymentMethods();
+                this.setupOrderSummary();
+                // Suggérer un fournisseur si absent
+                if (!materialInfo.fournisseur) {
+                    this.suggestSupplier(designation);
+                }
+            },
+            preConfirm: () => {
+                return this.handleOrderCompletion(id, remaining, sourceTable);
+            },
+            allowOutsideClick: () => !Swal.isLoading()
+        }).then(result => {
+            if (result.isConfirmed && result.value) {
+                // Gestion du succès avec détails
+                const paymentInfo = PaymentMethodsManager.getMethodById(
+                    document.getElementById('payment-method')?.value
+                );
+                Swal.fire({
+                    title: 'Succès !',
+                    html: `
+                    <div class="text-center">
+                        <div class="text-green-600 mb-4">
+                            <span class="material-icons text-4xl">check_circle</span>
+                        </div>
+                        <p class="mb-2">Commande enregistrée avec succès</p>
+                        <div class="text-sm text-gray-600">
+                            <p>💳 Mode de paiement: ${paymentInfo?.label || 'Non défini'}</p>
+                            <p>📦 Quantité: ${document.getElementById('quantity')?.value || 0} ${unit}</p>
+                        </div>
+                        ${result.value.pdf_url ? '<p class="mt-2 text-blue-600">📄 Le bon de commande est en cours de téléchargement</p>' : ''}
+                    </div>
+                `,
+                    icon: 'success',
+                    timer: 4000,
+                    showConfirmButton: false,
+                    customClass: {
+                        popup: 'swal2-success-popup'
+                    }
+                }).then(() => {
+                    // Gérer le téléchargement du PDF si disponible
+                    if (result.value.pdf_url) {
+                        window.open(result.value.pdf_url, '_blank');
+                    }
+                    // Recharger les données
+                    this.load(false);
+                });
+            }
+        });
+    },
+    /**
+     * INITIALISATION DES MODES DE PAIEMENT - MISE À JOUR COMPLÈTE
+     */
+    async initPartialPaymentMethods() {
+        try {
+            console.log('🔄 Initialisation des modes de paiement pour la modal...');
+            // S'assurer que PaymentMethodsManager est initialisé
+            if (!PaymentMethodsManager.isLoaded) {
+                await PaymentMethodsManager.init();
+            }
+            // Peupler le sélecteur
+            const paymentSelect = document.getElementById('payment-method');
+            if (paymentSelect) {
+                PaymentMethodsManager.populateSelector(paymentSelect);
+                console.log('✅ Sélecteur de modes de paiement peuplé');
+            }
+            // Configurer les événements de changement
+            const paymentDescription = document.getElementById('payment-method-description-partial');
+            if (paymentSelect && paymentDescription) {
+                paymentSelect.addEventListener('change', function () {
+                    PaymentMethodsManager.updatePaymentDescription(
+                        'payment-method-description-partial',
+                        this.value
+                    );
+                    PartialOrdersManager.updateOrderSummary();
+                });
+            }
+        } catch (error) {
+            console.error('❌ Erreur lors de l\'initialisation des modes de paiement:', error);
+            showNotification('Erreur lors du chargement des modes de paiement', 'error');
+        }
+    },
+    /**
+     * TRAITEMENT DE LA COMMANDE - MISE À JOUR COMPLÈTE
+     */
+    async handleOrderCompletion(id, remaining, sourceTable) {
+        try {
+            // Récupération des valeurs
+            const quantity = document.getElementById('quantity').value;
+            const supplier = document.getElementById('supplier').value;
+            const price = document.getElementById('price').value;
+            const paymentMethod = document.getElementById('payment-method').value;
+            console.log('🔍 Validation des données de commande...');
+            console.log({
+                quantity,
+                supplier,
+                price,
+                paymentMethod,
+                sourceTable
+            });
+            // VALIDATION COMPLÈTE avec modes de paiement
+            if (!this.validateOrder(quantity, remaining, supplier, price, paymentMethod)) {
+                return false;
+            }
+            // Vérification et création du fournisseur
+            const fournisseurResult = await FournisseursModule.checkAndCreate(supplier);
+            // Préparation des données
+            const formData = new FormData();
+            formData.append('action', 'complete_partial_order');
+            formData.append('material_id', id);
+            formData.append('quantite_commande', quantity);
+            formData.append('fournisseur', supplier);
+            formData.append('prix_unitaire', price);
+            formData.append('payment_method', paymentMethod); // NOUVEAU : obligatoire
+            formData.append('source_table', sourceTable);
+            if (fournisseurResult.newFournisseur) {
+                formData.append('create_fournisseur', '1');
+            }
+            // Déterminer l'URL de l'API
+            const apiUrl = sourceTable === 'besoins' ?
+                'commandes-traitement/besoins/complete_besoin_partial.php' :
+                CONFIG.API_URLS.PARTIAL_ORDERS;
+            console.log(`📡 Envoi vers: ${apiUrl}`);
+            // Envoi de la requête
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                body: formData
+            });
+            if (!response.ok) {
+                throw new Error(`Erreur HTTP: ${response.status} - ${response.statusText}`);
+            }
+            const data = await response.json();
+            if (!data.success) {
+                throw new Error(data.message || 'Erreur lors de l\'enregistrement de la commande');
+            }
+            console.log('✅ Commande enregistrée avec succès');
+            return data;
+        } catch (error) {
+            console.error('❌ Erreur lors du traitement de la commande:', error);
+            Swal.showValidationMessage(`Erreur: ${error.message}`);
+            return false;
+        }
+    },
+    /**
+     * VALIDATION COMPLÈTE - MISE À JOUR
+     */
+    validateOrder(quantity, maxQuantity, supplier, price, paymentMethod) {
+        try {
+            console.log('🔍 Validation de la commande partielle...');
+            // 1. Validation de la quantité
+            if (!quantity || parseFloat(quantity) <= 0 || parseFloat(quantity) > parseFloat(maxQuantity)) {
+                Swal.showValidationMessage(`Veuillez saisir une quantité valide (entre 0 et ${maxQuantity})`);
+                return false;
+            }
+            // 2. Validation du fournisseur
+            if (!supplier.trim() || supplier.trim().length < 2) {
+                Swal.showValidationMessage('Veuillez indiquer un fournisseur (minimum 2 caractères)');
+                return false;
+            }
+            // 3. Validation du prix
+            if (!price || parseFloat(price) <= 0) {
+                Swal.showValidationMessage('Veuillez saisir un prix unitaire valide');
+                return false;
+            }
+            // 4. NOUVELLE VALIDATION : Mode de paiement obligatoire
+            if (!paymentMethod) {
+                Swal.showValidationMessage('Veuillez sélectionner un mode de paiement');
+                return false;
+            }
+            // 5. Validation avancée du mode de paiement
+            const paymentValidation = PaymentMethodsManager.validatePaymentMethod(paymentMethod);
+            if (!paymentValidation.valid) {
+                Swal.showValidationMessage(paymentValidation.message);
+                return false;
+            }
+            console.log('✅ Validation réussie');
+            return true;
+        } catch (error) {
+            console.error('❌ Erreur lors de la validation:', error);
+            Swal.showValidationMessage('Erreur lors de la validation des données');
+            return false;
+        }
+    },
+    /**
+     * CONFIGURATION DU RÉSUMÉ DE COMMANDE - NOUVEAU
+     */
+    setupOrderSummary() {
+        const fields = ['quantity', 'supplier', 'price', 'payment-method'];
+        fields.forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            if (field) {
+                const eventType = field.tagName === 'SELECT' ? 'change' : 'input';
+                field.addEventListener(eventType, () => this.updateOrderSummary());
+            }
+        });
+    },
+    /**
+     * MISE À JOUR DU RÉSUMÉ - NOUVEAU
+     */
+    updateOrderSummary() {
+        try {
+            const quantity = document.getElementById('quantity')?.value;
+            const price = document.getElementById('price')?.value;
+            const paymentMethod = document.getElementById('payment-method')?.value;
+            const supplier = document.getElementById('supplier')?.value;
+            const summaryDiv = document.getElementById('order-summary');
+            const summaryContent = document.getElementById('summary-content');
+            if (!summaryDiv || !summaryContent) return;
+            if (quantity && price && parseFloat(quantity) > 0 && parseFloat(price) > 0) {
+                const total = (parseFloat(quantity) * parseFloat(price)).toFixed(2);
+                const paymentInfo = PaymentMethodsManager.getMethodById(paymentMethod);
+                summaryContent.innerHTML = `
+                <div class="grid grid-cols-2 gap-2">
+                    <div>Quantité:</div><div class="font-medium">${quantity}</div>
+                    <div>Prix unitaire:</div><div class="font-medium">${Utils.formatQuantity(price)} FCFA</div>
+                    <div>Total estimé:</div><div class="font-bold text-blue-800">${Utils.formatQuantity(total)} FCFA</div>
+                    ${paymentInfo ? `<div>Mode de paiement:</div><div class="font-medium">${paymentInfo.label}</div>` : ''}
+                    ${supplier ? `<div>Fournisseur:</div><div class="font-medium">${supplier}</div>` : ''}
+                </div>
+            `;
+                summaryDiv.style.display = 'block';
+            } else {
+                summaryDiv.style.display = 'none';
+            }
+        } catch (error) {
+            console.error('❌ Erreur lors de la mise à jour du résumé:', error);
+        }
+    },
+    /**
+     * AUTOCOMPLÉTION DES FOURNISSEURS - AMÉLIORÉE
+     */
+    initPartialSupplierAutocomplete() {
+        const input = document.getElementById('supplier');
+        const suggestions = document.getElementById('supplier-suggestions-partial');
+        if (!input || !suggestions) return;
+        input.addEventListener('input', function () {
+            const value = this.value.toLowerCase().trim();
+            suggestions.innerHTML = '';
+            if (value.length < 2) {
+                suggestions.classList.add('hidden');
+                return;
+            }
+            const matches = AppState.suppliersList
+                .filter(f => f.toLowerCase().includes(value))
+                .slice(0, 8);
+            if (matches.length > 0) {
+                suggestions.classList.remove('hidden');
+                matches.forEach(supplier => {
+                    const div = document.createElement('div');
+                    div.className = 'p-3 hover:bg-gray-100 cursor-pointer border-b last:border-b-0 transition-colors';
+                    // Mettre en évidence la partie correspondante
+                    const index = supplier.toLowerCase().indexOf(value);
+                    if (index !== -1) {
+                        const before = supplier.substring(0, index);
+                        const match = supplier.substring(index, index + value.length);
+                        const after = supplier.substring(index + value.length);
+                        div.innerHTML = `${Utils.escapeHtml(before)}<strong class="bg-yellow-200">${Utils.escapeHtml(match)}</strong>${Utils.escapeHtml(after)}`;
+                    } else {
+                        div.textContent = supplier;
+                    }
+                    div.onclick = () => {
+                        input.value = supplier;
+                        suggestions.innerHTML = '';
+                        suggestions.classList.add('hidden');
+                        PartialOrdersManager.updateOrderSummary();
+                    };
+                    suggestions.appendChild(div);
+                });
+                // Option pour créer un nouveau fournisseur
+                const createDiv = document.createElement('div');
+                createDiv.className = 'p-3 hover:bg-blue-50 cursor-pointer text-blue-600 font-medium border-t bg-gray-50';
+                createDiv.innerHTML = `
+                <div class="flex items-center">
+                    <span class="material-icons text-sm mr-2">add_circle</span>
+                    Créer le fournisseur "${Utils.escapeHtml(value)}"
+                </div>
+            `;
+                createDiv.onclick = () => {
+                    input.value = value;
+                    suggestions.innerHTML = '';
+                    suggestions.classList.add('hidden');
+                    PartialOrdersManager.updateOrderSummary();
+                };
+                suggestions.appendChild(createDiv);
+            } else {
+                suggestions.classList.add('hidden');
+            }
+        });
+        // Masquer les suggestions lors d'un clic en dehors
+        document.addEventListener('click', (e) => {
+            if (e.target !== input && !suggestions.contains(e.target)) {
+                suggestions.classList.add('hidden');
+            }
+        });
+        // Événement pour mettre à jour le résumé
+        input.addEventListener('blur', () => {
+            setTimeout(() => this.updateOrderSummary(), 100);
+        });
+    },
+    /**
+     * SUGGESTION AUTOMATIQUE DE FOURNISSEUR
+     */
+    async suggestSupplier(designation) {
+        try {
+            const response = await fetch(`get_suggested_fournisseur.php?designation=${encodeURIComponent(designation)}`);
+            const data = await response.json();
+            const supplierInput = document.getElementById('supplier');
+            if (supplierInput && data && data.fournisseur) {
+                supplierInput.value = data.fournisseur;
+                this.updateOrderSummary();
+            }
+        } catch (error) {
+            console.error('❌ Erreur lors de la suggestion de fournisseur:', error);
+        }
+    },
+    /**
+     * VISUALISATION DES DÉTAILS - AMÉLIORÉE
+     */
+    async viewDetails(id, sourceTable = 'expression_dym') {
+        // Afficher un loader
+        Swal.fire({
+            title: 'Chargement...',
+            text: 'Récupération des détails de la commande',
             allowOutsideClick: false,
             didOpen: () => {
                 Swal.showLoading();
             }
         });
-
-        let apiUrl = `commandes-traitement/api.php?action=get_order_details&id=${orderId}`;
-        if (sourceTable === 'besoins') {
-            apiUrl = `commandes-traitement/besoins/get_besoin_details.php?id=${orderId}`;
+        // Choisir l'URL de l'API
+        const apiUrl = sourceTable === 'besoins' ?
+            `commandes-traitement/besoins/get_besoin_partial_details.php?id=${id}` :
+            `${CONFIG.API_URLS.PARTIAL_ORDERS}?action=get_partial_details&id=${id}`;
+        try {
+            const response = await fetch(apiUrl);
+            const data = await response.json();
+            if (data.success) {
+                this.showDetailsModal(data, sourceTable);
+            } else {
+                Swal.fire({
+                    title: 'Erreur',
+                    text: data.message || 'Impossible de récupérer les détails de la commande',
+                    icon: 'error'
+                });
+            }
+        } catch (error) {
+            console.error('❌ Erreur lors de la récupération des détails:', error);
+            Swal.fire({
+                title: 'Erreur',
+                text: 'Une erreur est survenue lors de la récupération des détails',
+                icon: 'error'
+            });
         }
-
-        const response = await fetch(apiUrl);
+    },
+    /**
+     * MODAL DE DÉTAILS AVEC MODES DE PAIEMENT - MISE À JOUR
+     */
+    showDetailsModal(data, sourceTable) {
+        const material = data.material;
+        const linkedOrders = data.linked_orders || [];
+        // Adapter les propriétés selon la source
+        let designation, unit, restante, initialQty;
+        if (sourceTable === 'besoins') {
+            designation = material.designation_article || 'Sans désignation';
+            unit = material.caracteristique || '';
+            restante = parseFloat(material.qt_restante || 0);
+            initialQty = parseFloat(material.qt_demande || 0);
+        } else {
+            designation = material.designation || 'Sans désignation';
+            unit = material.unit || '';
+            restante = parseFloat(material.qt_restante || 0);
+            initialQty = parseFloat(material.initial_qt_acheter ||
+                parseFloat(material.qt_acheter) + parseFloat(material.qt_restante) || 0);
+        }
+        const orderedQty = initialQty - restante;
+        const progress = initialQty > 0 ? Math.round((orderedQty / initialQty) * 100) : 0;
+        /**
+         * FONCTION MISE À JOUR : Récupération des infos de mode de paiement
+         */
+        const getPaymentMethodInfo = (paymentId) => {
+            if (!paymentId) {
+                return {
+                    label: 'Non spécifié',
+                    icon: 'help_outline',
+                    class: 'text-gray-500',
+                    iconPath: null
+                };
+            }
+            // Essayer d'abord avec PaymentMethodsManager
+            const paymentInfo = PaymentMethodsManager.getMethodById(paymentId);
+            if (paymentInfo) {
+                return {
+                    label: paymentInfo.label,
+                    icon: 'payment',
+                    class: 'text-blue-600',
+                    iconPath: paymentInfo.icon_path // NOUVEAU : utilisation d'icon_path
+                };
+            }
+            // Fallback avec les modes de paiement par défaut
+            const defaultMethods = {
+                1: {
+                    label: 'Espèces',
+                    icon: 'payments',
+                    class: 'text-green-600'
+                },
+                2: {
+                    label: 'Chèque',
+                    icon: 'receipt_long',
+                    class: 'text-purple-600'
+                },
+                3: {
+                    label: 'Virement bancaire',
+                    icon: 'account_balance',
+                    class: 'text-blue-600'
+                },
+                4: {
+                    label: 'Carte de crédit',
+                    icon: 'credit_card',
+                    class: 'text-red-600'
+                },
+                6: {
+                    label: 'Crédit fournisseur',
+                    icon: 'factory',
+                    class: 'text-orange-600'
+                },
+                7: {
+                    label: 'Mobile Money',
+                    icon: 'phone_android',
+                    class: 'text-orange-600'
+                },
+                8: {
+                    label: 'Traite',
+                    icon: 'description',
+                    class: 'text-indigo-600'
+                },
+                9: {
+                    label: 'Autre',
+                    icon: 'more_horiz',
+                    class: 'text-gray-600'
+                }
+            };
+            const id = parseInt(paymentId);
+            return defaultMethods[id] || {
+                label: `Mode ${id}`,
+                icon: 'payment',
+                class: 'text-gray-600',
+                iconPath: null
+            };
+        };
+        // Préparer le tableau des commandes liées avec les modes de paiement MISE À JOUR
+        const ordersHtml = linkedOrders.length > 0 ?
+            linkedOrders.map(order => {
+                const paymentInfo = getPaymentMethodInfo(order.mode_paiement_id);
+                // Construction de l'icône avec support icon_path
+                let iconHtml = '';
+                if (paymentInfo.iconPath) {
+                    iconHtml = `<img src="${paymentInfo.iconPath}" alt="${paymentInfo.label}" class="w-4 h-4 object-contain mr-1">`;
+                } else {
+                    iconHtml = `<span class="material-icons text-sm mr-1">${paymentInfo.icon}</span>`;
+                }
+                return `
+                <tr class="hover:bg-gray-50">
+                    <td class="border px-4 py-2 text-sm">${new Date(order.date_achat).toLocaleDateString('fr-FR')}</td>
+                    <td class="border px-4 py-2 text-sm font-medium">${Utils.formatQuantity(order.quantity)} ${unit}</td>
+                    <td class="border px-4 py-2 text-sm">${Utils.formatQuantity(order.prix_unitaire)} FCFA</td>
+                    <td class="border px-4 py-2 text-sm">${order.fournisseur || '-'}</td>
+                    <td class="border px-4 py-2">
+                        <div class="flex items-center ${paymentInfo.class}">
+                            ${iconHtml}
+                            <span class="text-xs font-medium">${paymentInfo.label}</span>
+                        </div>
+                    </td>
+                    <td class="border px-4 py-2">
+                        <span class="px-2 py-1 rounded-full text-xs font-medium ${order.status === 'reçu' ? 'bg-green-100 text-green-800' :
+                        order.status === 'en_attente' ? 'bg-yellow-100 text-yellow-800' :
+                            'bg-blue-100 text-blue-800'
+                    }">
+                            ${order.status}
+                        </span>
+                    </td>
+                </tr>
+            `;
+            }).join('') :
+            `
+            <tr>
+                <td colspan="6" class="border px-4 py-8 text-center text-gray-500">
+                    <div class="flex flex-col items-center">
+                        <span class="material-icons text-3xl mb-2 text-gray-300">inbox</span>
+                        <span>Aucune commande liée trouvée.</span>
+                    </div>
+                </td>
+            </tr>
+        `;
+        // Couleur de progression
+        let progressColor = 'bg-yellow-500';
+        if (progress >= 75) progressColor = 'bg-green-500';
+        if (progress < 25) progressColor = 'bg-red-500';
+        // Afficher la modal avec SweetAlert2
+        Swal.fire({
+            title: 'Détails de la commande partielle',
+            html: `
+            <div class="text-left max-h-96 overflow-y-auto">
+                <!-- En-tête avec informations principales -->
+                <div class="mb-6 p-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg border">
+                    <h3 class="font-bold text-lg mb-3 text-gray-800">${designation}</h3>
+                    <div class="grid grid-cols-2 gap-4 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Projet:</span>
+                            <span class="font-medium">${sourceTable === 'besoins' ? 'PETROCI' : (material.code_projet || 'N/A')}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Quantité initiale:</span>
+                            <span class="font-medium">${Utils.formatQuantity(initialQty)} ${unit}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Quantité commandée:</span>
+                            <span class="font-medium">${Utils.formatQuantity(orderedQty)} ${unit}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Quantité restante:</span>
+                            <span class="font-medium ${restante > 0 ? 'text-orange-600' : 'text-green-600'}">${Utils.formatQuantity(restante)} ${unit}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Barre de progression -->
+                <div class="mb-6">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm font-medium text-gray-700">Progression de la commande:</span>
+                        <span class="text-sm font-bold ${progress >= 75 ? 'text-green-600' : progress >= 50 ? 'text-yellow-600' : 'text-red-600'}">${progress}%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-3 shadow-inner">
+                        <div class="${progressColor} h-3 rounded-full transition-all duration-500 shadow-sm" style="width: ${progress}%"></div>
+                    </div>
+                </div>
+                
+                <!-- Historique des commandes -->
+                <div class="mb-4">
+                    <h4 class="font-semibold mb-3 text-gray-800 flex items-center">
+                        <span class="material-icons text-sm mr-2">history</span>
+                        Historique des commandes liées
+                    </h4>
+                    <div class="overflow-x-auto border rounded-lg">
+                        <table class="min-w-full bg-white">
+                            <thead>
+                                <tr class="bg-gray-50">
+                                    <th class="border px-4 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Date</th>
+                                    <th class="border px-4 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Quantité</th>
+                                    <th class="border px-4 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Prix unitaire</th>
+                                    <th class="border px-4 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Fournisseur</th>
+                                    <th class="border px-4 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Mode de paiement</th>
+                                    <th class="border px-4 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Statut</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${ordersHtml}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Actions -->
+                ${restante > 0 ? `
+                    <div class="flex justify-center pt-4 border-t">
+                        <button onclick="Swal.close(); PartialOrdersManager.completeOrder('${material.id}', '${Utils.escapeString(designation)}', ${restante}, '${unit}', '${sourceTable}')" 
+                            class="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-lg font-medium flex items-center transition-colors shadow-md">
+                            <span class="material-icons mr-2">add_shopping_cart</span>
+                            Commander le restant (${Utils.formatQuantity(restante)} ${unit})
+                        </button>
+                    </div>
+                ` : `
+                    <div class="text-center pt-4 border-t">
+                        <div class="inline-flex items-center px-4 py-2 bg-green-100 text-green-800 rounded-lg">
+                            <span class="material-icons mr-2">check_circle</span>
+                            <span class="font-medium">Commande complètement traitée</span>
+                        </div>
+                    </div>
+                `}
+            </div>
+        `,
+            width: '1000px',
+            confirmButtonText: 'Fermer',
+            confirmButtonColor: '#6b7280',
+            customClass: {
+                popup: 'swal2-popup-large',
+                content: 'swal2-content-large'
+            },
+            showClass: {
+                popup: 'animate__animated animate__fadeInDown'
+            },
+            hideClass: {
+                popup: 'animate__animated animate__fadeOutUp'
+            }
+        });
+    }
+};
+/**
+ * Gestionnaire des substitutions
+ */
+const SubstitutionManager = {
+    setupProductAutocomplete() {
+        const productInput = document.getElementById('substitute-product');
+        const originalProductInput = document.getElementById('original-product');
+        const suggestionsDiv = document.getElementById('product-suggestions');
+        if (!productInput || !suggestionsDiv) return;
+        productInput.addEventListener('input', async function () {
+            const searchTerm = this.value.trim();
+            const originalProduct = originalProductInput.value.trim();
+            if (searchTerm.length < 2) {
+                suggestionsDiv.innerHTML = '';
+                suggestionsDiv.classList.remove('active');
+                return;
+            }
+            try {
+                const response = await fetch(`${CONFIG.API_URLS.PRODUCT_SUGGESTIONS}?term=${encodeURIComponent(searchTerm)}&original=${encodeURIComponent(originalProduct)}`);
+                const products = await response.json();
+                suggestionsDiv.innerHTML = '';
+                if (products.length > 0) {
+                    suggestionsDiv.classList.add('active');
+                    suggestionsDiv.style.display = 'block';
+                    products.forEach(product => {
+                        const div = document.createElement('div');
+                        div.className = 'product-suggestion';
+                        if (product.category_name) {
+                            div.innerHTML = `${product.product_name} <span class="text-xs text-gray-500">(${product.category_name})</span>`;
+                        } else {
+                            div.textContent = product.product_name;
+                        }
+                        div.onclick = () => {
+                            productInput.value = product.product_name;
+                            suggestionsDiv.innerHTML = '';
+                            suggestionsDiv.classList.remove('active');
+                            suggestionsDiv.style.display = 'none';
+                        };
+                        suggestionsDiv.appendChild(div);
+                    });
+                } else {
+                    suggestionsDiv.classList.remove('active');
+                    suggestionsDiv.style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Erreur lors de la récupération des suggestions:', error);
+                suggestionsDiv.classList.remove('active');
+                suggestionsDiv.style.display = 'none';
+            }
+        });
+        // Masquer les suggestions lors d'un clic en dehors
+        document.addEventListener('click', (e) => {
+            if (e.target !== productInput && !suggestionsDiv.contains(e.target)) {
+                suggestionsDiv.classList.remove('active');
+                suggestionsDiv.style.display = 'none';
+            }
+        });
+    },
+    validateForm() {
+        const originalProduct = document.getElementById('original-product').value;
+        const substituteProduct = document.getElementById('substitute-product').value;
+        const reason = document.getElementById('substitution-reason').value;
+        const otherReason = document.getElementById('other-reason').value;
+        // Vérifier que le produit de substitution est différent
+        if (substituteProduct.trim() === originalProduct.trim()) {
+            Swal.fire({
+                title: 'Erreur de validation',
+                text: 'Le produit de substitution doit être différent du produit original.',
+                icon: 'error'
+            });
+            return false;
+        }
+        // Vérifier que le produit n'est pas vide
+        if (!substituteProduct.trim()) {
+            Swal.fire({
+                title: 'Erreur de validation',
+                text: 'Veuillez saisir un produit de substitution.',
+                icon: 'error'
+            });
+            return false;
+        }
+        // Vérifier la raison
+        if (!reason) {
+            Swal.fire({
+                title: 'Erreur de validation',
+                text: 'Veuillez sélectionner une raison pour la substitution.',
+                icon: 'error'
+            });
+            return false;
+        }
+        // Si "Autre raison" est sélectionnée
+        if (reason === 'autre' && !otherReason.trim()) {
+            Swal.fire({
+                title: 'Erreur de validation',
+                text: 'Veuillez préciser la raison de la substitution.',
+                icon: 'error'
+            });
+            return false;
+        }
+        return true;
+    },
+    async handleSubmit(e) {
+        e.preventDefault();
+        if (!this.validateForm()) {
+            return;
+        }
+        const form = e.target;
+        const formData = new FormData(form);
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const originalBtnText = submitBtn.innerHTML;
+        // Afficher un indicateur de chargement
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="material-icons spin">autorenew</span> Traitement...';
+        try {
+            const response = await fetch(form.action, {
+                method: 'POST',
+                body: formData
+            });
+            const data = await response.json();
+            if (data.success) {
+                // Message de confirmation
+                Swal.fire({
+                    title: 'Produit substitué avec succès',
+                    html: `
+                            <div class="text-left">
+                                <p><strong>Produit original:</strong> ${data.data.original_product} (${data.data.original_unit})</p>
+                                <p><strong>Remplacé par:</strong> ${data.data.new_product} (${data.data.new_unit})</p>
+                                <p><strong>Quantité transférée:</strong> ${data.data.quantity_transferred}</p>
+                            </div>
+                        `,
+                    icon: 'success',
+                    confirmButtonText: 'OK'
+                }).then(() => {
+                    window.location.reload();
+                });
+            } else {
+                Swal.fire({
+                    title: 'Erreur',
+                    text: data.message,
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            }
+        } catch (error) {
+            Swal.fire({
+                title: 'Erreur',
+                text: 'Une erreur est survenue lors de la substitution',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalBtnText;
+        }
+    }
+};
+/**
+ * Gestionnaire des exportations
+ */
+const ExportManager = {
+    exportPartialOrdersToExcel() {
+        window.location.href = `${CONFIG.API_URLS.PARTIAL_ORDERS}?action=export_remaining&format=excel`;
+    }
+};
+/**
+ * Gestionnaire des notifications
+ */
+const NotificationsManager = {
+    updateMaterialsNotification(data) {
+        const notificationBadge = document.querySelector('.notification-badge');
+        const tooltipText = document.querySelector('.tooltiptext');
+        if (notificationBadge && tooltipText) {
+            notificationBadge.textContent = data.total;
+            tooltipText.textContent = `Il y a ${data.total} matériaux à commander`;
+            if (data.newCount > 0) {
+                notificationBadge.classList.add('bg-red-600');
+                tooltipText.textContent += ` (${data.newCount} nouveaux)`;
+            }
+        }
+    },
+    updatePartialOrdersStats(stats) {
+        if (!stats) return;
+        const updates = {
+            'stat-total-partial': stats.total_materials || 0,
+            'stat-remaining-qty': Utils.formatQuantity(stats.total_remaining || 0),
+            'stat-projects-count': stats.total_projects || 0,
+            'stat-progress': `${stats.global_progress || 0}%`
+        };
+        Object.entries(updates).forEach(([id, value]) => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.textContent = value;
+            }
+        });
+        // Mise à jour de la barre de progression
+        const progressBar = document.getElementById('progress-bar');
+        if (progressBar) {
+            progressBar.style.width = `${stats.global_progress || 0}%`;
+        }
+    },
+    updateCanceledOrdersStats(stats) {
+        if (!stats) return;
+        const updates = {
+            'total-canceled-count': stats.total_canceled || 0,
+            'projects-canceled-count': stats.projects_count || 0
+        };
+        Object.entries(updates).forEach(([id, value]) => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.textContent = value;
+            }
+        });
+        // Mise à jour de la date
+        if (document.getElementById('last-canceled-date') && stats.last_canceled_date) {
+            const date = new Date(stats.last_canceled_date);
+            document.getElementById('last-canceled-date').textContent = date.toLocaleDateString('fr-FR');
+        }
+        // Mise à jour du compteur dans l'onglet
+        const canceledTabCounter = document.querySelector('#tab-canceled .rounded-full');
+        if (canceledTabCounter) {
+            canceledTabCounter.textContent = stats.total_canceled || 0;
+        }
+    }
+};
+/**
+ * Vérificateur de validation des commandes
+ */
+const OrderValidationChecker = {
+    async check() {
+        try {
+            const response = await fetch(CONFIG.API_URLS.UPDATE_ORDER_STATUS + '?debug=1');
+            const data = await response.json();
+            if (data.success) {
+                if (data.updated_count > 0) {
+                    // Afficher les détails des mises à jour
+                    let message = `${data.updated_count} commande(s) validée(s) par la finance :\n\n`;
+                    if (data.processed_items) {
+                        data.processed_items.forEach(item => {
+                            message += `• ${item.designation} (BC: ${item.bon_commande})\n`;
+                        });
+                    }
+                    Swal.fire({
+                        title: 'Validations Finance',
+                        text: message,
+                        icon: 'success',
+                        confirmButtonText: 'Actualiser la page'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.reload();
+                        }
+                    });
+                }
+            } else {
+                console.error("Erreur lors de la vérification des validations:", data.message);
+                if (data.debug_log) {
+                    console.log("Debug log:", data.debug_log);
+                }
+            }
+        } catch (error) {
+            console.error('Erreur lors de la vérification des validations finance:', error);
+        }
+    }
+};
+/**
+ * Utilitaires
+ */
+const Utils = {
+    escapeHtml(str) {
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    },
+    escapeString(str) {
+        return str.replace(/[\\'\"]/g, function (match) {
+            return '\\' + match;
+        });
+    },
+    formatQuantity(qty) {
+        if (qty === null || qty === undefined) return '0.00';
+        return parseFloat(qty).toLocaleString('fr-FR', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+    },
+    formatPrice(price) {
+        return parseFloat(price).toLocaleString('fr-FR', {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+        });
+    }
+};
+/**
+ * Fonctions globales exposées
+ */
+window.openPurchaseModal = (expressionId, designation, quantity, unit, fournisseur = '') => {
+    ModalManager.openPurchase(expressionId, designation, quantity, unit, fournisseur);
+};
+window.closePurchaseModal = () => {
+    ModalManager.close(document.getElementById('purchase-modal'));
+};
+window.closeBulkPurchaseModal = () => {
+    ModalManager.close(document.getElementById('bulk-purchase-modal'));
+};
+window.openSubstitutionModal = (materialId, designation, expressionId, sourceTable = 'expression_dym') => {
+    ModalManager.openSubstitution(materialId, designation, expressionId, sourceTable);
+};
+window.closeSubstitutionModal = () => {
+    ModalManager.close(document.getElementById('substitution-modal'));
+};
+window.generateBonCommande = (expressionId) => {
+    const downloadUrl = `${CONFIG.API_URLS.BON_COMMANDE}?id=${expressionId}`;
+    window.open(downloadUrl, '_blank');
+    Swal.fire({
+        title: 'Bon de commande généré!',
+        text: 'Le bon de commande a été téléchargé et sauvegardé dans les archives.',
+        icon: 'success',
+        timer: 3000,
+        showConfirmButton: false
+    });
+};
+window.completePartialOrder = (id, designation, remaining, unit, sourceTable = 'expression_dym') => {
+    PartialOrdersManager.completeOrder(id, designation, remaining, unit, sourceTable);
+};
+window.viewPartialOrderDetails = (id, sourceTable = 'expression_dym') => {
+    PartialOrdersManager.viewDetails(id, sourceTable);
+};
+window.cancelSingleOrder = (id, expressionId, designation, sourceTable = 'expression_dym') => {
+    CancelManager.cancelSingleOrder(id, expressionId, designation, sourceTable);
+};
+window.cancelPendingMaterial = (id, expressionId, designation, sourceTable = 'expression_dym') => {
+    CancelManager.cancelPendingMaterial(id, expressionId, designation, sourceTable);
+};
+window.viewStockDetails = (designation) => {
+    window.open(`../stock/inventory.php?search=${encodeURIComponent(designation)}`, '_blank');
+};
+window.openEditOrderModal = (orderId, expressionId, designation, sourceTable, quantity, unit, price, supplier) => {
+    EditOrderManager.openModal(orderId, expressionId, designation, sourceTable, quantity, unit, price, supplier);
+};
+window.closeEditOrderModal = () => {
+    EditOrderManager.closeModal();
+};
+// ==========================================
+// FONCTION PRINCIPALE: DÉTAILS DE COMMANDE
+// ==========================================
+/**
+ * Affiche les détails d'une commande reçue
+ * @param {number} orderId - ID de la commande
+ * @param {number} expressionId - ID de l'expression/projet
+ * @param {string} designation - Désignation du matériel
+ * @param {string} sourceTable - Table source (expression_dym ou besoins)
+ */
+window.viewOrderDetails = async (orderId, expressionId, designation) => {
+    console.log('Affichage des détails - Order ID:', orderId, 'Expression ID:', expressionId,
+        'Designation:', designation);
+    // Afficher un loader
+    Swal.fire({
+        title: 'Chargement...',
+        text: 'Récupération des détails de la commande',
+        allowOutsideClick: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
+    try {
+        // Construire l'URL avec les paramètres
+        const params = new URLSearchParams({
+            order_id: orderId || '',
+            expression_id: expressionId || '',
+            designation: designation || ''
+        });
+        const response = await fetch(`api/orders/get_order_details.php?${params}`);
+        if (!response.ok) {
+            throw new Error(`Erreur HTTP: ${response.status}`);
+        }
         const data = await response.json();
-
+        // Fermer le loader
+        Swal.close();
         if (data.success) {
-            showOrderDetailsModal(data);
+            // Afficher la modal avec les détails
+            showOrderDetailsModal(data.data);
         } else {
             Swal.fire({
                 title: 'Erreur',
@@ -1763,7 +3690,288 @@ async function viewOrderDetails(orderId, expressionId, designation, sourceTable 
                 icon: 'error'
             });
         }
-
+    } catch (error) {
+        console.error('Erreur lors de la récupération des détails:', error);
+        Swal.close();
+        Swal.fire({
+            title: 'Erreur',
+            text: 'Une erreur est survenue lors de la récupération des détails',
+            icon: 'error'
+        });
+    }
+};
+/**
+ * Affiche la modal avec les détails de la commande
+ */
+function showOrderDetailsModal(orderData) {
+    const modal = document.getElementById('order-details-modal');
+    const content = document.getElementById('order-details-content');
+    if (!modal || !content || !orderData) {
+        console.error('Modal ou données manquantes');
+        return;
+    }
+    // Construire le contenu HTML
+    const htmlContent = buildOrderDetailsHTML(orderData);
+    content.innerHTML = htmlContent;
+    // Afficher la modal
+    modal.style.display = 'flex';
+}
+/**
+ * Construit le HTML pour les détails de la commande
+ */
+function buildOrderDetailsHTML(data) {
+    const order = data.order;
+    const materials = data.materials || [];
+    const history = data.history || [];
+    const sourceTable = data.source_table || 'expression_dym';
+    // Calculer le total
+    const total = materials.reduce((sum, item) => {
+        return sum + (parseFloat(item.quantity || 0) * parseFloat(item.prix_unitaire || 0));
+    }, 0);
+    // Adapter l'affichage selon la source
+    const isSystemRequest = sourceTable === 'besoins';
+    const projectLabel = isSystemRequest ? 'Demande système' : 'Projet';
+    const clientLabel = isSystemRequest ? 'Service demandeur' : 'Client';
+    return `
+    <div class="space-y-6">
+        <!-- Badge de source -->
+        <div class="flex justify-between items-center">
+            <span class="px-3 py-1 text-xs font-medium rounded-full ${isSystemRequest ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'}">
+                ${isSystemRequest ? 'Demande Système' : 'Projet Standard'}
+            </span>
+            <span class="text-sm text-gray-500">ID: ${order.expression_id || 'N/A'}</span>
+        </div>
+        
+        <!-- Informations générales -->
+        <div class="bg-gray-50 p-4 rounded-lg">
+            <h3 class="text-lg font-semibold mb-3">Informations générales</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <p class="text-sm text-gray-600">${projectLabel}</p>
+                    <p class="font-medium">${order.code_projet || 'N/A'}</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-600">${clientLabel}</p>
+                    <p class="font-medium">${order.nom_client || 'N/A'}</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-600">Expression ID</p>
+                    <p class="font-medium">${order.expression_id || 'N/A'}</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-600">Date de commande</p>
+                    <p class="font-medium">${order.date_achat ? new Date(order.date_achat).toLocaleDateString('fr-FR') : 'N/A'}</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-600">Date de réception</p>
+                    <p class="font-medium">${order.date_reception ? new Date(order.date_reception).toLocaleDateString('fr-FR') : 'N/A'}</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-600">Fournisseur</p>
+                    <p class="font-medium">${order.fournisseur || 'N/A'}</p>
+                </div>
+                ${isSystemRequest && order.service_demandeur ? `
+                <div>
+                    <p class="text-sm text-gray-600">Service demandeur</p>
+                    <p class="font-medium">${order.service_demandeur}</p>
+                </div>
+                ` : ''}
+                ${isSystemRequest && order.motif_demande ? `
+                <div class="md:col-span-2">
+                    <p class="text-sm text-gray-600">Motif de la demande</p>
+                    <p class="font-medium">${order.motif_demande}</p>
+                </div>
+                ` : ''}
+            </div>
+        </div>
+        
+        <!-- Matériaux commandés -->
+        <div>
+            <h3 class="text-lg font-semibold mb-3">Matériaux commandés</h3>
+            <div class="overflow-x-auto">
+                    <table class="min-w-full bg-white border border-gray-200">
+                        <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Désignation</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Quantité</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Unité</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Prix unitaire</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Total</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Statut</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        ${materials.map(material => `
+                            <tr>
+                                <td class="px-4 py-2 text-sm">${material.designation || 'N/A'}</td>
+                                <td class="px-4 py-2 text-sm">${Utils.formatQuantity(material.quantity || 0)}</td>
+                                <td class="px-4 py-2 text-sm">${material.unit || (isSystemRequest ? order.unit_besoin : 'N/A') || 'N/A'}</td>
+                                <td class="px-4 py-2 text-sm">${Utils.formatPrice(material.prix_unitaire || 0)} FCFA</td>
+                                <td class="px-4 py-2 text-sm font-medium">${Utils.formatPrice((material.quantity || 0) * (material.prix_unitaire || 0))} FCFA</td>
+                                <td class="px-4 py-2 text-sm">
+                                    <span class="px-2 py-1 text-xs rounded-full ${getStatusBadgeClass(material.status)}">
+                                        ${getStatusText(material.status)}
+                                    </span>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                    <tfoot class="bg-gray-50">
+                        <tr>
+                            <th colspan="4" class="px-4 py-2 text-right text-sm font-medium">Total général:</th>
+                            <th class="px-4 py-2 text-sm font-bold">${Utils.formatPrice(total)} FCFA</th>
+                            <th></th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Historique des mouvements -->
+        ${history.length > 0 ? `
+        <div>
+            <h3 class="text-lg font-semibold mb-3">Historique des mouvements</h3>
+            <div class="space-y-2">
+                ${history.map(item => `
+                    <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
+                        <div>
+                            <p class="text-sm font-medium">${item.action || 'Action'}</p>
+                            <p class="text-xs text-gray-600">${item.details || ''}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-xs text-gray-600">${item.created_at ? new Date(item.created_at).toLocaleString('fr-FR') : ''}</p>
+                            <p class="text-xs text-gray-600">${item.user_name || ''}</p>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+        ` : ''}
+        
+        <!-- Actions disponibles -->
+        <div class="bg-blue-50 p-4 rounded-lg">
+            <h3 class="text-lg font-semibold mb-3">Actions disponibles</h3>
+            <div class="flex gap-3">
+                ${!isSystemRequest ? `
+                <button onclick="generateBonCommande('${order.expression_id}')" 
+                        class="flex items-center px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+                    <span class="material-icons mr-2">receipt</span>
+                    Générer bon de commande
+                </button>
+                ` : ''}
+                <button onclick="viewStockDetails('${order.designation}')" 
+                        class="flex items-center px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700">
+                    <span class="material-icons mr-2">inventory_2</span>
+                    Voir dans le stock
+                </button>
+                ${isSystemRequest ? `
+                <button onclick="closeOrderDetailsModal()" 
+                        class="flex items-center px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700">
+                    <span class="material-icons mr-2">info</span>
+                    Demande système
+                </button>
+                ` : ''}
+            </div>
+        </div>
+    </div>
+    `;
+}
+/**
+ * Retourne la classe CSS pour le badge de statut
+ */
+function getStatusBadgeClass(status) {
+    switch (status) {
+        case 'reçu':
+        case 'completed':
+            return 'bg-green-100 text-green-800';
+        case 'commandé':
+        case 'ordered':
+            return 'bg-blue-100 text-blue-800';
+        case 'en_cours':
+        case 'partial':
+            return 'bg-yellow-100 text-yellow-800';
+        case 'annulé':
+        case 'canceled':
+            return 'bg-red-100 text-red-800';
+        default:
+            return 'bg-gray-100 text-gray-800';
+    }
+}
+/**
+ * Retourne le texte à afficher pour le statut
+ */
+function getStatusText(status) {
+    switch (status) {
+        case 'reçu':
+        case 'completed':
+            return 'Reçu';
+        case 'commandé':
+        case 'ordered':
+            return 'Commandé';
+        case 'en_cours':
+        case 'partial':
+            return 'En cours';
+        case 'annulé':
+        case 'canceled':
+            return 'Annulé';
+        default:
+            return status || 'Inconnu';
+    }
+}
+/**
+ * Ferme la modal des détails de commande
+ */
+window.closeOrderDetailsModal = () => {
+    const modal = document.getElementById('order-details-modal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+};
+// ==========================================
+// FONCTION: DÉTAILS DES COMMANDES ANNULÉES
+// ==========================================
+/**
+ * Affiche les détails d'une commande annulée
+ * @param {number} orderId - ID de la commande annulée
+ * @param {number} expressionId - ID de l'expression/projet
+ * @param {string} designation - Désignation du matériel
+ * @param {string} sourceTable - Table source
+ */
+window.viewCanceledOrderDetails = async (orderId) => {
+    // Validation de l'ID
+    if (!orderId) {
+        Swal.fire({
+            title: 'Erreur',
+            text: 'ID de commande non trouvé. Veuillez réessayer.',
+            icon: 'error'
+        });
+        return;
+    }
+    // Afficher le loader
+    Swal.fire({
+        title: 'Chargement...',
+        text: 'Récupération des détails de la commande annulée',
+        allowOutsideClick: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
+    try {
+        const response = await fetch(`api_canceled/api_getCanceledOrderDetails.php?id=${orderId}`);
+        if (!response.ok) {
+            throw new Error(`Erreur HTTP: ${response.status}`);
+        }
+        const data = await response.json();
+        if (data.success) {
+            // Afficher la modal avec les détails
+            showCanceledOrderDetailsModal(data.order, data.related_orders || [], data.saved_value || 0);
+        } else {
+            Swal.fire({
+                title: 'Erreur',
+                text: data.message || 'Impossible de récupérer les détails de la commande',
+                icon: 'error'
+            });
+        }
     } catch (error) {
         console.error('Erreur lors de la récupération des détails:', error);
         Swal.fire({
@@ -1772,2320 +3980,333 @@ async function viewOrderDetails(orderId, expressionId, designation, sourceTable 
             icon: 'error'
         });
     }
-}
-
+};
 /**
- * Affichage de la modal avec les détails de la commande
+ * Affiche la modal avec les détails de la commande annulée (version compacte)
  */
-function showOrderDetailsModal(orderData) {
-    const order = orderData.order;
-    const materials = orderData.materials || [];
-    const history = orderData.history || [];
-    const sourceTable = orderData.source_table || 'expression_dym';
-
-    // Calculer le total
-    const total = materials.reduce((sum, item) => {
-        return sum + (parseFloat(item.quantity || 0) * parseFloat(item.prix_unitaire || 0));
-    }, 0);
-
-    // Adapter l'affichage selon la source
-    const isSystemRequest = sourceTable === 'besoins';
-    const projectLabel = isSystemRequest ? 'Demande système' : 'Projet';
-    const clientLabel = isSystemRequest ? 'Service demandeur' : 'Client';
-
-    const htmlContent = `
-        <div class="space-y-6">
-            <!-- Badge de source -->
-            <div class="flex justify-between items-center">
-                <span class="px-3 py-1 text-xs font-medium rounded-full ${isSystemRequest ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'}">
-                    ${isSystemRequest ? 'Demande Système' : 'Projet Client'}
-                </span>
-                <span class="text-sm text-gray-500">ID: ${order.id}</span>
-            </div>
-            
-            <!-- Informations principales -->
-            <div class="bg-gray-50 rounded-lg p-4">
-                <h3 class="text-lg font-semibold mb-3">Informations générales</h3>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <p class="text-sm text-gray-600">${projectLabel}</p>
-                        <p class="font-medium">${order.code_projet || 'N/A'}</p>
-                    </div>
-                    <div>
-                        <p class="text-sm text-gray-600">${clientLabel}</p>
-                        <p class="font-medium">${order.nom_client || 'N/A'}</p>
-                    </div>
-                    <div>
-                        <p class="text-sm text-gray-600">Date de création</p>
-                        <p class="font-medium">${new Date(order.created_at).toLocaleDateString('fr-FR')}</p>
-                    </div>
-                    <div>
-                        <p class="text-sm text-gray-600">Statut</p>
-                        <span class="px-2 py-1 text-xs rounded-full ${CONFIG.STATUS_CLASSES[order.valide_achat] || 'bg-gray-100 text-gray-800'}">
-                            ${order.valide_achat}
-                        </span>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Détails du matériau -->
-            <div class="bg-blue-50 rounded-lg p-4">
-                <h3 class="text-lg font-semibold mb-3">Détails du matériau</h3>
-                <div class="space-y-2">
-                    <p><span class="font-medium">Désignation:</span> ${order.designation}</p>
-                    <p><span class="font-medium">Quantité:</span> ${order.qt_acheter} ${order.unit}</p>
-                    <p><span class="font-medium">Prix unitaire:</span> ${order.prix_unitaire ? formatCurrency(order.prix_unitaire) : 'Non défini'}</p>
-                    <p><span class="font-medium">Fournisseur:</span> ${order.fournisseur || 'Non défini'}</p>
-                    <p><span class="font-medium">Total:</span> ${formatCurrency(total)}</p>
-                </div>
-            </div>
-            
-            ${history.length > 0 ? `
-            <!-- Historique -->
-            <div class="bg-yellow-50 rounded-lg p-4">
-                <h3 class="text-lg font-semibold mb-3">Historique</h3>
-                <div class="space-y-2">
-                    ${history.map(item => `
-                        <div class="border-l-2 border-yellow-400 pl-3">
-                            <p class="text-sm font-medium">${item.action}</p>
-                            <p class="text-xs text-gray-600">${new Date(item.created_at).toLocaleString('fr-FR')}</p>
-                            <p class="text-xs text-gray-600">${item.user_name || ''}</p>
-                        </div>
-                    `).join('')}
-                </div>
-            </div>
-            ` : ''}
-            
-            <!-- Actions disponibles -->
-            <div class="bg-blue-50 p-4 rounded-lg">
-                <h3 class="text-lg font-semibold mb-3">Actions disponibles</h3>
-                <div class="flex gap-3">
-                    ${!isSystemRequest ? `
-                    <button onclick="generateBonCommande('${order.idExpression}')" 
-                            class="flex items-center px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
-                        <span class="material-icons mr-2">receipt</span>
-                        Générer bon de commande
-                    </button>
-                    ` : ''}
-                    <button onclick="viewStockDetails('${order.designation}')" 
-                            class="flex items-center px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700">
-                        <span class="material-icons mr-2">inventory_2</span>
-                        Voir dans le stock
-                    </button>
-                </div>
-            </div>
-        </div>
-    `;
-
+function showCanceledOrderDetailsModal(order, relatedOrders, savedValue) {
+    if (!order) {
+        console.error('Données de commande manquantes');
+        return;
+    }
+    // Construire le contenu HTML pour les détails
+    const htmlContent = buildCanceledOrderDetailsHTML(order, relatedOrders, savedValue);
+    // Afficher la modal avec SweetAlert2 (version compacte)
     Swal.fire({
-        title: `Détails de la commande`,
+        title: 'Commande annulée - ' + (order.designation || 'N/A'),
         html: htmlContent,
-        width: 800,
-        showCloseButton: true,
+        width: '600px', // Réduction de la largeur
         confirmButtonText: 'Fermer',
+        showClass: {
+            popup: 'animate__animated animate__fadeIn'
+        },
         customClass: {
-            popup: 'text-left'
-        }
-    });
-}
-
-/**
- * Visualisation des détails du stock
- */
-function viewStockDetails(designation) {
-    if (!designation) {
-        showNotification('Désignation du matériau manquante', 'error');
-        return;
-    }
-
-    // Ouvrir la page de stock dans un nouvel onglet avec la recherche
-    const stockUrl = `../stock/inventory.php?search=${encodeURIComponent(designation)}`;
-    window.open(stockUrl, '_blank');
-}
-
-/**
- * Export Excel des commandes partielles
- */
-function exportPartialOrdersExcel() {
-    try {
-        // Utiliser l'API d'export des DataTables
-        if (partialOrdersTable) {
-            partialOrdersTable.button('.buttons-excel').trigger();
-        } else {
-            // Fallback : export manuel
-            window.open('export/partial_orders_excel.php', '_blank');
-        }
-
-        showNotification('Export Excel en cours...', 'info');
-
-    } catch (error) {
-        console.error('Erreur lors de l\'export Excel:', error);
-        showNotification('Erreur lors de l\'export', 'error');
-    }
-}
-
-/**
- * Téléchargement d'un bon de commande
- */
-function downloadBonCommande(bonCommandeId, bonCommandePath) {
-    if (!bonCommandeId && !bonCommandePath) {
-        showNotification('Informations de bon de commande manquantes', 'error');
-        return;
-    }
-
-    let downloadUrl = '';
-
-    if (bonCommandePath) {
-        // Construire l'URL à partir du chemin
-        if (bonCommandePath.startsWith('purchase_orders/') || bonCommandePath.startsWith('gestion-bon-commande/')) {
-            downloadUrl = `gestion-bon-commande/${bonCommandePath}`;
-        } else {
-            downloadUrl = `gestion-bon-commande/purchase_orders/${bonCommandePath}`;
-        }
-    } else if (bonCommandeId) {
-        downloadUrl = `gestion-bon-commande/download.php?id=${bonCommandeId}`;
-    }
-
-    if (downloadUrl) {
-        window.open(downloadUrl, '_blank');
-
-        // Notification de succès
-        Swal.fire({
-            title: 'Téléchargement',
-            text: 'Le bon de commande a été téléchargé et sauvegardé dans les archives.',
-            icon: 'success',
-            timer: 3000,
-            showConfirmButton: false
-        });
-    } else {
-        showNotification('Impossible de construire l\'URL de téléchargement', 'error');
-    }
-}
-
-// =====================================================
-// FONCTIONS GLOBALES EXPOSÉES
-// =====================================================
-
-// Exposition globale des fonctions pour utilisation dans le HTML
-window.generateBonCommande = generateBonCommande;
-window.viewOrderDetails = viewOrderDetails;
-window.viewStockDetails = viewStockDetails;
-window.downloadBonCommande = downloadBonCommande;
-window.exportPartialOrdersExcel = exportPartialOrdersExcel;
-
-// Gestionnaires
-window.completePartialOrder = (id, designation, remaining, unit, sourceTable = 'expression_dym') => {
-    PartialOrdersManager.completeOrder(id, designation, remaining, unit, sourceTable);
-};
-
-window.viewPartialOrderDetails = (id, sourceTable = 'expression_dym') => {
-    PartialOrdersManager.viewDetails(id, sourceTable);
-};
-
-window.cancelSingleOrder = (id, expressionId, designation, sourceTable = 'expression_dym') => {
-    CancelManager.cancelSingleOrder(id, expressionId, designation, sourceTable);
-};
-
-window.cancelPendingMaterial = (id, expressionId, designation, sourceTable = 'expression_dym') => {
-    CancelManager.cancelPendingMaterial(id, expressionId, designation, sourceTable);
-};
-
-window.openEditOrderModal = (orderId, expressionId, designation, sourceTable, quantity, unit, price, supplier) => {
-    EditOrderManager.openModal(orderId, expressionId, designation, sourceTable, quantity, unit, price, supplier);
-};
-
-window.closeEditOrderModal = () => {
-    EditOrderManager.closeModal();
-};
-
-window.openSubstitution = (materialId, designation, expressionId, sourceTable = 'expression_dym') => {
-    SubstitutionManager.openSubstitution(materialId, designation, expressionId, sourceTable);
-};
-
-// Gestionnaires de sélection et boutons
-const SelectionManager = {
-    updateSelection(type, checkbox) {
-        // Mise à jour en fonction du type de sélection
-        switch (type) {
-            case 'pending':
-                updateMaterialSelection();
-                break;
-            case 'ordered':
-                updateOrderedMaterialSelection();
-                break;
-            case 'partial':
-                updatePartialOrderSelection();
-                break;
-        }
-    }
-};
-
-const ButtonStateManager = {
-    updateAllButtons() {
-        updateBulkActionButtons();
-    },
-
-    updateCancelButton() {
-        const selectedOrdered = $('.ordered-material-checkbox:checked').length;
-        $('#bulk-cancel-btn').prop('disabled', selectedOrdered === 0);
-    }
-};
-
-// =====================================================
-// GESTION AVANCÉE DES VALIDATIONS
-// =====================================================
-
-/**
- * Vérification du statut de validation des commandes
- */
-async function checkOrderValidationStatus() {
-    try {
-        const response = await fetch('check_validation_status.php');
-        const data = await response.json();
-
-        if (data.success && data.hasChanges) {
-            // Rafraîchir les tables si des changements sont détectés
-            refreshDataTables();
-            updateNotificationCounters();
-
-            // Notification discrète de mise à jour
-            if (data.updatedCount > 0) {
-                showNotification(`${data.updatedCount} commande(s) mise(s) à jour`, 'info');
+            popup: 'text-left',
+            htmlContainer: 'swal-compact' // Classe CSS personnalisée
+        },
+        // Ajout de CSS personnalisé pour une meilleure compacité
+        didOpen: () => {
+            // Injecter du CSS pour rendre la modal plus compacte
+            const style = document.createElement('style');
+            style.textContent = `
+            .swal-compact {
+                font-size: 0.9rem !important;
+                line-height: 1.4 !important;
             }
-        }
-
-    } catch (error) {
-        // Erreur silencieuse pour ne pas gêner l'utilisateur
-        console.warn('⚠️ Impossible de vérifier le statut de validation:', error);
-    }
-}
-
-/**
- * Validation en temps réel des champs de formulaire
- */
-function setupRealTimeValidation() {
-    // Validation des prix
-    $(document).on('input', 'input[type="number"][name*="prix"]', function () {
-        const value = parseFloat($(this).val());
-        const $field = $(this);
-
-        if (isNaN(value) || value < 0) {
-            $field.addClass('is-invalid');
-            $field.siblings('.invalid-feedback').text('Le prix doit être un nombre positif').show();
-        } else {
-            $field.removeClass('is-invalid').addClass('is-valid');
-            $field.siblings('.invalid-feedback').hide();
-        }
-    });
-
-    // Validation des quantités
-    $(document).on('input', 'input[type="number"][name*="quantite"]', function () {
-        const value = parseFloat($(this).val());
-        const $field = $(this);
-
-        if (isNaN(value) || value <= 0) {
-            $field.addClass('is-invalid');
-            $field.siblings('.invalid-feedback').text('La quantité doit être supérieure à 0').show();
-        } else {
-            $field.removeClass('is-invalid').addClass('is-valid');
-            $field.siblings('.invalid-feedback').hide();
-        }
-    });
-
-    // Validation des fournisseurs
-    $(document).on('blur', 'input[name*="fournisseur"]', function () {
-        const value = $(this).val().trim();
-        const $field = $(this);
-
-        if (value === '') {
-            $field.addClass('is-invalid');
-            $field.siblings('.invalid-feedback').text('Le fournisseur est obligatoire').show();
-        } else {
-            $field.removeClass('is-invalid').addClass('is-valid');
-            $field.siblings('.invalid-feedback').hide();
+            .swal-compact .grid {
+                gap: 0.75rem !important;
+            }
+            .swal-compact .space-y-4 > * + * {
+                margin-top: 1rem !important;
+            }
+            .swal-compact .p-4 {
+                padding: 0.75rem !important;
+            }
+            .swal-compact .mb-3 {
+                margin-bottom: 0.5rem !important;
+            }
+            .swal-compact table {
+                font-size: 0.8rem !important;
+            }
+            .swal-compact .px-3 {
+                padding-left: 0.5rem !important;
+                padding-right: 0.5rem !important;
+            }
+            .swal-compact .py-2 {
+                padding-top: 0.25rem !important;
+                padding-bottom: 0.25rem !important;
+            }
+        `;
+            document.head.appendChild(style);
         }
     });
 }
-
-// =====================================================
-// AMÉLIORATION DU CHARGEMENT DES DONNÉES
-// =====================================================
-
 /**
- * Chargement intelligent des données avec mise en cache
+ * Construit le HTML pour les détails de la commande annulée (version compacte)
  */
-const DataManager = {
-    cache: new Map(),
-    cacheTimeout: 5 * 60 * 1000, // 5 minutes
+function buildCanceledOrderDetailsHTML(order, relatedOrders, savedValue) {
+    // Déterminer la source de la commande
+    const isSystemRequest = order.source_table === 'besoins';
+    const sourceLabel = isSystemRequest ? 'Système' : 'Projet';
+    // Préparer le badge de statut original
+    const statusBadgeClass = getOriginalStatusBadgeClass(order.original_status);
+    const statusText = getOriginalStatusText(order.original_status);
 
-    async getCachedData(key, fetchFunction) {
-        const cached = this.cache.get(key);
-        const now = Date.now();
-
-        if (cached && (now - cached.timestamp) < this.cacheTimeout) {
-            return cached.data;
-        }
-
-        try {
-            const data = await fetchFunction();
-            this.cache.set(key, {
-                data: data,
-                timestamp: now
-            });
-            return data;
-        } catch (error) {
-            console.error(`Erreur lors du chargement de ${key}:`, error);
-            // Retourner les données en cache si disponibles, même expirées
-            return cached ? cached.data : null;
-        }
-    },
-
-    clearCache(key = null) {
-        if (key) {
-            this.cache.delete(key);
-        } else {
-            this.cache.clear();
-        }
-    }
-};
-
-function generateActionButtons(row) {
-    const actions = [];
-
-    // Bouton d'achat
-    actions.push(`
-        <button class="purchase-btn btn btn-sm btn-primary" 
-                data-material-id="${row.id}" 
-                data-expression-id="${row.idExpression}"
-                title="Acheter ce matériau">
-            <i class="fas fa-shopping-cart"></i>
-        </button>
-    `);
-
-    // Bouton de substitution
-    actions.push(`
-        <button class="substitute-btn btn btn-sm btn-warning" 
-                data-material-id="${row.id}" 
-                data-designation="${row.designation}"
-                data-expression-id="${row.idExpression}"
-                title="Substituer ce matériau">
-            <i class="fas fa-exchange-alt"></i>
-        </button>
-    `);
-
-    // Bouton de visualisation du stock
-    actions.push(`
-        <button class="view-stock-btn btn btn-sm btn-info" 
-                data-designation="${row.designation}"
-                title="Voir dans le stock">
-            <i class="fas fa-warehouse"></i>
-        </button>
-    `);
-
-    return `<div class="btn-group" role="group">${actions.join('')}</div>`;
-}
-
-/**
- * Génération des boutons d'action pour les matériaux commandés
- */
-function generateOrderedMaterialActions(row) {
-    const actions = [];
-
-    // Bouton de modification
-    actions.push(`
-        <button class="edit-order-btn btn btn-sm btn-primary" 
-                data-order-id="${row.id}" 
-                data-expression-id="${row.idExpression}"
-                title="Modifier cette commande">
-            <i class="fas fa-edit"></i>
-        </button>
-    `);
-
-    // Bouton de détails
-    actions.push(`
-        <button class="view-details-btn btn btn-sm btn-info" 
-                data-order-id="${row.id}"
-                title="Voir les détails">
-            <i class="fas fa-eye"></i>
-        </button>
-    `);
-
-    // Bouton d'annulation
-    actions.push(`
-        <button class="cancel-order-btn btn btn-sm btn-danger" 
-                data-order-id="${row.id}" 
-                data-expression-id="${row.idExpression}"
-                title="Annuler cette commande">
-            <i class="fas fa-times"></i>
-        </button>
-    `);
-
-    // Bouton de téléchargement de bon de commande (si disponible)
-    if (row.bon_commande_id) {
-        actions.push(`
-            <button class="download-bon-commande-btn btn btn-sm btn-success" 
-                    data-bon-commande-id="${row.bon_commande_id}"
-                    title="Télécharger le bon de commande">
-                <i class="fas fa-download"></i>
+    // Version compacte des commandes liées
+    const relatedOrdersHTML = relatedOrders.length > 0 ? `
+        <div class="mt-4">
+            <h4 class="text-sm font-semibold mb-2">Autres commandes (${relatedOrders.length})</h4>
+            <div class="bg-gray-50 p-2 rounded text-xs max-h-32 overflow-y-auto">
+                ${relatedOrders.slice(0, 3).map(relatedOrder => `
+                <div class="flex justify-between items-center py-1 border-b border-gray-200 last:border-0">
+                    <span>${relatedOrder.date_achat_formatted || 'N/A'}</span>
+                    <span>${Utils.formatQuantity(relatedOrder.quantity || 0)} ${relatedOrder.unit || ''}</span>
+                    <span class="px-1 py-0.5 rounded text-xs ${getStatusBadgeClass(relatedOrder.status)}">
+                        ${getStatusText(relatedOrder.status)}
+                    </span>
+                </div>
+            `).join('')}
+            ${relatedOrders.length > 3 ? `<div class="text-center text-gray-500 pt-1">... et ${relatedOrders.length - 3} autres</div>` : ''}
+        </div>
+    </div>
+    ` : '';
+    return `
+    <div class="space-y-4">
+        <!-- En-tête avec badges -->
+        <div class="flex justify-between items-center">
+            <span class="px-2 py-1 text-xs font-medium rounded ${isSystemRequest ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'}">
+                ${sourceLabel}
+            </span>
+            <span class="px-2 py-1 text-xs font-medium rounded bg-red-100 text-red-800">
+                Annulée
+            </span>
+        </div>
+        
+        <!-- Informations principales en 2 colonnes compactes -->
+        <div class="grid grid-cols-2 gap-3 text-sm">
+            <div>
+                <p class="text-xs text-gray-600">Projet/Client</p>
+                <p class="font-medium">${order.code_projet || 'N/A'}</p>
+                <p class="text-xs text-gray-500">${order.nom_client || 'N/A'}</p>
+            </div>
+            <div>
+                <p class="text-xs text-gray-600">Quantité</p>
+                <p class="font-medium">${Utils.formatQuantity(order.quantity || 0)} ${order.unit || ''}</p>
+                ${order.prix_unitaire ? `<p class="text-xs text-gray-500">${Utils.formatPrice(order.prix_unitaire)} FCFA/unité</p>` : ''}
+            </div>
+            <div>
+                <p class="text-xs text-gray-600">Statut original</p>
+                <span class="px-2 py-1 text-xs rounded ${statusBadgeClass}">${statusText}</span>
+            </div>
+            <div>
+                <p class="text-xs text-gray-600">Fournisseur</p>
+                <p class="font-medium">${order.fournisseur || 'Non spécifié'}</p>
+            </div>
+        </div>
+        
+        <!-- Détails de l'annulation compacts -->
+        <div class="bg-red-50 p-3 rounded border border-red-200">
+            <h4 class="text-sm font-semibold mb-2 text-red-800">Annulation</h4>
+            <div class="grid grid-cols-2 gap-2 text-sm">
+                <div>
+                    <p class="text-xs text-gray-600">Par</p>
+                    <p class="font-medium">${order.canceled_by_name || 'Système'}</p>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-600">Le</p>
+                    <p class="font-medium">${order.canceled_at_formatted || 'N/A'}</p>
+                </div>
+            </div>
+            <div class="mt-2">
+                <p class="text-xs text-gray-600">Raison</p>
+                <p class="text-sm bg-white p-2 rounded border">${order.cancel_reason || 'Aucune raison spécifiée'}</p>
+            </div>
+        </div>
+        
+        <!-- Économies réalisées (si applicable) -->
+        ${savedValue > 0 ? `
+        <div class="bg-green-50 p-3 rounded border border-green-200">
+            <div class="flex justify-between items-center">
+                <span class="text-sm font-semibold text-green-800">Économies</span>
+                <span class="text-lg font-bold text-green-700">${Utils.formatPrice(savedValue)} FCFA</span>
+            </div>
+        </div>
+        ` : ''}
+        
+        <!-- Informations additionnelles si disponibles -->
+        ${order.description_projet ? `
+        <div class="bg-blue-50 p-3 rounded">
+            <h4 class="text-sm font-semibold mb-1">Description</h4>
+            <p class="text-sm text-gray-700">${order.description_projet}</p>
+            ${order.completed_by_name ? `<p class="text-xs text-gray-600 mt-1">Terminé par ${order.completed_by_name}</p>` : ''}
+        </div>
+        ` : ''}
+        
+        ${relatedOrdersHTML}
+        
+        <!-- Actions compactes -->
+            <div class="flex gap-2 pt-2 border-t">
+            ${!isSystemRequest ? `
+            <button onclick="generateBonCommande('${order.project_id}'); Swal.close();" 
+                    class="flex items-center px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 text-xs">
+                <span class="material-icons mr-1 text-sm">receipt</span>
+                Projet
             </button>
-        `);
-    }
-
-    return `<div class="btn-group" role="group">${actions.join('')}</div>`;
-}
-
-/**
- * Génération des boutons d'action pour les commandes partielles
- */
-function generatePartialOrderActions(row) {
-    const actions = [];
-
-    // Bouton de complétion
-    actions.push(`
-        <button class="complete-partial-btn btn btn-sm btn-success" 
-                data-order-id="${row.id}" 
-                data-designation="${row.designation}"
-                data-remaining="${row.qt_restante}"
-                data-unit="${row.unit}"
-                title="Compléter cette commande">
-            <i class="fas fa-check"></i>
-        </button>
-    `);
-
-    // Bouton de détails
-    actions.push(`
-        <button class="view-partial-details-btn btn btn-sm btn-info" 
-                data-order-id="${row.id}"
-                title="Voir les détails">
-            <i class="fas fa-eye"></i>
-        </button>
-    `);
-
-    return `<div class="btn-group" role="group">${actions.join('')}</div>`;
-}
-
-/**
- * Génération des boutons d'action pour les matériaux reçus
- */
-function generateReceivedMaterialActions(row) {
-    const actions = [];
-
-    // Bouton de détails
-    actions.push(`
-        <button class="view-received-details-btn btn btn-sm btn-info" 
-                data-order-id="${row.id}"
-                title="Voir les détails">
-            <i class="fas fa-eye"></i>
-        </button>
-    `);
-
-    // Bouton de retour fournisseur (si applicable)
-    actions.push(`
-        <button class="return-to-supplier-btn btn btn-sm btn-warning" 
-                data-order-id="${row.id}" 
-                data-designation="${row.designation}"
-                title="Retourner au fournisseur">
-            <i class="fas fa-undo"></i>
-        </button>
-    `);
-
-    return `<div class="btn-group" role="group">${actions.join('')}</div>`;
-}
-
-/**
- * Génération des boutons d'action pour les retours fournisseurs
- */
-function generateSupplierReturnActions(row) {
-    const actions = [];
-
-    // Bouton de détails
-    actions.push(`
-        <button class="view-return-details-btn btn btn-sm btn-info" 
-                data-return-id="${row.id}"
-                title="Voir les détails du retour">
-            <i class="fas fa-eye"></i>
-        </button>
-    `);
-
-    // Si le retour est en attente, permettre de le compléter
-    if (row.status === 'en_attente') {
-        actions.push(`
-            <button class="complete-return-btn btn btn-sm btn-success" 
-                    data-return-id="${row.id}"
-                    title="Marquer comme complété">
-                <i class="fas fa-check"></i>
+            ` : ''}
+            <button onclick="viewStockDetails('${order.designation}'); Swal.close();" 
+                    class="flex items-center px-3 py-1 bg-purple-600 text-white rounded hover:bg-purple-700 text-xs">
+                <span class="material-icons mr-1 text-sm">inventory_2</span>
+                Stock
             </button>
-        `);
-    }
-
-    return `<div class="btn-group" role="group">${actions.join('')}</div>`;
+        </div>
+    </div>
+    `;
 }
-
-// =====================================================
-// FONCTIONS DE GESTION DES MODALS
-// =====================================================
-
 /**
- * Ouverture du modal d'achat individuel
+ * Retourne la classe CSS pour le badge de statut original
  */
-function openPurchaseModal(materialData) {
-    // Remplir les données du modal
-    $('#expression_id').val(materialData.idExpression);
-    $('#designation').val(materialData.designation);
-    $('#quantite').val(materialData.qt_acheter);
-    $('#unite').val(materialData.unit);
-
-    // Afficher le modal
-    $('#purchase-modal').show();
-
-    // Focus sur le premier champ éditable
-    $('#fournisseur').focus();
-}
-
-/**
- * Ouverture du modal d'achat en lot
- */
-function openBulkPurchaseModal(selectedItems) {
-    // Générer le contenu du modal avec les items sélectionnés
-    const modalContent = generateBulkPurchaseContent(selectedItems);
-    $('#bulk-purchase-content').html(modalContent);
-
-    // Afficher le modal
-    $('#bulk-purchase-modal').show();
-}
-
-/**
- * Ouverture du modal de modification de commande
- */
-function openEditOrderModal(orderId, expressionId) {
-    // Charger les données de la commande
-    $.ajax({
-        url: CONFIG.API_URLS.MATERIAL_INFO,
-        type: 'GET',
-        data: { order_id: orderId, expression_id: expressionId },
-        dataType: 'json',
-        success: function (response) {
-            if (response.success) {
-                populateEditOrderModal(response.order);
-                $('#edit-order-modal').show();
-            } else {
-                showNotification('Erreur lors du chargement des données de la commande', 'error');
-            }
-        },
-        error: function () {
-            showNotification('Erreur de connexion lors du chargement', 'error');
-        }
-    });
-}
-
-/**
- * Peuplement du modal de modification de commande
- */
-function populateEditOrderModal(orderData) {
-    $('#edit-order-id').val(orderData.id);
-    $('#edit-expression-id').val(orderData.idExpression);
-    $('#edit-designation').val(orderData.designation);
-    $('#edit-quantite').val(orderData.qt_acheter);
-    $('#edit-unite').val(orderData.unit);
-    $('#edit-prix-unitaire').val(orderData.prix_unitaire);
-    $('#edit-fournisseur').val(orderData.fournisseur);
-    $('#edit-mode-paiement').val(orderData.mode_paiement_id);
-}
-
-// =====================================================
-// FONCTIONS DE TRAITEMENT DES FORMULAIRES
-// =====================================================
-
-/**
- * Traitement de l'achat individuel
- */
-function handleIndividualPurchase(form) {
-    const formData = new FormData(form);
-
-    // Validation des données
-    if (!validatePurchaseForm(formData)) {
-        return;
-    }
-
-    // Affichage du loader
-    showProcessingLoader('Traitement de l\'achat en cours...');
-
-    $.ajax({
-        url: CONFIG.API_URLS.PROCESS_PURCHASE,
-        type: 'POST',
-        data: formData,
-        processData: false,
-        contentType: false,
-        dataType: 'json',
-        success: function (response) {
-            hideProcessingLoader();
-
-            if (response.success) {
-                showNotification(CONFIG.MESSAGES.SUCCESS.PURCHASE_COMPLETE, 'success');
-                $('#purchase-modal').hide();
-                refreshDataTables();
-                updateNotificationCounters();
-            } else {
-                showNotification(response.message || CONFIG.MESSAGES.ERROR.GENERIC, 'error');
-            }
-        },
-        error: function (xhr, status, error) {
-            hideProcessingLoader();
-            console.error('❌ Erreur lors de l\'achat:', error);
-            showNotification(CONFIG.MESSAGES.ERROR.NETWORK, 'error');
-        }
-    });
-}
-
-/**
- * Traitement de l'achat en lot
- */
-function handleBulkPurchase(form) {
-    const formData = new FormData(form);
-    const selectedItems = getSelectedMaterials();
-
-    if (selectedItems.length === 0) {
-        showNotification('Aucun matériau sélectionné', 'warning');
-        return;
-    }
-
-    // Ajouter les items sélectionnés au FormData
-    formData.append('selected_materials', JSON.stringify(selectedItems));
-
-    showProcessingLoader('Traitement des achats en cours...');
-
-    $.ajax({
-        url: CONFIG.API_URLS.PROCESS_PURCHASE,
-        type: 'POST',
-        data: formData,
-        processData: false,
-        contentType: false,
-        dataType: 'json',
-        success: function (response) {
-            hideProcessingLoader();
-
-            if (response.success) {
-                showNotification(CONFIG.MESSAGES.SUCCESS.BULK_ACTION, 'success');
-                $('#bulk-purchase-modal').hide();
-                refreshDataTables();
-                updateNotificationCounters();
-                clearSelection();
-            } else {
-                showNotification(response.message || CONFIG.MESSAGES.ERROR.GENERIC, 'error');
-            }
-        },
-        error: function (xhr, status, error) {
-            hideProcessingLoader();
-            console.error('❌ Erreur lors de l\'achat en lot:', error);
-            showNotification(CONFIG.MESSAGES.ERROR.NETWORK, 'error');
-        }
-    });
-}
-
-/**
- * Traitement de la modification de commande
- */
-function handleOrderEdit(form) {
-    const formData = new FormData(form);
-
-    showProcessingLoader('Mise à jour de la commande...');
-
-    $.ajax({
-        url: CONFIG.API_URLS.UPDATE_ORDER_STATUS,
-        type: 'POST',
-        data: formData,
-        processData: false,
-        contentType: false,
-        dataType: 'json',
-        success: function (response) {
-            hideProcessingLoader();
-
-            if (response.success) {
-                showNotification('Commande mise à jour avec succès', 'success');
-                $('#edit-order-modal').hide();
-                refreshDataTables();
-            } else {
-                showNotification(response.message || CONFIG.MESSAGES.ERROR.GENERIC, 'error');
-            }
-        },
-        error: function (xhr, status, error) {
-            hideProcessingLoader();
-            console.error('❌ Erreur lors de la modification:', error);
-            showNotification(CONFIG.MESSAGES.ERROR.NETWORK, 'error');
-        }
-    });
-}
-
-// =====================================================
-// FONCTIONS DE VALIDATION
-// =====================================================
-
-/**
- * Validation du formulaire d'achat
- */
-function validatePurchaseForm(formData) {
-    const errors = [];
-
-    // Validation du fournisseur
-    const fournisseur = formData.get('fournisseur');
-    if (!fournisseur || fournisseur.trim() === '') {
-        errors.push('Le fournisseur est obligatoire');
-    }
-
-    // Validation de la quantité
-    const quantite = parseFloat(formData.get('quantite'));
-    if (!quantite || quantite <= 0) {
-        errors.push('La quantité doit être supérieure à 0');
-    }
-
-    // Validation du prix unitaire
-    const prixUnitaire = parseFloat(formData.get('prix_unitaire'));
-    if (!prixUnitaire || prixUnitaire <= 0) {
-        errors.push('Le prix unitaire doit être supérieur à 0');
-    }
-
-    // Affichage des erreurs
-    if (errors.length > 0) {
-        showNotification(errors.join('\n'), 'error');
-        return false;
-    }
-
-    return true;
-}
-
-/**
- * Validation d'un champ individuel
- */
-function validateField(field) {
-    const $field = $(field);
-    const value = $field.val().trim();
-    const fieldType = $field.attr('type') || 'text';
-
-    let isValid = true;
-    let errorMessage = '';
-
-    // Validation en fonction du type
-    switch (fieldType) {
-        case 'email':
-            isValid = value === '' || isValidEmail(value);
-            errorMessage = 'Adresse email invalide';
-            break;
-        case 'number':
-            const numValue = parseFloat(value);
-            isValid = value === '' || (!isNaN(numValue) && numValue >= 0);
-            errorMessage = 'Valeur numérique invalide';
-            break;
-        case 'tel':
-            isValid = value === '' || isValidPhoneNumber(value);
-            errorMessage = 'Numéro de téléphone invalide';
-            break;
+function getOriginalStatusBadgeClass(status) {
+    switch (status) {
+        case 'en_attente':
+            return 'bg-yellow-100 text-yellow-800';
+        case 'commandé':
+            return 'bg-blue-100 text-blue-800';
+        case 'en_cours':
+            return 'bg-orange-100 text-orange-800';
+        case 'pas validé':
+            return 'bg-gray-100 text-gray-800';
+        case 'validé':
+            return 'bg-green-100 text-green-800';
         default:
-            if ($field.hasClass('required-field')) {
-                isValid = value !== '';
-                errorMessage = 'Ce champ est obligatoire';
-            }
-    }
-
-    // Mise à jour de l'interface
-    if (isValid) {
-        $field.removeClass('is-invalid').addClass('is-valid');
-        $field.siblings('.invalid-feedback').hide();
-    } else {
-        $field.removeClass('is-valid').addClass('is-invalid');
-        $field.siblings('.invalid-feedback').text(errorMessage).show();
-    }
-
-    return isValid;
-}
-
-// =====================================================
-// FONCTIONS DE FILTRAGE
-// =====================================================
-
-/**
- * Filtrage par terme de recherche
- */
-function filterMaterialsBySearch(searchTerm) {
-    if (materialsTable) {
-        materialsTable.search(searchTerm).draw();
-    }
-
-    currentFilters.search = searchTerm;
-    updateActiveFiltersDisplay();
-}
-
-/**
- * Application des filtres de date
- */
-function applyDateFilters() {
-    const dateDebut = $('#dateDebut').val();
-    const dateFin = $('#dateFin').val();
-
-    if (dateDebut || dateFin) {
-        // Appliquer le filtre de date aux tableaux
-        if (materialsTable) {
-            $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
-                if (settings.nTable.id !== 'materialsTable') return true;
-
-                const date = new Date(data[9]); // Colonne de date
-                const debut = dateDebut ? new Date(dateDebut) : null;
-                const fin = dateFin ? new Date(dateFin) : null;
-
-                return (!debut || date >= debut) && (!fin || date <= fin);
-            });
-
-            materialsTable.draw();
-        }
-    }
-
-    currentFilters.date = { debut: dateDebut, fin: dateFin };
-    updateActiveFiltersDisplay();
-}
-
-/**
- * Filtrage par client
- */
-function filterMaterialsByClient(client) {
-    if (materialsTable && client) {
-        materialsTable.column(2).search(client).draw(); // Colonne client
-    }
-
-    currentFilters.client = client;
-    updateActiveFiltersDisplay();
-}
-
-/**
- * Filtrage par fournisseur
- */
-function filterMaterialsByFournisseur(fournisseur) {
-    if (materialsTable && fournisseur) {
-        materialsTable.column(8).search(fournisseur).draw(); // Colonne fournisseur
-    }
-
-    currentFilters.fournisseur = fournisseur;
-    updateActiveFiltersDisplay();
-}
-
-/**
- * Filtrage par statut
- */
-function filterMaterialsByStatus(status) {
-    if (materialsTable && status) {
-        materialsTable.column(6).search(status).draw(); // Colonne statut
-    }
-
-    currentFilters.status = status;
-    updateActiveFiltersDisplay();
-}
-
-/**
- * Réinitialisation de tous les filtres
- */
-function resetAllFilters() {
-    // Réinitialiser les champs du formulaire
-    $('#search-materials').val('');
-    $('#dateDebut').val('');
-    $('#dateFin').val('');
-    $('#clientFilter').val('');
-    $('#fournisseurFilter').val('');
-    $('#statusFilter').val('');
-
-    // Réinitialiser les filtres des tableaux
-    if (materialsTable) {
-        materialsTable.search('').columns().search('').draw();
-    }
-
-    if (orderedMaterialsTable) {
-        orderedMaterialsTable.search('').columns().search('').draw();
-    }
-
-    // Supprimer les filtres personnalisés
-    $.fn.dataTable.ext.search = [];
-
-    // Réinitialiser les filtres en cours
-    currentFilters = {};
-    updateActiveFiltersDisplay();
-
-    showNotification('Filtres réinitialisés', 'info');
-}
-
-/**
- * Application de tous les filtres
- */
-function applyAllFilters() {
-    const searchTerm = $('#search-materials').val();
-    const client = $('#clientFilter').val();
-    const fournisseur = $('#fournisseurFilter').val();
-    const status = $('#statusFilter').val();
-
-    // Appliquer tous les filtres
-    if (searchTerm) filterMaterialsBySearch(searchTerm);
-    if (client) filterMaterialsByClient(client);
-    if (fournisseur) filterMaterialsByFournisseur(fournisseur);
-    if (status) filterMaterialsByStatus(status);
-
-    applyDateFilters();
-
-    showNotification('Filtres appliqués', 'success');
-}
-
-/**
- * Mise à jour de l'affichage des filtres actifs
- */
-function updateActiveFiltersDisplay() {
-    const activeFilters = [];
-
-    if (currentFilters.search) {
-        activeFilters.push(`Recherche: "${currentFilters.search}"`);
-    }
-
-    if (currentFilters.client) {
-        activeFilters.push(`Client: ${currentFilters.client}`);
-    }
-
-    if (currentFilters.fournisseur) {
-        activeFilters.push(`Fournisseur: ${currentFilters.fournisseur}`);
-    }
-
-    if (currentFilters.status) {
-        activeFilters.push(`Statut: ${currentFilters.status}`);
-    }
-
-    if (currentFilters.date && (currentFilters.date.debut || currentFilters.date.fin)) {
-        let dateFilter = 'Période: ';
-        if (currentFilters.date.debut) dateFilter += `du ${currentFilters.date.debut}`;
-        if (currentFilters.date.fin) dateFilter += ` au ${currentFilters.date.fin}`;
-        activeFilters.push(dateFilter);
-    }
-
-    const $activeFiltersContainer = $('#active-filters');
-    if (activeFilters.length > 0) {
-        $activeFiltersContainer.html(`
-            <div class="alert alert-info">
-                <strong>Filtres actifs:</strong> ${activeFilters.join(', ')}
-                <button type="button" class="btn btn-sm btn-outline-secondary ml-2" onclick="resetAllFilters()">
-                    Supprimer tous les filtres
-                </button>
-            </div>
-        `).show();
-    } else {
-        $activeFiltersContainer.hide();
+            return 'bg-gray-100 text-gray-800';
     }
 }
-
-// =====================================================
-// FONCTIONS DE SÉLECTION
-// =====================================================
-
 /**
- * Récupération des matériaux sélectionnés
+ * Retourne le texte à afficher pour le statut original
  */
-function getSelectedMaterials() {
-    const selected = [];
-    $('.material-checkbox:checked').each(function () {
-        const row = $(this).closest('tr');
-        const materialData = getMaterialDataFromRow(row);
-        materialData.id = $(this).val();
-        materialData.idExpression = $(this).data('expression');
-        selected.push(materialData);
-    });
-    return selected;
-}
-
-/**
- * Récupération des matériaux commandés sélectionnés
- */
-function getSelectedOrderedMaterials() {
-    const selected = [];
-    $('.ordered-material-checkbox:checked').each(function () {
-        const row = $(this).closest('tr');
-        const materialData = getMaterialDataFromRow(row);
-        materialData.id = $(this).val();
-        materialData.idExpression = $(this).data('expression');
-        selected.push(materialData);
-    });
-    return selected;
-}
-
-/**
- * Récupération des commandes partielles sélectionnées
- */
-function getSelectedPartialOrders() {
-    const selected = [];
-    $('.partial-order-checkbox:checked').each(function () {
-        const row = $(this).closest('tr');
-        const orderData = getMaterialDataFromRow(row);
-        orderData.id = $(this).val();
-        orderData.idExpression = $(this).data('expression');
-        selected.push(orderData);
-    });
-    return selected;
-}
-
-/**
- * Extraction des données d'un matériau depuis une ligne de tableau
- */
-function getMaterialDataFromRow(row) {
-    const cells = row.find('td');
-    return {
-        code_projet: $(cells[1]).text().trim(),
-        nom_client: $(cells[2]).text().trim(),
-        designation: $(cells[3]).text().trim(),
-        qt_acheter: $(cells[4]).text().trim(),
-        unit: $(cells[5]).text().trim(),
-        valide_achat: $(cells[6]).find('span').text().trim(),
-        prix_unitaire: $(cells[7]).text().replace(/[^0-9.,]/g, ''),
-        fournisseur: $(cells[8]).text().trim(),
-        created_at: $(cells[9]).text().trim()
-    };
-}
-
-/**
- * Mise à jour de la sélection des matériaux
- */
-function updateMaterialSelection() {
-    const totalCheckboxes = $('.material-checkbox').length;
-    const checkedCheckboxes = $('.material-checkbox:checked').length;
-
-    // Mise à jour de la checkbox "Tout sélectionner"
-    const $selectAll = $('#select-all-materials');
-    if (checkedCheckboxes === 0) {
-        $selectAll.prop('indeterminate', false).prop('checked', false);
-    } else if (checkedCheckboxes === totalCheckboxes) {
-        $selectAll.prop('indeterminate', false).prop('checked', true);
-    } else {
-        $selectAll.prop('indeterminate', true);
+function getOriginalStatusText(status) {
+    switch (status) {
+        case 'en_attente':
+            return 'En attente';
+        case 'commandé':
+            return 'Commandé';
+        case 'en_cours':
+            return 'En cours';
+        case 'pas validé':
+            return 'Pas validé';
+        case 'validé':
+            return 'Validé';
+        default:
+            return status || 'Inconnu';
     }
-
-    // Mise à jour du compteur de sélection
-    $('#selected-count').text(checkedCheckboxes);
 }
-
+// ==========================================
+// FONCTION: DÉTAILS DES RETOURS
+// ==========================================
 /**
- * Mise à jour de la sélection des matériaux commandés
+ * Affiche les détails d'un retour de matériel
+ * @param {number} returnId - ID du retour
+ * @param {number} expressionId - ID de l'expression/projet
+ * @param {string} designation - Désignation du matériel
+ * @param {string} sourceTable - Table source
  */
-function updateOrderedMaterialSelection() {
-    const totalCheckboxes = $('.ordered-material-checkbox').length;
-    const checkedCheckboxes = $('.ordered-material-checkbox:checked').length;
-
-    const $selectAll = $('#select-all-ordered-materials');
-    if (checkedCheckboxes === 0) {
-        $selectAll.prop('indeterminate', false).prop('checked', false);
-    } else if (checkedCheckboxes === totalCheckboxes) {
-        $selectAll.prop('indeterminate', false).prop('checked', true);
-    } else {
-        $selectAll.prop('indeterminate', true);
-    }
-
-    $('#selected-ordered-count').text(checkedCheckboxes);
-}
-
-/**
- * Mise à jour de la sélection des commandes partielles
- */
-function updatePartialOrderSelection() {
-    const checkedCheckboxes = $('.partial-order-checkbox:checked').length;
-    $('#selected-partial-count').text(checkedCheckboxes);
-}
-
-/**
- * Effacement de toutes les sélections
- */
-function clearSelection() {
-    $('.material-checkbox, .ordered-material-checkbox, .partial-order-checkbox').prop('checked', false);
-    $('#select-all-materials, #select-all-ordered-materials').prop('checked', false).prop('indeterminate', false);
-    updateMaterialSelection();
-    updateOrderedMaterialSelection();
-    updatePartialOrderSelection();
-    updateBulkActionButtons();
-}
-
-// =====================================================
-// FONCTIONS DE MISE À JOUR DE L'INTERFACE
-// =====================================================
-
-/**
- * Mise à jour de l'état des boutons d'action en lot
- */
-function updateBulkActionButtons() {
-    const selectedMaterials = $('.material-checkbox:checked').length;
-    const selectedOrdered = $('.ordered-material-checkbox:checked').length;
-    const selectedPartial = $('.partial-order-checkbox:checked').length;
-
-    // Boutons pour matériaux en attente
-    $('#bulk-purchase-btn').prop('disabled', selectedMaterials === 0);
-
-    // Boutons pour matériaux commandés
-    $('#bulk-cancel-btn').prop('disabled', selectedOrdered === 0);
-
-    // Boutons pour commandes partielles
-    $('#bulk-complete-btn').prop('disabled', selectedPartial === 0);
-
-    // Mise à jour des compteurs dans les boutons
-    $('#bulk-purchase-btn .badge').text(selectedMaterials);
-    $('#bulk-cancel-btn .badge').text(selectedOrdered);
-    $('#bulk-complete-btn .badge').text(selectedPartial);
-}
-
-/**
- * Peuplement des sélecteurs de fournisseurs
- */
-function populateFournisseurSelects() {
-    const selects = ['#fournisseur', '#fournisseurFilter', '#edit-fournisseur', '#bulk-fournisseur'];
-
-    selects.forEach(selector => {
-        const $select = $(selector);
-        if ($select.length) {
-            $select.empty().append('<option value="">Sélectionner un fournisseur</option>');
-
-            fournisseurs.forEach(fournisseur => {
-                $select.append(`<option value="${fournisseur.nom}">${fournisseur.nom}</option>`);
-            });
+window.viewReturnDetails = async (returnId) => {
+    Swal.fire({
+        title: 'Chargement...',
+        text: 'Récupération des détails du retour',
+        allowOutsideClick: false,
+        didOpen: () => {
+            Swal.showLoading();
         }
     });
-}
-
-/**
- * Peuplement des sélecteurs de modes de paiement
- */
-function populatePaymentMethodSelects(paymentMethods) {
-    const selects = ['#mode-paiement', '#edit-mode-paiement', '#bulk-mode-paiement'];
-
-    selects.forEach(selector => {
-        const $select = $(selector);
-        if ($select.length) {
-            $select.empty().append('<option value="">Sélectionner un mode de paiement</option>');
-
-            paymentMethods.forEach(method => {
-                $select.append(`<option value="${method.id}">${method.nom}</option>`);
-            });
-        }
-    });
-}
-
-/**
- * Mise à jour des compteurs de notifications
- */
-function updateNotificationCounters() {
-    $.ajax({
-        url: 'notification_counts.php',
-        type: 'GET',
-        dataType: 'json',
-        success: function (response) {
-            if (response.success) {
-                // Mise à jour des badges de notification
-                $('#materials-count').text(response.counts.materials || 0);
-                $('#orders-count').text(response.counts.orders || 0);
-                $('#partial-count').text(response.counts.partial || 0);
-                $('#received-count').text(response.counts.received || 0);
-
-                // Affichage ou masquage des badges selon les valeurs
-                $('.notification-badge').each(function () {
-                    const count = parseInt($(this).text());
-                    $(this).toggle(count > 0);
-                });
-            }
-        },
-        error: function () {
-            console.warn('⚠️ Impossible de mettre à jour les compteurs de notifications');
-        }
-    });
-}
-
-// =====================================================
-// FONCTIONS UTILITAIRES
-// =====================================================
-
-/**
- * Affichage de la date courante
- */
-function displayCurrentDate() {
-    const options = {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-    };
-    const today = new Date();
-    const currentDateElement = document.getElementById('current-date');
-    if (currentDateElement) {
-        currentDateElement.textContent = today.toLocaleDateString('fr-FR', options);
-    }
-}
-
-/**
- * Formatage de devise
- */
-function formatCurrency(amount) {
-    const number = parseFloat(amount);
-    if (isNaN(number)) return 'N/A';
-
-    return new Intl.NumberFormat('fr-FR', {
-        style: 'currency',
-        currency: 'EUR',
-        minimumFractionDigits: 2
-    }).format(number);
-}
-
-/**
- * Formatage de quantité
- */
-function formatQuantity(quantity, unit = '') {
-    const number = parseFloat(quantity);
-    if (isNaN(number)) return 'N/A';
-
-    const formatted = new Intl.NumberFormat('fr-FR', {
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 2
-    }).format(number);
-
-    return unit ? `${formatted} ${unit}` : formatted;
-}
-
-/**
- * Validation d'email
- */
-function isValidEmail(email) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-}
-
-/**
- * Validation de numéro de téléphone français
- */
-function isValidPhoneNumber(phone) {
-    const phoneRegex = /^(?:(?:\+|00)33|0)\s*[1-9](?:[\s.-]*\d{2}){4}$/;
-    return phoneRegex.test(phone);
-}
-
-/**
- * Fonction de debounce pour optimiser les performances
- */
-function debounce(func, wait) {
-    let timeout;
-    return function executedFunction(...args) {
-        const later = () => {
-            clearTimeout(timeout);
-            func(...args);
-        };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-    };
-}
-
-/**
- * Affichage de notifications
- */
-function showNotification(message, type = 'info') {
-    const notificationClass = {
-        'success': 'alert-success',
-        'error': 'alert-danger',
-        'warning': 'alert-warning',
-        'info': 'alert-info'
-    }[type] || 'alert-info';
-
-    const notification = $(`
-        <div class="alert ${notificationClass} alert-dismissible fade show notification-toast" role="alert">
-            ${message}
-            <button type="button" class="close" data-dismiss="alert" aria-label="Fermer">
-                <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
-    `);
-
-    $('#notifications-container').append(notification);
-
-    // Auto-suppression après 5 secondes
-    setTimeout(() => {
-        notification.fadeOut(() => notification.remove());
-    }, 5000);
-}
-
-/**
- * Affichage du loader de traitement
- */
-function showProcessingLoader(message = 'Traitement en cours...') {
-    const loader = $(`
-        <div id="processing-loader" class="modal" style="display: block;">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-body text-center">
-                        <div class="spinner-border text-primary" role="status">
-                            <span class="sr-only">Chargement...</span>
-                        </div>
-                        <p class="mt-3">${message}</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `);
-
-    $('body').append(loader);
-}
-
-/**
- * Masquage du loader de traitement
- */
-function hideProcessingLoader() {
-    $('#processing-loader').remove();
-}
-
-/**
- * Rafraîchissement de tous les DataTables
- */
-function refreshDataTables() {
-    if (materialsTable) materialsTable.ajax.reload(null, false);
-    if (orderedMaterialsTable) orderedMaterialsTable.ajax.reload(null, false);
-    if (partialOrdersTable) partialOrdersTable.ajax.reload(null, false);
-    if (receivedMaterialsTable) receivedMaterialsTable.ajax.reload(null, false);
-    if (supplierReturnsTable) supplierReturnsTable.ajax.reload(null, false);
-}
-
-// =====================================================
-// GESTIONNAIRES MANQUANTS POUR MODALS ET FORMULAIRES
-// =====================================================
-
-/**
- * Gestionnaire d'extension pour BulkPurchaseManager avec soumission
- */
-BulkPurchaseManager.handleBulkPurchase = async function (form) {
-    const formData = new FormData(form);
-
     try {
-        showProcessingLoader('Traitement des achats en cours...');
-
-        const response = await fetch(CONFIG.API_URLS.PROCESS_PURCHASE, {
-            method: 'POST',
-            body: formData
-        });
-
-        const result = await response.json();
-
-        hideProcessingLoader();
-
-        if (result.success) {
-            showNotification('Achats en lot effectués avec succès', 'success');
-            $('#bulk-purchase-modal').hide();
-            refreshDataTables();
-            updateNotificationCounters();
-            clearSelection();
-        } else {
-            showNotification(result.message || 'Erreur lors de l\'achat en lot', 'error');
-        }
-
-    } catch (error) {
-        hideProcessingLoader();
-        console.error('Erreur lors de l\'achat en lot:', error);
-        showNotification('Erreur de connexion', 'error');
-    }
-};
-
-/**
- * Gestionnaire d'extension pour PartialOrdersManager avec soumission de complétion
- */
-PartialOrdersManager.handleCompletionSubmit = async function (form) {
-    const formData = new FormData(form);
-
-    try {
-        showProcessingLoader('Complétion de la commande...');
-
-        const response = await fetch('api/orders/complete_partial_order.php', {
-            method: 'POST',
-            body: formData
-        });
-
-        const result = await response.json();
-
-        hideProcessingLoader();
-
-        if (result.success) {
-            showNotification('Commande complétée avec succès', 'success');
-            $('#complete-partial-modal').hide();
-            refreshDataTables();
-            updateNotificationCounters();
-        } else {
-            showNotification(result.message || 'Erreur lors de la complétion', 'error');
-        }
-
-    } catch (error) {
-        hideProcessingLoader();
-        console.error('Erreur lors de la complétion:', error);
-        showNotification('Erreur de connexion', 'error');
-    }
-};
-
-/**
- * Gestionnaire d'extension pour SubstitutionManager avec soumission
- */
-SubstitutionManager.handleSubstitution = async function (form) {
-    const formData = new FormData(form);
-
-    try {
-        showProcessingLoader('Traitement de la substitution...');
-
-        const response = await fetch(CONFIG.API_URLS.SUBSTITUTION, {
-            method: 'POST',
-            body: formData
-        });
-
-        const result = await response.json();
-
-        hideProcessingLoader();
-
-        if (result.success) {
-            showNotification('Substitution effectuée avec succès', 'success');
-            $('#substitution-modal').hide();
-            refreshDataTables();
-            updateNotificationCounters();
-        } else {
-            showNotification(result.message || 'Erreur lors de la substitution', 'error');
-        }
-
-    } catch (error) {
-        hideProcessingLoader();
-        console.error('Erreur lors de la substitution:', error);
-        showNotification('Erreur de connexion', 'error');
-    }
-};
-
-/**
- * Extension du CancelManager avec annulation multiple des matériaux en attente
- */
-CancelManager.cancelMultiplePending = async function () {
-    const selectedMaterials = getSelectedMaterials();
-
-    if (selectedMaterials.length === 0) {
-        showNotification('Aucun matériau sélectionné', 'warning');
-        return;
-    }
-
-    const result = await Swal.fire({
-        title: 'Annulation multiple',
-        text: `Êtes-vous sûr de vouloir annuler ${selectedMaterials.length} matériau(x) en attente ?`,
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Oui, annuler tout',
-        cancelButtonText: 'Non, garder'
-    });
-
-    if (result.isConfirmed) {
-        try {
-            showProcessingLoader('Annulation des matériaux...');
-
-            const formData = new FormData();
-            formData.append('materials', JSON.stringify(selectedMaterials));
-            formData.append('action', 'cancel_multiple_pending');
-
-            const response = await fetch(CONFIG.API_URLS.CANCEL_PENDING, {
-                method: 'POST',
-                body: formData
-            });
-
-            const data = await response.json();
-
-            hideProcessingLoader();
-
-            if (data.success) {
-                showNotification(`${selectedMaterials.length} matériau(x) annulé(s) avec succès`, 'success');
-                refreshDataTables();
-                updateNotificationCounters();
-                clearSelection();
+        const response = await fetch(`statistics/retour-fournisseur/get_return_details.php?id=${returnId}`);
+        const data = await response.json();
+        if (data.success) {
+            const returnData = data.data;
+            // Préparer le badge de statut
+            let statusBadge;
+            if (returnData.status === 'completed') {
+                statusBadge =
+                    '<span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">Complété</span>';
+            } else if (returnData.status === 'cancelled') {
+                statusBadge =
+                    '<span class="px-2 py-1 text-xs rounded-full bg-red-100 text-red-800">Annulé</span>';
             } else {
-                showNotification(data.message || 'Erreur lors de l\'annulation', 'error');
+                statusBadge =
+                    '<span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">En attente</span>';
             }
-
-        } catch (error) {
-            hideProcessingLoader();
-            console.error('Erreur lors de l\'annulation multiple:', error);
-            showNotification('Erreur de connexion', 'error');
-        }
-    }
-};
-
-// =====================================================
-// FONCTIONS UTILITAIRES MANQUANTES
-// =====================================================
-
-/**
- * Fonction pour vérifier les modifications non sauvegardées
- */
-function hasUnsavedChanges() {
-    // Vérifier si des formulaires ont été modifiés
-    let hasChanges = false;
-
-    $('form input, form select, form textarea').each(function () {
-        const $element = $(this);
-        const currentValue = $element.val();
-        const initialValue = $element.data('initial-value');
-
-        if (initialValue !== undefined && currentValue !== initialValue) {
-            hasChanges = true;
-            return false; // Sortir de la boucle
-        }
-    });
-
-    return hasChanges;
-}
-
-/**
- * Configuration des gestionnaires de déchargement de page
- */
-function setupPageUnloadHandlers() {
-    // Nettoyage avant déchargement
-    window.addEventListener('beforeunload', function (event) {
-        // Arrêter les tâches automatiques
-        stopAutomaticTasks();
-
-        // Vérifier s'il y a des modifications non sauvegardées
-        if (hasUnsavedChanges()) {
-            const message = 'Vous avez des modifications non sauvegardées. Voulez-vous vraiment quitter ?';
-            event.returnValue = message;
-            return message;
-        }
-    });
-
-    // Sauvegarde des données critiques avant fermeture
-    window.addEventListener('pagehide', function () {
-        // Sauvegarder les filtres en cours si nécessaire
-        if (Object.keys(currentFilters).length > 0) {
-            localStorage.setItem('achats_temp_filters', JSON.stringify(currentFilters));
-        }
-    });
-}
-
-/**
- * Fonction pour définir la quantité maximale
- */
-function setMaxQuantity(inputId, maxValue) {
-    const input = document.getElementById(inputId);
-    if (input) {
-        input.setAttribute('max', maxValue);
-        input.setAttribute('title', `Quantité maximale: ${maxValue}`);
-
-        // Validation en temps réel
-        input.addEventListener('input', function () {
-            const value = parseFloat(this.value);
-            if (value > maxValue) {
-                this.value = maxValue;
-                showNotification(`Quantité limitée à ${maxValue}`, 'warning');
-            }
-        });
-    }
-}
-
-/**
- * Fonction de formatage des dates avec gestion des fuseaux horaires
- */
-function formatDateWithTime(dateString, includeSeconds = false) {
-    if (!dateString) return 'N/A';
-
-    try {
-        const date = new Date(dateString);
-        const options = {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-            timeZone: 'Europe/Paris'
-        };
-
-        if (includeSeconds) {
-            options.second = '2-digit';
-        }
-
-        return date.toLocaleString('fr-FR', options);
-    } catch (error) {
-        console.error('Erreur lors du formatage de la date:', error);
-        return 'Date invalide';
-    }
-}
-
-/**
- * Fonction de recherche intelligente dans les tables
- */
-function setupIntelligentSearch() {
-    // Recherche globale améliorée
-    $('#search-materials').on('input', debounce(function () {
-        const searchTerm = $(this).val().toLowerCase();
-
-        if (searchTerm.length >= 2) {
-            // Recherche dans toutes les colonnes pertinentes
-            if (materialsTable) {
-                materialsTable.search(searchTerm).draw();
-            }
-
-            // Mise en évidence des termes trouvés
-            highlightSearchTerms(searchTerm);
+            // Afficher les détails
+            Swal.fire({
+                title: 'Détails du retour',
+                html: `
+                <div class="text-left">
+                    <div class="mb-4">
+                        <h3 class="text-lg font-semibold mb-2">Détails du produit</h3>
+                        <p><span class="font-medium">Produit:</span> ${returnData.product_name}</p>
+                        <p><span class="font-medium">Quantité:</span> ${returnData.quantity}</p>
+                        <p><span class="font-medium">Fournisseur:</span> ${returnData.supplier_name}</p>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h3 class="text-lg font-semibold mb-2">Informations de retour</h3>
+                        <p><span class="font-medium">Statut:</span> ${statusBadge}</p>
+                        <p><span class="font-medium">Motif:</span> ${returnData.reason}</p>
+                        <p><span class="font-medium">Date de retour:</span> ${returnData.created_at}</p>
+                        ${returnData.completed_at ? `<p><span class="font-medium">Date de complétion:</span> ${returnData.completed_at}</p>` : ''}
+                    </div>
+                    
+                    ${returnData.comment ? `
+                    <div class="mb-4">
+                        <h3 class="text-lg font-semibold mb-2">Commentaire</h3>
+                        <p class="text-gray-700 bg-gray-50 p-3 rounded">${returnData.comment}</p>
+                    </div>` : ''}
+                </div>
+            `,
+                width: 600,
+                confirmButtonText: 'Fermer',
+                showClass: {
+                    popup: 'animate__animated animate__fadeIn'
+                }
+            });
         } else {
-            // Effacer la recherche
-            if (materialsTable) {
-                materialsTable.search('').draw();
-            }
-            clearHighlights();
-        }
-    }, 300));
-}
-
-/**
- * Mise en évidence des termes de recherche
- */
-function highlightSearchTerms(term) {
-    $('.dataTables_wrapper tbody td').each(function () {
-        const $td = $(this);
-        const text = $td.text();
-
-        if (text.toLowerCase().includes(term)) {
-            const regex = new RegExp(`(${term})`, 'gi');
-            const highlightedText = text.replace(regex, '<mark>$1</mark>');
-            $td.html(highlightedText);
-        }
-    });
-}
-
-/**
- * Effacement des mises en évidence
- */
-function clearHighlights() {
-    $('.dataTables_wrapper tbody mark').each(function () {
-        const $mark = $(this);
-        $mark.replaceWith($mark.text());
-    });
-}
-
-/**
- * Fonction de notification avec persistance
- */
-function showPersistentNotification(message, type = 'info', persistent = false) {
-    const notificationId = 'notification-' + Date.now();
-    const notificationClass = {
-        'success': 'alert-success',
-        'error': 'alert-danger',
-        'warning': 'alert-warning',
-        'info': 'alert-info'
-    }[type] || 'alert-info';
-
-    const closeButton = persistent ?
-        '<button type="button" class="close" data-dismiss="alert" aria-label="Fermer"><span aria-hidden="true">&times;</span></button>' :
-        '';
-
-    const notification = $(`
-        <div id="${notificationId}" class="alert ${notificationClass} alert-dismissible fade show notification-toast" role="alert">
-            ${message}
-            ${closeButton}
-        </div>
-    `);
-
-    $('#notifications-container').append(notification);
-
-    // Auto-suppression si non persistant
-    if (!persistent) {
-        setTimeout(() => {
-            notification.fadeOut(() => notification.remove());
-        }, 5000);
-    }
-
-    return notificationId;
-}
-
-/**
- * Fonction de gestion des erreurs globales améliorée
- */
-function setupGlobalErrorHandling() {
-    // Gestionnaire d'erreurs AJAX amélioré
-    $(document).ajaxError(function (event, xhr, settings, error) {
-        console.error('❌ Erreur AJAX:', {
-            url: settings.url,
-            status: xhr.status,
-            error: error,
-            response: xhr.responseText
-        });
-
-        // Ne pas afficher d'erreur pour les requêtes de vérification automatique
-        if (settings.url.includes('check_') || settings.url.includes('notification_counts')) {
-            return;
-        }
-
-        let errorMessage = CONFIG.MESSAGES.ERROR.GENERIC;
-
-        switch (xhr.status) {
-            case 401:
-                errorMessage = CONFIG.MESSAGES.ERROR.UNAUTHORIZED + ' Veuillez vous reconnecter';
-                break;
-            case 404:
-                errorMessage = 'Ressource non trouvée';
-                break;
-            case 500:
-                errorMessage = 'Erreur serveur interne';
-                break;
-            case 503:
-                errorMessage = 'Service temporairement indisponible';
-                break;
-        }
-
-        showNotification(errorMessage, 'error');
-    });
-
-    // Gestionnaire pour les erreurs JavaScript non capturées
-    window.addEventListener('error', function (event) {
-        console.error('❌ Erreur JavaScript:', event.error);
-
-        // Logger l'erreur pour le débogage
-        if (typeof event.error === 'object' && event.error.stack) {
-            console.error('Stack trace:', event.error.stack);
-        }
-    });
-
-    // Gestionnaire pour les promesses rejetées
-    window.addEventListener('unhandledrejection', function (event) {
-        console.error('❌ Promesse rejetée non gérée:', event.reason);
-    });
-}
-
-// =====================================================
-// FONCTIONS GLOBALES ADDITIONNELLES EXPOSÉES
-// =====================================================
-
-// Fonctions utilitaires exposées globalement
-window.setMaxQuantity = setMaxQuantity;
-window.formatDateWithTime = formatDateWithTime;
-window.hasUnsavedChanges = hasUnsavedChanges;
-window.showPersistentNotification = showPersistentNotification;
-
-// Gestionnaires exposés globalement
-window.SelectionManager = SelectionManager;
-window.ButtonStateManager = ButtonStateManager;
-
-// Fonction pour debug (utile en développement)
-window.debugAchatsModule = function () {
-    console.log('🔍 Debug du module Achats de Matériaux:');
-    console.log('- Module initialisé:', achatsModuleInitialized);
-    console.log('- Tables initialisées:', {
-        materials: !!materialsTable,
-        ordered: !!orderedMaterialsTable,
-        partial: !!partialOrdersTable,
-        received: !!receivedMaterialsTable,
-        returns: !!supplierReturnsTable
-    });
-    console.log('- Fournisseurs chargés:', FournisseursModule.fournisseurs.length);
-    console.log('- Modes de paiement chargés:', PaymentMethodsManager.paymentMethods.length);
-    console.log('- Filtres actifs:', currentFilters);
-    console.log('- Cache DataManager:', DataManager.getCacheStats());
-
-    return {
-        initialized: achatsModuleInitialized,
-        tables: {
-            materials: !!materialsTable,
-            ordered: !!orderedMaterialsTable,
-            partial: !!partialOrdersTable,
-            received: !!receivedMaterialsTable,
-            returns: !!supplierReturnsTable
-        },
-        data: {
-            fournisseurs: FournisseursModule.fournisseurs.length,
-            paymentMethods: PaymentMethodsManager.paymentMethods.length
-        },
-        filters: currentFilters,
-        cache: DataManager.getCacheStats()
-    };
-};
-
-/**
- * Configuration des tâches automatiques et intervalles
- */
-function setupAutomaticTasks() {
-    // Mise à jour de l'heure toutes les secondes
-    refreshIntervals.datetime = setInterval(() => {
-        displayCurrentDate();
-    }, CONFIG.REFRESH_INTERVALS.DATETIME);
-
-    // Vérification des nouveaux matériaux toutes les 5 minutes
-    refreshIntervals.materials = setInterval(() => {
-        updateNotificationCounters();
-    }, CONFIG.REFRESH_INTERVALS.CHECK_MATERIALS);
-
-    // Vérification des validations en attente toutes les 5 minutes
-    refreshIntervals.validation = setInterval(() => {
-        checkOrderValidationStatus();
-    }, CONFIG.REFRESH_INTERVALS.CHECK_VALIDATION);
-}
-
-/**
- * Arrêt des tâches automatiques (mis à jour avec nouveau intervalle)
- */
-function stopAutomaticTasks() {
-    Object.values(refreshIntervals).forEach(interval => {
-        if (interval) clearInterval(interval);
-    });
-    refreshIntervals = {
-        datetime: null,
-        materials: null,
-        validation: null,
-        statusCheck: null
-    };
-}
-
-/**
- * API publique du module pour utilisation externe (mise à jour complète)
- */
-window.AchatsMateriaux = {
-    // Fonctions d'initialisation
-    init: initializeApplication,
-    reinit: function () {
-        stopAutomaticTasks();
-        DataManager.clearCache();
-        initializeApplication();
-    },
-
-    // Gestion des tables
-    refreshTables: refreshDataTables,
-    getTables: function () {
-        return {
-            materials: materialsTable,
-            ordered: orderedMaterialsTable,
-            partial: partialOrdersTable,
-            received: receivedMaterialsTable,
-            returns: supplierReturnsTable
-        };
-    },
-
-    // Gestion des sélections
-    getSelectedMaterials: getSelectedMaterials,
-    getSelectedOrdered: getSelectedOrderedMaterials,
-    getSelectedPartial: getSelectedPartialOrders,
-    clearSelection: clearSelection,
-
-    // Gestionnaires spécialisés
-    BulkPurchase: BulkPurchaseManager,
-    PartialOrders: PartialOrdersManager,
-    EditOrder: EditOrderManager,
-    Cancel: CancelManager,
-    Fournisseurs: FournisseursModule,
-    PaymentMethods: PaymentMethodsManager,
-    Substitution: SubstitutionManager,
-
-    // Gestion des données
-    DataManager: DataManager,
-
-    // Gestion des filtres
-    applyFilters: applyAllFilters,
-    resetFilters: resetAllFilters,
-    saveFilters: saveCurrentFilters,
-    loadFilters: loadSavedFilters,
-
-    // Gestion des notifications
-    showNotification: showNotification,
-    updateCounters: updateNotificationCounters,
-    showLoader: showProcessingLoader,
-    hideLoader: hideProcessingLoader,
-
-    // Fonctions de génération et export
-    generateBonCommande: generateBonCommande,
-    viewOrderDetails: viewOrderDetails,
-    viewStockDetails: viewStockDetails,
-    exportToExcel: exportMaterialsToExcel,
-    exportToPDF: exportMaterialsToPDF,
-    exportPartialOrders: exportPartialOrdersExcel,
-
-    // Utilitaires
-    formatCurrency: formatCurrency,
-    formatQuantity: formatQuantity,
-    validateField: validateField,
-
-    // Fonctions de vérification
-    checkValidationStatus: checkOrderValidationStatus,
-    checkStatusChanges: checkOrderStatusChanges,
-
-    // État du module
-    isInitialized: () => achatsModuleInitialized,
-    getVersion: () => '2.1.0',
-
-    // Configuration
-    config: CONFIG,
-
-    // Cache et performance
-    clearCache: () => DataManager.clearCache(),
-    getCacheStats: () => ({
-        size: DataManager.cache.size,
-        keys: Array.from(DataManager.cache.keys())
-    })
-};
-
-/**
- * Vérification du statut de validation des commandes
- */
-function checkOrderValidationStatus() {
-    $.ajax({
-        url: 'check_validation_status.php',
-        type: 'GET',
-        dataType: 'json',
-        success: function (response) {
-            if (response.success && response.hasChanges) {
-                // Rafraîchir les tables si des changements sont détectés
-                refreshDataTables();
-                updateNotificationCounters();
-            }
-        },
-        error: function () {
-            // Erreur silencieuse pour ne pas gêner l'utilisateur
-            console.warn('⚠️ Impossible de vérifier le statut de validation');
-        }
-    });
-}
-
-// =====================================================
-// GESTION DES ERREURS
-// =====================================================
-
-/**
- * Configuration des gestionnaires d'erreurs globaux
- */
-function setupErrorHandlers() {
-    // Gestionnaire d'erreurs AJAX global
-    $(document).ajaxError(function (event, xhr, settings, error) {
-        console.error('❌ Erreur AJAX:', {
-            url: settings.url,
-            status: xhr.status,
-            error: error,
-            response: xhr.responseText
-        });
-
-        // Ne pas afficher d'erreur pour les requêtes de vérification automatique
-        if (settings.url.includes('check_') || settings.url.includes('notification_counts')) {
-            return;
-        }
-
-        let errorMessage = CONFIG.MESSAGES.ERROR.GENERIC;
-
-        switch (xhr.status) {
-            case 401:
-                errorMessage = CONFIG.MESSAGES.ERROR.UNAUTHORIZED;
-                break;
-            case 404:
-                errorMessage = 'Ressource non trouvée';
-                break;
-            case 500:
-                errorMessage = 'Erreur serveur interne';
-                break;
-            case 503:
-                errorMessage = 'Service temporairement indisponible';
-                break;
-        }
-
-        showNotification(errorMessage, 'error');
-    });
-
-    // Gestionnaire pour les erreurs JavaScript non capturées
-    window.addEventListener('error', function (event) {
-        console.error('❌ Erreur JavaScript:', event.error);
-
-        // Logger l'erreur pour le débogage
-        if (typeof event.error === 'object' && event.error.stack) {
-            console.error('Stack trace:', event.error.stack);
-        }
-    });
-
-    // Gestionnaire pour les promesses rejetées
-    window.addEventListener('unhandledrejection', function (event) {
-        console.error('❌ Promesse rejetée non gérée:', event.reason);
-    });
-}
-
-// =====================================================
-// INITIALISATION DES COMPOSANTS
-// =====================================================
-
-/**
- * Initialisation des tooltips
- */
-function initializeTooltips() {
-    if (typeof $().tooltip === 'function') {
-        $('[data-toggle="tooltip"]').tooltip();
-    }
-}
-
-/**
- * Initialisation des sélecteurs multiples
- */
-function initializeMultiSelect() {
-    if (typeof $().select2 === 'function') {
-        $('.multi-select').select2({
-            placeholder: 'Sélectionner une ou plusieurs options',
-            allowClear: true,
-            language: 'fr'
-        });
-    }
-}
-
-/**
- * Initialisation des dropdowns
- */
-function initializeDropdowns() {
-    // Gestion des dropdowns personnalisés
-    $('.dropdown-toggle').on('click', function (e) {
-        e.preventDefault();
-        $(this).siblings('.dropdown-menu').toggle();
-    });
-
-    // Fermeture des dropdowns en cliquant à l'extérieur
-    $(document).on('click', function (e) {
-        if (!$(e.target).closest('.dropdown').length) {
-            $('.dropdown-menu').hide();
-        }
-    });
-}
-
-/**
- * Configuration des filtres de table
- */
-function setupTableFilters(api) {
-    // Ajout de filtres dans l'en-tête si nécessaire
-    api.columns().every(function () {
-        const column = this;
-        const header = $(column.header());
-
-        if (header.hasClass('filterable')) {
-            const select = $('<select class="form-control form-control-sm"><option value="">Tous</option></select>')
-                .appendTo(header)
-                .on('change', function () {
-                    const val = $.fn.dataTable.util.escapeRegex($(this).val());
-                    column.search(val ? '^' + val + '$' : '', true, false).draw();
-                });
-
-            column.data().unique().sort().each(function (d, j) {
-                if (d) select.append('<option value="' + d + '">' + d + '</option>');
+            Swal.fire({
+                title: 'Erreur',
+                text: data.message || 'Impossible de récupérer les détails du retour',
+                icon: 'error'
             });
         }
-    });
-}
-
-// =====================================================
-// FONCTIONS DE SAUVEGARDE DES FILTRES
-// =====================================================
-
-/**
- * Sauvegarde des filtres actuels
- */
-function saveCurrentFilters(name) {
-    if (!name || name.trim() === '') {
-        showNotification('Veuillez spécifier un nom pour la configuration', 'warning');
-        return;
-    }
-
-    const savedFilters = JSON.parse(localStorage.getItem('achats_saved_filters') || '{}');
-    savedFilters[name] = currentFilters;
-
-    localStorage.setItem('achats_saved_filters', JSON.stringify(savedFilters));
-    updateSavedFiltersList();
-
-    showNotification(`Configuration "${name}" sauvegardée`, 'success');
-}
-
-/**
- * Chargement des filtres sauvegardés
- */
-function loadSavedFilters(name) {
-    const savedFilters = JSON.parse(localStorage.getItem('achats_saved_filters') || '{}');
-
-    if (savedFilters[name]) {
-        currentFilters = savedFilters[name];
-        applySavedFiltersToForm();
-        refreshDataTables();
-        updateActiveFiltersDisplay();
-
-        showNotification(`Configuration "${name}" chargée`, 'success');
-    } else {
-        showNotification('Configuration non trouvée', 'error');
-    }
-}
-
-/**
- * Application des filtres sauvegardés au formulaire
- */
-function applySavedFiltersToForm() {
-    // Réinitialiser d'abord
-    resetAllFilters();
-
-    // Appliquer les filtres sauvegardés
-    if (currentFilters.search) {
-        $('#search-materials').val(currentFilters.search);
-    }
-
-    if (currentFilters.date) {
-        $('#dateDebut').val(currentFilters.date.debut);
-        $('#dateFin').val(currentFilters.date.fin);
-    }
-
-    if (currentFilters.client) {
-        $('#clientFilter').val(currentFilters.client);
-    }
-
-    if (currentFilters.fournisseur) {
-        $('#fournisseurFilter').val(currentFilters.fournisseur);
-    }
-
-    if (currentFilters.status) {
-        $('#statusFilter').val(currentFilters.status);
-    }
-}
-
-/**
- * Mise à jour de la liste des filtres sauvegardés
- */
-function updateSavedFiltersList() {
-    const savedFilters = JSON.parse(localStorage.getItem('achats_saved_filters') || '{}');
-    const filtersList = $('#savedFiltersList');
-
-    if (Object.keys(savedFilters).length > 0) {
-        let listHtml = '';
-        Object.keys(savedFilters).forEach(name => {
-            listHtml += `
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="loadSavedFilters('${name}')">
-                        ${name}
-                    </button>
-                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="deleteSavedFilters('${name}')">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </div>
-            `;
+    } catch (error) {
+        console.error('Erreur lors de la récupération des détails:', error);
+        Swal.fire({
+            title: 'Erreur',
+            text: 'Erreur lors de la récupération des détails',
+            icon: 'error'
         });
-        filtersList.html(listHtml);
-    } else {
-        filtersList.html('<p class="text-muted">Aucune configuration sauvegardée</p>');
     }
-}
-
-/**
- * Suppression d'une configuration de filtres sauvegardée
- */
-function deleteSavedFilters(name) {
-    if (confirm(`Êtes-vous sûr de vouloir supprimer la configuration "${name}" ?`)) {
-        const savedFilters = JSON.parse(localStorage.getItem('achats_saved_filters') || '{}');
-        delete savedFilters[name];
-
-        localStorage.setItem('achats_saved_filters', JSON.stringify(savedFilters));
-        updateSavedFiltersList();
-
-        showNotification(`Configuration "${name}" supprimée`, 'success');
-    }
-}
-
-// =====================================================
-// API PUBLIQUE DU MODULE
-// =====================================================
-
-/**
- * API publique du module Achats de Matériaux
- * Exposée globalement pour permettre l'extension et l'intégration
- */
-window.AchatsMateriaux = {
-    // Fonctions d'initialisation
-    init: initializeApplication,
-    reinit: function () {
-        stopAutomaticTasks();
-        initializeApplication();
-    },
-
-    // Gestion des tables
-    refreshTables: refreshDataTables,
-    getTables: function () {
-        return {
-            materials: materialsTable,
-            ordered: orderedMaterialsTable,
-            partial: partialOrdersTable,
-            received: receivedMaterialsTable,
-            returns: supplierReturnsTable
-        };
-    },
-
-    // Gestion des sélections
-    getSelectedMaterials: getSelectedMaterials,
-    getSelectedOrdered: getSelectedOrderedMaterials,
-    getSelectedPartial: getSelectedPartialOrders,
-    clearSelection: clearSelection,
-
-    // Gestion des filtres
-    applyFilters: applyAllFilters,
-    resetFilters: resetAllFilters,
-    saveFilters: saveCurrentFilters,
-    loadFilters: loadSavedFilters,
-
-    // Gestion des notifications
-    showNotification: showNotification,
-    updateCounters: updateNotificationCounters,
-
-    // Utilitaires
-    formatCurrency: formatCurrency,
-    formatQuantity: formatQuantity,
-
-    // État du module
-    isInitialized: () => achatsModuleInitialized,
-    getVersion: () => '2.1.0',
-
-    // Configuration
-    config: CONFIG
 };
-
-// =====================================================
-// FINALISATION DE L'INITIALISATION
-// =====================================================
-
+// Fonction globale pour vérifier manuellement
+window.checkOrderValidationStatus = () => {
+    OrderValidationChecker.check();
+};
+window.exportPartialOrdersExcel = () => {
+    ExportManager.exportPartialOrdersToExcel();
+};
+// Configurer l'intervalle de vérification (toutes les 5 minutes)
+window.checkOrderStatusInterval = setInterval(() => {
+    OrderValidationChecker.check();
+}, CONFIG.REFRESH_INTERVALS.CHECK_VALIDATION || 5 * 60 * 1000);
 /**
- * Finalisation de l'initialisation une fois que tout est chargé
+ * Point d'entrée principal
  */
-function finalizeInitialization() {
-    // Marquer le module comme initialisé
-    achatsModuleInitialized = true;
+document.addEventListener('DOMContentLoaded', () => {
+    AchatsMateriauxApp.init();
+    const editOrderForm = document.getElementById('edit-order-form');
+    if (editOrderForm) {
+        editOrderForm.addEventListener('submit', (e) => {
+            EditOrderManager.handleSubmit(e);
+        });
+    }
+});
+console.log('✅ Script achats_materiaux.js chargé avec support complet des modes de paiement par ID');
 
-    // Exposer l'API globalement
-    window.achatsModuleInitialized = true;
-
-    // Log de confirmation
-    console.log(`
-╔══════════════════════════════════════════════════════════════╗
-║                    ACHATS DE MATÉRIAUX                       ║
-║                      VERSION 2.1.0                          ║
-║                                                              ║
-║  Module JavaScript corrigé et optimisé                      ║
-║  DYM MANUFACTURE - Cohérence avec achats_materiaux.php      ║
-║                                                              ║
-║  ✅ DataTables avec configuration française                  ║
-║  ✅ Système de filtrage et recherche avancé                 ║
-║  ✅ Actions en lot et traitement des commandes              ║
-║  ✅ Gestion des fournisseurs et modes de paiement           ║
-║  ✅ Notifications et tâches automatiques                    ║
-║  ✅ Gestion d'erreurs robuste                               ║
-║  ✅ API publique pour extensions                            ║
-║                                                              ║
-║  Module prêt et opérationnel ! 🚀                          ║
-╚══════════════════════════════════════════════════════════════╝
-    `);
-}
-
-/**
- * ====================================================================
- * FIN DU MODULE ACHATS-MATERIAUX.JS - VERSION CORRIGÉE
- * ====================================================================
- * 
- * Ce fichier contient la logique complète du module de gestion des 
- * achats de matériaux pour DYM MANUFACTURE, corrigée pour être 
- * cohérente avec le fichier achats_materiaux.php.
- * 
- * Corrections apportées :
- * - Correspondance avec la structure HTML du fichier PHP
- * - Reprise de la logique de l'ancien script (script_complet.bak.txt)
- * - Optimisation de l'architecture et de la performance
- * - Gestion d'erreurs robuste
- * - API publique pour l'extensibilité
- * 
- * Utilisation :
- * 1. Inclure ce fichier après jQuery et DataTables
- * 2. L'initialisation se fait automatiquement au chargement
- * 3. Utiliser window.AchatsMateriaux pour l'API publique
- * 
- * Support : DYM MANUFACTURE - Équipe Développement
- * ====================================================================
- */
