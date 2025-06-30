@@ -188,29 +188,6 @@ function initializeBasicComponents() {
     initializeDropdowns();
 }
 
-/**
- * Configuration des gestionnaires d'événements
- */
-function setupEventHandlers() {
-    // Gestionnaires pour les filtres
-    setupFilterHandlers();
-
-    // Gestionnaires pour les actions en lot
-    setupBulkActionHandlers();
-
-    // Gestionnaires pour les modals
-    setupModalHandlers();
-
-    // Gestionnaires pour les formulaires
-    setupFormHandlers();
-
-    // Gestionnaires pour les checkboxes
-    setupCheckboxHandlers();
-
-    // Gestionnaires pour les boutons d'action
-    setupActionButtonHandlers();
-}
-
 // =====================================================
 // INITIALISATION DES DATATABLES
 // =====================================================
@@ -3592,25 +3569,6 @@ window.debugAchatsModule = function () {
     };
 };
 
-/**
- * Configuration des tâches automatiques et intervalles
- */
-function setupAutomaticTasks() {
-    // Mise à jour de l'heure toutes les secondes
-    refreshIntervals.datetime = setInterval(() => {
-        displayCurrentDate();
-    }, CONFIG.REFRESH_INTERVALS.DATETIME);
-
-    // Vérification des nouveaux matériaux toutes les 5 minutes
-    refreshIntervals.materials = setInterval(() => {
-        updateNotificationCounters();
-    }, CONFIG.REFRESH_INTERVALS.CHECK_MATERIALS);
-
-    // Vérification des validations en attente toutes les 5 minutes
-    refreshIntervals.validation = setInterval(() => {
-        checkOrderValidationStatus();
-    }, CONFIG.REFRESH_INTERVALS.CHECK_VALIDATION);
-}
 
 /**
  * Arrêt des tâches automatiques (mis à jour avec nouveau intervalle)
@@ -3979,55 +3937,6 @@ function deleteSavedFilters(name) {
 
 /**
  * API publique du module Achats de Matériaux
- * Exposée globalement pour permettre l'extension et l'intégration
- */
-window.AchatsMateriaux = {
-    // Fonctions d'initialisation
-    init: initializeApplication,
-    reinit: function () {
-        stopAutomaticTasks();
-        initializeApplication();
-    },
-
-    // Gestion des tables
-    refreshTables: refreshDataTables,
-    getTables: function () {
-        return {
-            materials: materialsTable,
-            ordered: orderedMaterialsTable,
-            partial: partialOrdersTable,
-            received: receivedMaterialsTable,
-            returns: supplierReturnsTable
-        };
-    },
-
-    // Gestion des sélections
-    getSelectedMaterials: getSelectedMaterials,
-    getSelectedOrdered: getSelectedOrderedMaterials,
-    getSelectedPartial: getSelectedPartialOrders,
-    clearSelection: clearSelection,
-
-    // Gestion des filtres
-    applyFilters: applyAllFilters,
-    resetFilters: resetAllFilters,
-    saveFilters: saveCurrentFilters,
-    loadFilters: loadSavedFilters,
-
-    // Gestion des notifications
-    showNotification: showNotification,
-    updateCounters: updateNotificationCounters,
-
-    // Utilitaires
-    formatCurrency: formatCurrency,
-    formatQuantity: formatQuantity,
-
-    // État du module
-    isInitialized: () => achatsModuleInitialized,
-    getVersion: () => '2.1.0',
-
-    // Configuration
-    config: CONFIG
-};
 
 // =====================================================
 // FINALISATION DE L'INITIALISATION
