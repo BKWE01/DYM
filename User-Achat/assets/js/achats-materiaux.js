@@ -107,6 +107,8 @@ let orderedMaterialsTable = null;
 let partialOrdersTable = null;
 let receivedMaterialsTable = null;
 let supplierReturnsTable = null;
+let recentPurchasesTable = null;
+let canceledOrdersTable = null;
 
 // Variables pour la gestion des données
 let allMaterials = [];
@@ -235,6 +237,12 @@ function initializeDataTables() {
 
     // Table des retours fournisseurs
     initializeSupplierReturnsTable();
+
+    // Table des achats récents
+    initializeRecentPurchasesTable();
+
+    // Table des commandes annulées
+    initializeCanceledOrdersTable();
 }
 
 /**
@@ -446,6 +454,115 @@ function initializeSupplierReturnsTable() {
         ],
         initComplete: function () {
             console.log('✅ Table des retours fournisseurs initialisée');
+        }
+    });
+}
+
+/**
+ * Initialisation de la table des achats récents
+ */
+function initializeRecentPurchasesTable() {
+    if ($.fn.DataTable.isDataTable('#recentPurchasesTable')) {
+        $('#recentPurchasesTable').DataTable().destroy();
+    }
+
+    recentPurchasesTable = $('#recentPurchasesTable').DataTable({
+        language: {
+            url: CONFIG.DATATABLES.LANGUAGE_URL
+        },
+        dom: CONFIG.DATATABLES.DOM,
+        buttons: CONFIG.DATATABLES.BUTTONS,
+        responsive: true,
+        processing: true,
+        pageLength: 25,
+        columnDefs: [
+            {
+                targets: [8],
+                type: 'date-fr'
+            },
+            {
+                targets: [9],
+                orderable: false,
+                render: function (data, type, row) {
+                    const expressionId = row[10] || '';
+                    const orderId = row[11] || '';
+                    let designation = row[2] || '';
+                    designation = designation.replace(/<[^>]*>/g, '');
+                    const cleanDesignation = designation.replace(/[\\'\"]/g, '\\$&');
+                    return `
+                        <button onclick="generateBonCommande('${expressionId}')" class="btn-action text-green-600 hover:text-green-800 mr-2" title="Générer bon de commande">
+                            <span class="material-icons">receipt</span>
+                        </button>
+                        <button onclick="viewOrderDetails('${orderId}', '${expressionId}', '${cleanDesignation}')" class="btn-action text-blue-600 hover:text-blue-800 mr-2" title="Voir les détails">
+                            <span class="material-icons">visibility</span>
+                        </button>
+                        <button onclick="viewStockDetails('${cleanDesignation}')" class="btn-action text-purple-600 hover:text-purple-800" title="Voir dans le stock">
+                            <span class="material-icons">inventory_2</span>
+                        </button>
+                    `;
+                }
+            }
+        ],
+        order: [[8, 'desc']],
+        initComplete: function () {
+            console.log('✅ Table des achats récents initialisée');
+        }
+    });
+}
+
+/**
+ * Initialisation de la table des commandes annulées
+ */
+function initializeCanceledOrdersTable() {
+    if ($.fn.DataTable.isDataTable('#canceledOrdersTable')) {
+        $('#canceledOrdersTable').DataTable().destroy();
+    }
+
+    canceledOrdersTable = $('#canceledOrdersTable').DataTable({
+        language: {
+            url: CONFIG.DATATABLES.LANGUAGE_URL
+        },
+        dom: CONFIG.DATATABLES.DOM,
+        buttons: CONFIG.DATATABLES.BUTTONS,
+        responsive: true,
+        processing: true,
+        pageLength: 25,
+        ajax: {
+            url: 'api_canceled/api_getCanceledOrders.php',
+            dataSrc: function (json) {
+                return json.data || [];
+            }
+        },
+        columns: [
+            { data: 'code_projet' },
+            { data: 'nom_client' },
+            { data: 'designation' },
+            { data: 'original_status', orderable: false },
+            { data: 'quantity' },
+            { data: 'fournisseur' },
+            { data: 'canceled_at' },
+            { data: 'cancel_reason' },
+            {
+                data: 'id',
+                orderable: false,
+                render: function (data) {
+                    return `
+                        <button onclick="viewCanceledOrderDetails(${data})" class="text-blue-600 hover:text-blue-800">
+                            <span class="material-icons text-sm">visibility</span>
+                        </button>
+                    `;
+                }
+            }
+        ],
+        columnDefs: [
+            {
+                type: 'date-fr',
+                targets: 6
+            }
+        ],
+        order: [[6, 'desc']],
+        initComplete: function () {
+            console.log('✅ Table des commandes annulées initialisée');
         }
     });
 }
