@@ -17,6 +17,15 @@
 
 'use strict';
 
+// Mode debug - mettre true pour activer les logs détaillés
+const DEBUG = false;
+
+function debugLog(...args) {
+    if (DEBUG) {
+        console.log(...args);
+    }
+}
+
 // =====================================================
 // CONFIGURATION GLOBALE ET CONSTANTES
 // =====================================================
@@ -136,12 +145,12 @@ let achatsModuleInitialized = false;
  * Point d'entrée principal - Initialisation complète au chargement du DOM
  */
 $(document).ready(function () {
-    console.log('🚀 Initialisation du module Achats de Matériaux...');
+    debugLog('🚀 Initialisation du module Achats de Matériaux...');
 
     try {
         initializeApplication();
         achatsModuleInitialized = true;
-        console.log('✅ Module Achats de Matériaux initialisé avec succès');
+        debugLog('✅ Module Achats de Matériaux initialisé avec succès');
     } catch (error) {
         console.error('❌ Erreur lors de l\'initialisation:', error);
         showNotification('Erreur lors de l\'initialisation de l\'application', 'error');
@@ -219,7 +228,7 @@ function setupEventHandlers() {
  * Initialisation de tous les DataTables
  */
 function initializeDataTables() {
-    console.log('📊 Initialisation des DataTables...');
+    debugLog('📊 Initialisation des DataTables...');
 
     // Table des matériaux en attente
     initializeMaterialsTable();
@@ -288,7 +297,7 @@ function initializeMaterialsTable() {
         ],
         order: [[9, 'desc']], // Trier par date de création
         initComplete: function () {
-            console.log('✅ Table des matériaux en attente initialisée');
+            debugLog('✅ Table des matériaux en attente initialisée');
             setupTableFilters(this.api());
         }
     });
@@ -339,7 +348,7 @@ function initializeOrderedMaterialsTable() {
         ],
         order: [[9, 'desc']], // Trier par date
         initComplete: function () {
-            console.log('✅ Table des matériaux commandés initialisée');
+            debugLog('✅ Table des matériaux commandés initialisée');
         }
     });
 }
@@ -380,7 +389,7 @@ function initializePartialOrdersTable() {
             }
         ],
         initComplete: function () {
-            console.log('✅ Table des commandes partielles initialisée');
+            debugLog('✅ Table des commandes partielles initialisée');
         }
     });
 }
@@ -413,7 +422,7 @@ function initializeReceivedMaterialsTable() {
         ],
         order: [[5, 'desc']], // Trier par date de réception
         initComplete: function () {
-            console.log('✅ Table des matériaux reçus initialisée');
+            debugLog('✅ Table des matériaux reçus initialisée');
         }
     });
 }
@@ -445,7 +454,7 @@ function initializeSupplierReturnsTable() {
             }
         ],
         initComplete: function () {
-            console.log('✅ Table des retours fournisseurs initialisée');
+            debugLog('✅ Table des retours fournisseurs initialisée');
         }
     });
 }
@@ -676,7 +685,7 @@ function setupActionButtonHandlers() {
  * Chargement de toutes les données initiales avec les nouveaux gestionnaires
  */
 function loadInitialData() {
-    console.log('📊 Chargement des données initiales...');
+    debugLog('📊 Chargement des données initiales...');
 
     // Chargement des fournisseurs avec le nouveau module
     FournisseursModule.loadFournisseurs();
@@ -1017,7 +1026,7 @@ function loadFournisseurs() {
             if (response.success) {
                 fournisseurs = response.fournisseurs;
                 populateFournisseurSelects();
-                console.log('✅ Fournisseurs chargés:', fournisseurs.length);
+                debugLog('✅ Fournisseurs chargés:', fournisseurs.length);
             } else {
                 console.error('❌ Erreur lors du chargement des fournisseurs:', response.message);
             }
@@ -1039,7 +1048,7 @@ function loadPaymentMethods() {
         success: function (response) {
             if (response.success) {
                 populatePaymentMethodSelects(response.payment_methods);
-                console.log('✅ Modes de paiement chargés');
+                debugLog('✅ Modes de paiement chargés');
             }
         },
         error: function (xhr, status, error) {
@@ -1185,7 +1194,7 @@ const BulkPurchaseManager = {
 const PartialOrdersManager = {
     async completeOrder(id, designation, remaining, unit, sourceTable = 'expression_dym') {
         try {
-            console.log(`🔄 Complétion de la commande ${id} (${sourceTable})`);
+            debugLog(`🔄 Complétion de la commande ${id} (${sourceTable})`);
 
             let apiUrl = `${CONFIG.API_URLS.PARTIAL_ORDERS}?action=get_material_info&id=${id}`;
             if (sourceTable === 'besoins') {
@@ -1503,7 +1512,7 @@ const FournisseursModule = {
 
             if (data.success) {
                 this.fournisseurs = data.fournisseurs;
-                console.log('✅ Fournisseurs chargés:', this.fournisseurs.length);
+                debugLog('✅ Fournisseurs chargés:', this.fournisseurs.length);
             }
 
         } catch (error) {
@@ -1570,7 +1579,7 @@ const PaymentMethodsManager = {
 
             if (data.success) {
                 this.paymentMethods = data.payment_methods;
-                console.log('✅ Modes de paiement chargés:', this.paymentMethods.length);
+                debugLog('✅ Modes de paiement chargés:', this.paymentMethods.length);
             }
 
         } catch (error) {
@@ -3560,21 +3569,7 @@ window.ButtonStateManager = ButtonStateManager;
 
 // Fonction pour debug (utile en développement)
 window.debugAchatsModule = function () {
-    console.log('🔍 Debug du module Achats de Matériaux:');
-    console.log('- Module initialisé:', achatsModuleInitialized);
-    console.log('- Tables initialisées:', {
-        materials: !!materialsTable,
-        ordered: !!orderedMaterialsTable,
-        partial: !!partialOrdersTable,
-        received: !!receivedMaterialsTable,
-        returns: !!supplierReturnsTable
-    });
-    console.log('- Fournisseurs chargés:', FournisseursModule.fournisseurs.length);
-    console.log('- Modes de paiement chargés:', PaymentMethodsManager.paymentMethods.length);
-    console.log('- Filtres actifs:', currentFilters);
-    console.log('- Cache DataManager:', DataManager.getCacheStats());
-
-    return {
+    const info = {
         initialized: achatsModuleInitialized,
         tables: {
             materials: !!materialsTable,
@@ -3590,6 +3585,12 @@ window.debugAchatsModule = function () {
         filters: currentFilters,
         cache: DataManager.getCacheStats()
     };
+
+    if (DEBUG) {
+        console.log('🔍 Debug du module Achats de Matériaux:', info);
+    }
+
+    return info;
 };
 
 /**
@@ -4043,26 +4044,8 @@ function finalizeInitialization() {
     // Exposer l'API globalement
     window.achatsModuleInitialized = true;
 
-    // Log de confirmation
-    console.log(`
-╔══════════════════════════════════════════════════════════════╗
-║                    ACHATS DE MATÉRIAUX                       ║
-║                      VERSION 2.1.0                          ║
-║                                                              ║
-║  Module JavaScript corrigé et optimisé                      ║
-║  DYM MANUFACTURE - Cohérence avec achats_materiaux.php      ║
-║                                                              ║
-║  ✅ DataTables avec configuration française                  ║
-║  ✅ Système de filtrage et recherche avancé                 ║
-║  ✅ Actions en lot et traitement des commandes              ║
-║  ✅ Gestion des fournisseurs et modes de paiement           ║
-║  ✅ Notifications et tâches automatiques                    ║
-║  ✅ Gestion d'erreurs robuste                               ║
-║  ✅ API publique pour extensions                            ║
-║                                                              ║
-║  Module prêt et opérationnel ! 🚀                          ║
-╚══════════════════════════════════════════════════════════════╝
-    `);
+    // Log de confirmation (mode debug uniquement)
+    debugLog('Module Achats de Matériaux opérationnel');
 }
 
 /**
