@@ -241,11 +241,11 @@ function initializeDataTables() {
  * Initialisation de la table des matériaux en attente
  */
 function initializeMaterialsTable() {
-    if ($.fn.DataTable.isDataTable('#materialsTable')) {
-        $('#materialsTable').DataTable().destroy();
+    if ($.fn.DataTable.isDataTable('#pendingMaterialsTable')) {
+        $('#pendingMaterialsTable').DataTable().destroy();
     }
 
-    materialsTable = $('#materialsTable').DataTable({
+    materialsTable = $('#pendingMaterialsTable').DataTable({
         language: {
             url: CONFIG.DATATABLES.LANGUAGE_URL
         },
@@ -273,12 +273,6 @@ function initializeMaterialsTable() {
                 }
             },
             {
-                targets: [7], // Colonne prix
-                render: function (data, type, row) {
-                    return data ? formatCurrency(data) : 'Non défini';
-                }
-            },
-            {
                 targets: [-1], // Dernière colonne (Actions)
                 orderable: false,
                 render: function (data, type, row) {
@@ -286,7 +280,7 @@ function initializeMaterialsTable() {
                 }
             }
         ],
-        order: [[9, 'desc']], // Trier par date de création
+        order: [[8, 'desc']], // Trier par date de création
         initComplete: function () {
             console.log('✅ Table des matériaux en attente initialisée');
             setupTableFilters(this.api());
@@ -503,7 +497,7 @@ function setupFilterHandlers() {
  */
 function setupBulkActionHandlers() {
     // Sélection de tous les matériaux
-    $('#select-all-materials').on('change', function () {
+    $('#select-all-pending-materials').on('change', function () {
         const isChecked = $(this).is(':checked');
         $('.material-checkbox').prop('checked', isChecked).trigger('change');
     });
@@ -833,7 +827,7 @@ function updatePaymentMethodInfo(paymentMethodId) {
  */
 function setupBulkActionHandlers() {
     // Sélection de tous les matériaux
-    $('#select-all-materials').on('change', function () {
+    $('#select-all-pending-materials').on('change', function () {
         const isChecked = $(this).is(':checked');
         $('.material-checkbox').prop('checked', isChecked).trigger('change');
     });
@@ -2625,9 +2619,9 @@ function applyDateFilters() {
         // Appliquer le filtre de date aux tableaux
         if (materialsTable) {
             $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
-                if (settings.nTable.id !== 'materialsTable') return true;
+                if (settings.nTable.id !== 'pendingMaterialsTable') return true;
 
-                const date = new Date(data[9]); // Colonne de date
+                const date = new Date(data[8]); // Colonne de date
                 const debut = dateDebut ? new Date(dateDebut) : null;
                 const fin = dateFin ? new Date(dateFin) : null;
 
@@ -2659,7 +2653,7 @@ function filterMaterialsByClient(client) {
  */
 function filterMaterialsByFournisseur(fournisseur) {
     if (materialsTable && fournisseur) {
-        materialsTable.column(8).search(fournisseur).draw(); // Colonne fournisseur
+        materialsTable.column(7).search(fournisseur).draw(); // Colonne fournisseur
     }
 
     currentFilters.fournisseur = fournisseur;
@@ -2834,9 +2828,8 @@ function getMaterialDataFromRow(row) {
         qt_acheter: $(cells[4]).text().trim(),
         unit: $(cells[5]).text().trim(),
         valide_achat: $(cells[6]).find('span').text().trim(),
-        prix_unitaire: $(cells[7]).text().replace(/[^0-9.,]/g, ''),
-        fournisseur: $(cells[8]).text().trim(),
-        created_at: $(cells[9]).text().trim()
+        fournisseur: $(cells[7]).text().trim(),
+        created_at: $(cells[8]).text().trim()
     };
 }
 
@@ -2848,7 +2841,7 @@ function updateMaterialSelection() {
     const checkedCheckboxes = $('.material-checkbox:checked').length;
 
     // Mise à jour de la checkbox "Tout sélectionner"
-    const $selectAll = $('#select-all-materials');
+    const $selectAll = $('#select-all-pending-materials');
     if (checkedCheckboxes === 0) {
         $selectAll.prop('indeterminate', false).prop('checked', false);
     } else if (checkedCheckboxes === totalCheckboxes) {
@@ -2893,7 +2886,7 @@ function updatePartialOrderSelection() {
  */
 function clearSelection() {
     $('.material-checkbox, .ordered-material-checkbox, .partial-order-checkbox').prop('checked', false);
-    $('#select-all-materials, #select-all-ordered-materials').prop('checked', false).prop('indeterminate', false);
+    $('#select-all-pending-materials, #select-all-ordered-materials').prop('checked', false).prop('indeterminate', false);
     updateMaterialSelection();
     updateOrderedMaterialSelection();
     updatePartialOrderSelection();
