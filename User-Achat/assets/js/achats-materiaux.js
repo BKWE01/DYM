@@ -4,7 +4,11 @@
  * Architecture moderne avec organisation modulaire
  * VERSION CORRIGÉE : Intégration complète des modes de paiement par ID
  */
+"use strict";
+
+// -----------------------------------------------------------------------------
 // Configuration globale et constantes
+// -----------------------------------------------------------------------------
 const CONFIG = {
     API_URLS: {
         FOURNISSEURS: 'get_fournisseurs.php',
@@ -299,18 +303,23 @@ const PaymentMethodsManager = {
     /**
      * Validation d'un champ mode de paiement
      */
-    validatePaymentMethod(selector) {
-        if (!selector) return true;
-        const isValid = selector.value !== '';
-        // Mise à jour visuelle
-        if (isValid) {
-            selector.classList.remove('border-red-500', 'bg-red-50');
-            selector.classList.add('border-green-500');
-        } else {
-            selector.classList.remove('border-green-500');
-            selector.classList.add('border-red-500', 'bg-red-50');
+    validatePaymentMethod(selectorOrValue) {
+        let element = selectorOrValue;
+        if (typeof selectorOrValue === 'string' && !(selectorOrValue instanceof Element)) {
+            element = document.getElementById(selectorOrValue);
         }
-        return isValid;
+        const value = element && element.value !== undefined ? element.value : selectorOrValue;
+        const isValid = value !== '' && value !== undefined && value !== null;
+        if (element instanceof Element) {
+            if (isValid) {
+                element.classList.remove('border-red-500', 'bg-red-50');
+                element.classList.add('border-green-500');
+            } else {
+                element.classList.remove('border-green-500');
+                element.classList.add('border-red-500', 'bg-red-50');
+            }
+        }
+        return { valid: isValid, element };
     },
     /**
      * Rechargement forcé des modes de paiement
@@ -540,7 +549,7 @@ const EditOrderManager = {
         const quantity = parseFloat(form.quantity.value);
         const price = parseFloat(form.prix_unitaire.value);
         const supplier = form.fournisseur.value.trim();
-        const paymentMethod = form.payment_method.value;
+        const paymentMethod = form.payment_method;
         if (isNaN(quantity) || quantity <= 0) {
             Swal.fire({
                 title: 'Quantité invalide',
@@ -566,7 +575,7 @@ const EditOrderManager = {
             return false;
         }
         // CORRECTION : Utiliser PaymentMethodsManager pour la validation
-        if (!PaymentMethodsManager.validatePaymentMethod(paymentMethod)) {
+        if (!PaymentMethodsManager.validatePaymentMethod(paymentMethod).valid) {
             return false;
         }
         return true;
@@ -1833,7 +1842,7 @@ const PurchaseManager = {
         const form = e.target;
         const fournisseur = document.getElementById('fournisseur').value;
         const prix = document.getElementById('prix').value;
-        const paymentMethod = document.getElementById('payment-method').value; // NOUVEAU
+        const paymentMethod = document.getElementById('payment-method'); // NOUVEAU
         // CORRECTION : Validation incluant le mode de paiement
         if (!this.validateIndividualPurchase(fournisseur, prix, paymentMethod)) return;
         try {
@@ -1967,7 +1976,7 @@ const PurchaseManager = {
             });
         }
     },
-    validateIndividualPurchase(fournisseur, prix, paymentMethod) {
+    validateIndividualPurchase(fournisseur, prix, paymentMethodField) {
         if (!fournisseur.trim()) {
             Swal.fire({
                 title: 'Fournisseur manquant',
@@ -1985,7 +1994,7 @@ const PurchaseManager = {
             return false;
         }
         // CORRECTION : Validation du mode de paiement
-        if (!PaymentMethodsManager.validatePaymentMethod(paymentMethod)) {
+        if (!PaymentMethodsManager.validatePaymentMethod(paymentMethodField).valid) {
             return false;
         }
         return true;
@@ -2005,8 +2014,7 @@ const PurchaseManager = {
             console.error('❌ Sélecteur de mode de paiement non trouvé');
             return false;
         }
-        const paymentMethodId = paymentMethodSelect.value;
-        if (!PaymentMethodsManager.validatePaymentMethod(paymentMethodId)) {
+        if (!PaymentMethodsManager.validatePaymentMethod(paymentMethodSelect).valid) {
             return false;
         }
         // Validation du pro-forma (si applicable)
@@ -2878,9 +2886,8 @@ const PartialOrdersManager = {
                 return false;
             }
             // 5. Validation avancée du mode de paiement
-            const paymentValidation = PaymentMethodsManager.validatePaymentMethod(paymentMethod);
-            if (!paymentValidation.valid) {
-                Swal.showValidationMessage(paymentValidation.message);
+            if (!PaymentMethodsManager.validatePaymentMethod(paymentMethod).valid) {
+                Swal.showValidationMessage('Veuillez sélectionner un mode de paiement');
                 return false;
             }
             console.log('✅ Validation réussie');
