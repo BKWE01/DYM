@@ -399,6 +399,11 @@ function handleCompletePartialOrder($pdo, $user_id)
     // NOUVEAU : Récupérer le mode de paiement
     $paymentMethod = isset($_POST['payment_method']) ? $_POST['payment_method'] : '';
 
+    // Gestion du pro-forma
+    require_once 'upload_proforma.php';
+    $proformaHandler = new ProformaUploadHandler($pdo);
+    $hasProforma = isset($_FILES['proforma_file']) && $_FILES['proforma_file']['error'] !== UPLOAD_ERR_NO_FILE;
+
     // Validation des données - MODIFIÉE
     if (!$materialId || $quantiteCommande <= 0 || !$fournisseur || $prixUnitaire <= 0 || !$paymentMethod) {
         header('Content-Type: application/json');
@@ -444,7 +449,10 @@ function handleCompletePartialOrder($pdo, $user_id)
         }
 
         // 1. Récupérer les informations du matériau
-        $materialQuery = "SELECT * FROM expression_dym WHERE id = :id";
+        $materialQuery = "SELECT ed.*, ip.nom_client
+                           FROM expression_dym ed
+                           LEFT JOIN identification_projet ip ON ed.idExpression = ip.idExpression
+                           WHERE ed.id = :id";
         $materialStmt = $pdo->prepare($materialQuery);
         $materialStmt->bindParam(':id', $materialId);
         $materialStmt->execute();
@@ -575,6 +583,22 @@ function handleCompletePartialOrder($pdo, $user_id)
         $_SESSION['download_expression_id'] = $material['idExpression'];
         $_SESSION['download_timestamp'] = time();
 
+        // Upload du pro-forma le cas échéant
+        $proformaUploaded = false;
+        if ($hasProforma) {
+            try {
+                $upload = $proformaHandler->uploadFile(
+                    $_FILES['proforma_file'],
+                    $newOrderId,
+                    $fournisseur,
+                    $material['nom_client'] ?? null
+                );
+                $proformaUploaded = $upload['success'];
+            } catch (Exception $proformaError) {
+                error_log('Erreur upload pro-forma: ' . $proformaError->getMessage());
+            }
+        }
+
         // Retourner le résultat
         header('Content-Type: application/json');
         echo json_encode([
@@ -584,7 +608,8 @@ function handleCompletePartialOrder($pdo, $user_id)
             'remaining' => $nouvelleQuantiteRestante,
             'is_complete' => $isComplete,
             'payment_method' => $paymentMethod,
-            'pdf_url' => 'direct_download.php?token=' . $downloadToken
+            'pdf_url' => 'direct_download.php?token=' . $downloadToken,
+            'proforma_uploaded' => $proformaUploaded
         ]);
     } catch (Exception $e) {
         if ($pdo->inTransaction()) {

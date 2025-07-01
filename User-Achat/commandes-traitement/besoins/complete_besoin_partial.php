@@ -27,6 +27,11 @@ $prixUnitaire = isset($_POST['prix_unitaire']) ? floatval($_POST['prix_unitaire'
 // NOUVEAU : Récupérer le mode de paiement
 $paymentMethod = isset($_POST['payment_method']) ? $_POST['payment_method'] : '';
 
+// Gestion du pro-forma
+require_once '../upload_proforma.php';
+$proformaHandler = new ProformaUploadHandler($pdo);
+$hasProforma = isset($_FILES['proforma_file']) && $_FILES['proforma_file']['error'] !== UPLOAD_ERR_NO_FILE;
+
 // Vérifier si on doit créer le fournisseur
 $createFournisseur = isset($_POST['create_fournisseur']) ? true : false;
 
@@ -75,9 +80,10 @@ try {
     }
 
     // 1. Récupérer les informations du besoin
-    $besoinQuery = "SELECT b.*, 
+    $besoinQuery = "SELECT b.*, ip.nom_client,
                    (b.qt_demande - b.qt_acheter) as qt_restante
-                   FROM besoins b 
+                   FROM besoins b
+                   LEFT JOIN identification_projet ip ON b.idBesoin = ip.idExpression
                    WHERE b.id = :id";
     $besoinStmt = $pdo->prepare($besoinQuery);
     $besoinStmt->bindParam(':id', $materialId);
@@ -214,6 +220,22 @@ try {
     $_SESSION['download_expression_id'] = $besoin['idBesoin'];
     $_SESSION['download_timestamp'] = time();
 
+    // Upload du pro-forma si présent
+    $proformaUploaded = false;
+    if ($hasProforma) {
+        try {
+            $upload = $proformaHandler->uploadFile(
+                $_FILES['proforma_file'],
+                $newOrderId,
+                $fournisseur,
+                $besoin['nom_client'] ?? null
+            );
+            $proformaUploaded = $upload['success'];
+        } catch (Exception $proformaError) {
+            error_log('Erreur upload pro-forma: ' . $proformaError->getMessage());
+        }
+    }
+
     // Inclure le lien de téléchargement dans la réponse avec chemin absolu
     $scriptPath = $_SERVER['SCRIPT_NAME'];
     $rootPath = rtrim(str_replace('commandes-traitement/besoins/complete_besoin_partial.php', '', $scriptPath), '/');
@@ -228,7 +250,8 @@ try {
         'remaining' => $nouvelleQuantiteRestante,
         'is_complete' => $isComplete,
         'payment_method' => $paymentMethod, // NOUVEAU
-        'pdf_url' => $pdfUrl
+        'pdf_url' => $pdfUrl,
+        'proforma_uploaded' => $proformaUploaded
     ]);
 } catch (Exception $e) {
     if ($pdo->inTransaction()) {
