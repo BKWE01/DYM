@@ -1007,8 +1007,8 @@ function processPartialFromBesoins($pdo, $user_id, $materialId, $quantiteCommand
     }
 
     // Vérifier si la quantité demandée est disponible
-    if ($quantiteCommande > $besoin['quantite_restante']) {
-        throw new Exception("Quantité demandée ($quantiteCommande) supérieure à la quantité restante ({$besoin['quantite_restante']})");
+    if ($quantiteCommande > $besoin['qt_restante']) {
+        throw new Exception("Quantité demandée ($quantiteCommande) supérieure à la quantité restante ({$besoin['qt_restante']})");
     }
 
     // Insérer la nouvelle commande
@@ -1038,10 +1038,10 @@ function processPartialFromBesoins($pdo, $user_id, $materialId, $quantiteCommand
     $newOrderId = $pdo->lastInsertId();
 
     // Mettre à jour la quantité restante
-    $nouvelleQuantiteRestante = $besoin['quantite_restante'] - $quantiteCommande;
+    $nouvelleQuantiteRestante = $besoin['qt_restante'] - $quantiteCommande;
     $isComplete = $nouvelleQuantiteRestante <= 0;
 
-    $updateQuery = "UPDATE besoins SET quantite_restante = :nouvelle_quantite WHERE id = :id";
+    $updateQuery = "UPDATE besoins SET qt_restante = :nouvelle_quantite WHERE id = :id";
     $updateStmt = $pdo->prepare($updateQuery);
     $updateStmt->execute([
         ':nouvelle_quantite' => $nouvelleQuantiteRestante,
@@ -1078,8 +1078,8 @@ function processPartialFromExpression($pdo, $user_id, $materialId, $quantiteComm
     }
 
     // Vérifier si la quantité demandée est disponible
-    if ($quantiteCommande > $material['quantite_restante']) {
-        throw new Exception("Quantité demandée ($quantiteCommande) supérieure à la quantité restante ({$material['quantite_restante']})");
+    if ($quantiteCommande > $material['qt_restante']) {
+        throw new Exception("Quantité demandée ($quantiteCommande) supérieure à la quantité restante ({$material['qt_restante']})");
     }
 
     // Insérer la nouvelle commande
@@ -1109,10 +1109,10 @@ function processPartialFromExpression($pdo, $user_id, $materialId, $quantiteComm
     $newOrderId = $pdo->lastInsertId();
 
     // Mettre à jour la quantité restante
-    $nouvelleQuantiteRestante = $material['quantite_restante'] - $quantiteCommande;
+    $nouvelleQuantiteRestante = $material['qt_restante'] - $quantiteCommande;
     $isComplete = $nouvelleQuantiteRestante <= 0;
 
-    $updateQuery = "UPDATE expression_dym SET quantite_restante = :nouvelle_quantite WHERE id = :id";
+    $updateQuery = "UPDATE expression_dym SET qt_restante = :nouvelle_quantite WHERE id = :id";
     $updateStmt = $pdo->prepare($updateQuery);
     $updateStmt->execute([
         ':nouvelle_quantite' => $nouvelleQuantiteRestante,
