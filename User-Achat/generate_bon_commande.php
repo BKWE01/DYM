@@ -213,7 +213,7 @@ try {
 
     // Valeur par défaut si aucun mode de paiement trouvé
     if (empty($paymentMethodLabel)) {
-        $paymentMethodLabel = $paymentMethod ?: 'Non spécifié';
+        $paymentMethodLabel = 'Non spécifié';
     }
 
     // Construire la requête pour récupérer les matériaux en fonction de la sélection
