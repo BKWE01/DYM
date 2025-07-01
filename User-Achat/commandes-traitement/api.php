@@ -1127,3 +1127,33 @@ function processPartialFromExpression($pdo, $user_id, $materialId, $quantiteComm
         'project_client' => $material['nom_client'] ?? null
     ];
 }
+
+/**
+ * Validation du mode de paiement - version simplifiée
+ * Copiée depuis process_bulk_purchase.php pour éviter l'erreur
+ */
+function validatePaymentMethod($pdo, $paymentMethodId)
+{
+    // Vérifier que l'ID est bien un entier positif
+    if (!is_numeric($paymentMethodId) || intval($paymentMethodId) <= 0) {
+        throw new Exception('ID du mode de paiement invalide : ' . $paymentMethodId);
+    }
+
+    $paymentMethodId = intval($paymentMethodId);
+
+    $query = 'SELECT id, label, description, icon_path
+              FROM payment_methods
+              WHERE id = :id AND is_active = 1';
+
+    $stmt = $pdo->prepare($query);
+    $stmt->bindParam(':id', $paymentMethodId, PDO::PARAM_INT);
+    $stmt->execute();
+
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$result) {
+        throw new Exception('Mode de paiement invalide ou inactif (ID: ' . $paymentMethodId . ')');
+    }
+
+    return $result;
+}
