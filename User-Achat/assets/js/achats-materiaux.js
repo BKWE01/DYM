@@ -2700,10 +2700,40 @@ const PartialOrdersManager = {
                     <label for="price" class="block text-sm font-medium text-gray-700 mb-1">
                         Prix unitaire (FCFA) <span class="text-red-500">*</span>
                     </label>
-                    <input type="number" id="price" 
-                        class="w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+                    <input type="number" id="price"
+                        class="w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         min="0.01" step="0.01" value="${materialInfo.prix_unitaire || ''}"
                         placeholder="Prix par unité">
+                </div>
+
+                <!-- Upload Pro-forma (optionnel) -->
+                <div class="space-y-2">
+                    <label for="proforma-upload" class="block text-sm font-medium text-gray-700 mb-1">
+                        Pro-forma (optionnel)
+                    </label>
+                    <div class="relative">
+                        <input type="file" id="proforma-upload" name="proforma_file"
+                            accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png,.gif"
+                            class="w-full border border-gray-300 rounded-md shadow-sm p-2 file:mr-3 file:py-1 file:px-3 file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                        <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                            <span class="material-icons text-gray-400">attach_file</span>
+                        </div>
+                    </div>
+                    <div id="proforma-file-info" class="mt-2 p-2 bg-green-50 border border-green-200 rounded-lg hidden">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <span class="material-icons text-sm mr-2 text-green-600">check_circle</span>
+                                <div>
+                                    <div id="proforma-file-name" class="font-medium text-green-800"></div>
+                                    <div id="proforma-file-size" class="text-xs text-green-600"></div>
+                                </div>
+                            </div>
+                            <button type="button" id="proforma-remove-file"
+                                class="text-red-600 hover:text-red-800 hover:bg-red-50 p-1 rounded transition-colors">
+                                <span class="material-icons text-sm">close</span>
+                            </button>
+                        </div>
+                    </div>
                 </div>
                 
                 <!-- Champ caché pour la table source -->
@@ -2733,6 +2763,9 @@ const PartialOrdersManager = {
                 this.initPartialSupplierAutocomplete();
                 this.initPartialPaymentMethods();
                 this.setupOrderSummary();
+                if (window.ProformaUploadManager) {
+                    ProformaUploadManager.init();
+                }
                 // Suggérer un fournisseur si absent
                 if (!materialInfo.fournisseur) {
                     this.suggestSupplier(designation);
@@ -2847,6 +2880,10 @@ const PartialOrdersManager = {
             formData.append('prix_unitaire', price);
             formData.append('payment_method', paymentMethod); // NOUVEAU : obligatoire
             formData.append('source_table', sourceTable);
+            const proformaInput = document.getElementById('proforma-upload');
+            if (proformaInput && proformaInput.files.length > 0) {
+                formData.append('proforma_file', proformaInput.files[0]);
+            }
             if (fournisseurResult.newFournisseur) {
                 formData.append('create_fournisseur', '1');
             }
