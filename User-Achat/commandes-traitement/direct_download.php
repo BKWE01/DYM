@@ -39,10 +39,10 @@ if (
     exit;
 }
 
-// Vérifier si le jeton n'a pas expiré (10 minutes max)
+// Vérifier si le jeton n'a pas expiré (1 heure max)
 if (
     !isset($_SESSION['download_timestamp']) ||
-    (time() - $_SESSION['download_timestamp']) > 600
+    (time() - $_SESSION['download_timestamp']) > 3600
 ) {
     // Nettoyer les variables de session
     unset($_SESSION['download_token']);
@@ -64,7 +64,7 @@ if (
     <body>
         <h1>Lien expiré</h1>
         <div class="error">
-            <p>Le lien de téléchargement a expiré (valide pendant 10 minutes).</p>
+            <p>Le lien de téléchargement a expiré (valide pendant 1 heure).</p>
         </div>
         <a href="achats_materiaux.php" class="back-link">Retour à la page des achats</a>
     </body>
