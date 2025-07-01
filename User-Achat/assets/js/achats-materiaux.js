@@ -1657,6 +1657,10 @@ const ModalManager = {
                 confirmButton.disabled = false; // Activer le bouton lors de l'ouverture
             }
             modal.style.display = 'flex';
+            // Initialiser la gestion du pro-forma
+            if (window.ProformaUploadManager) {
+                ProformaUploadManager.init();
+            }
         }
         // Charger les prix
         await this.loadBulkPrices(materials);
@@ -1757,6 +1761,10 @@ const ModalManager = {
         }
         // Afficher le modal
         modal.style.display = 'flex';
+        // Initialiser la gestion du pro-forma
+        if (window.ProformaUploadManager) {
+            ProformaUploadManager.init();
+        }
         // Charger les prix et informations
         await this.loadPartialOrderPrices(selectedMaterials);
     },
@@ -3618,6 +3626,10 @@ window.closePurchaseModal = () => {
 };
 window.closeBulkPurchaseModal = () => {
     ModalManager.close(document.getElementById('bulk-purchase-modal'));
+    // Réinitialiser le gestionnaire du pro-forma pour la prochaine ouverture
+    if (window.ProformaUploadManager) {
+        ProformaUploadManager.init();
+    }
 };
 window.openSubstitutionModal = (materialId, designation, expressionId, sourceTable = 'expression_dym') => {
     ModalManager.openSubstitution(materialId, designation, expressionId, sourceTable);
