@@ -347,6 +347,12 @@ const PaymentMethodsManager = {
         return this.paymentMethods.find(method => method.id.toString() === id.toString());
     },
     /**
+     * Compatibilité : alias pour getPaymentMethod
+     */
+    getMethodById(id) {
+        return this.getPaymentMethod(id);
+    },
+    /**
      * Vérification de la disponibilité d'un mode de paiement
      */
     isPaymentMethodAvailable(id) {
