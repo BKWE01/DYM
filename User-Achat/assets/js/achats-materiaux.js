@@ -4,7 +4,11 @@
  * Architecture moderne avec organisation modulaire
  * VERSION CORRIGÉE : Intégration complète des modes de paiement par ID
  */
+"use strict";
+
+// -----------------------------------------------------------------------------
 // Configuration globale et constantes
+// -----------------------------------------------------------------------------
 const CONFIG = {
     API_URLS: {
         FOURNISSEURS: 'get_fournisseurs.php',
@@ -299,18 +303,23 @@ const PaymentMethodsManager = {
     /**
      * Validation d'un champ mode de paiement
      */
-    validatePaymentMethod(selector) {
-        if (!selector) return true;
-        const isValid = selector.value !== '';
-        // Mise à jour visuelle
-        if (isValid) {
-            selector.classList.remove('border-red-500', 'bg-red-50');
-            selector.classList.add('border-green-500');
-        } else {
-            selector.classList.remove('border-green-500');
-            selector.classList.add('border-red-500', 'bg-red-50');
+    validatePaymentMethod(selectorOrValue) {
+        let element = selectorOrValue;
+        if (typeof selectorOrValue === 'string' && !(selectorOrValue instanceof Element)) {
+            element = document.getElementById(selectorOrValue);
         }
-        return isValid;
+        const value = element && element.value !== undefined ? element.value : selectorOrValue;
+        const isValid = value !== '' && value !== undefined && value !== null;
+        if (element instanceof Element) {
+            if (isValid) {
+                element.classList.remove('border-red-500', 'bg-red-50');
+                element.classList.add('border-green-500');
+            } else {
+                element.classList.remove('border-green-500');
+                element.classList.add('border-red-500', 'bg-red-50');
+            }
+        }
+        return { valid: isValid, element };
     },
     /**
      * Rechargement forcé des modes de paiement
@@ -336,6 +345,12 @@ const PaymentMethodsManager = {
      */
     getPaymentMethod(id) {
         return this.paymentMethods.find(method => method.id.toString() === id.toString());
+    },
+    /**
+     * Compatibilité : alias pour getPaymentMethod
+     */
+    getMethodById(id) {
+        return this.getPaymentMethod(id);
     },
     /**
      * Vérification de la disponibilité d'un mode de paiement
@@ -540,7 +555,7 @@ const EditOrderManager = {
         const quantity = parseFloat(form.quantity.value);
         const price = parseFloat(form.prix_unitaire.value);
         const supplier = form.fournisseur.value.trim();
-        const paymentMethod = form.payment_method.value;
+        const paymentMethod = form.payment_method;
         if (isNaN(quantity) || quantity <= 0) {
             Swal.fire({
                 title: 'Quantité invalide',
@@ -566,7 +581,7 @@ const EditOrderManager = {
             return false;
         }
         // CORRECTION : Utiliser PaymentMethodsManager pour la validation
-        if (!PaymentMethodsManager.validatePaymentMethod(paymentMethod)) {
+        if (!PaymentMethodsManager.validatePaymentMethod(paymentMethod).valid) {
             return false;
         }
         return true;
@@ -823,9 +838,13 @@ const EventHandlers = {
         // Fermeture des modals
         document.querySelectorAll('.close-modal-btn, .modal').forEach(element => {
             element.addEventListener('click', (e) => {
-                if (e.target.classList.contains('close-modal-btn') ||
-                    e.target.classList.contains('modal')) {
-                    const modal = e.target.closest('.modal') || e.target;
+                // Fermer si l'on clique directement sur l'arrière-plan du modal
+                if (e.currentTarget.classList.contains('modal') && e.target === e.currentTarget) {
+                    ModalManager.close(e.currentTarget);
+                }
+                // Ou si l'on clique sur un élément dédié à la fermeture
+                if (e.currentTarget.classList.contains('close-modal-btn')) {
+                    const modal = e.currentTarget.closest('.modal');
                     ModalManager.close(modal);
                 }
             });
@@ -1643,8 +1662,15 @@ const ModalManager = {
             const modalTitle = modal.querySelector('h2');
             if (modalTitle) modalTitle.textContent = 'Achat groupé de matériaux';
             const confirmButton = modal.querySelector('#confirm-bulk-purchase');
-            if (confirmButton) confirmButton.textContent = 'Passer la commande';
+            if (confirmButton) {
+                confirmButton.textContent = 'Passer la commande';
+                confirmButton.disabled = false; // Activer le bouton lors de l'ouverture
+            }
             modal.style.display = 'flex';
+            // Initialiser la gestion du pro-forma
+            if (window.ProformaUploadManager) {
+                ProformaUploadManager.init(modal);
+            }
         }
         // Charger les prix
         await this.loadBulkPrices(materials);
@@ -1739,9 +1765,16 @@ const ModalManager = {
         const modalTitle = modal.querySelector('h2');
         if (modalTitle) modalTitle.textContent = 'Compléter les commandes partielles';
         const confirmButton = modal.querySelector('#confirm-bulk-purchase');
-        if (confirmButton) confirmButton.textContent = 'Compléter les commandes';
+        if (confirmButton) {
+            confirmButton.textContent = 'Compléter les commandes';
+            confirmButton.disabled = false; // Réactiver le bouton pour la complétion
+        }
         // Afficher le modal
         modal.style.display = 'flex';
+        // Initialiser la gestion du pro-forma
+        if (window.ProformaUploadManager) {
+            ProformaUploadManager.init(modal);
+        }
         // Charger les prix et informations
         await this.loadPartialOrderPrices(selectedMaterials);
     },
@@ -1833,7 +1866,7 @@ const PurchaseManager = {
         const form = e.target;
         const fournisseur = document.getElementById('fournisseur').value;
         const prix = document.getElementById('prix').value;
-        const paymentMethod = document.getElementById('payment-method').value; // NOUVEAU
+        const paymentMethod = document.getElementById('payment-method'); // NOUVEAU
         // CORRECTION : Validation incluant le mode de paiement
         if (!this.validateIndividualPurchase(fournisseur, prix, paymentMethod)) return;
         try {
@@ -1967,7 +2000,7 @@ const PurchaseManager = {
             });
         }
     },
-    validateIndividualPurchase(fournisseur, prix, paymentMethod) {
+    validateIndividualPurchase(fournisseur, prix, paymentMethodField) {
         if (!fournisseur.trim()) {
             Swal.fire({
                 title: 'Fournisseur manquant',
@@ -1985,7 +2018,7 @@ const PurchaseManager = {
             return false;
         }
         // CORRECTION : Validation du mode de paiement
-        if (!PaymentMethodsManager.validatePaymentMethod(paymentMethod)) {
+        if (!PaymentMethodsManager.validatePaymentMethod(paymentMethodField).valid) {
             return false;
         }
         return true;
@@ -2005,8 +2038,7 @@ const PurchaseManager = {
             console.error('❌ Sélecteur de mode de paiement non trouvé');
             return false;
         }
-        const paymentMethodId = paymentMethodSelect.value;
-        if (!PaymentMethodsManager.validatePaymentMethod(paymentMethodId)) {
+        if (!PaymentMethodsManager.validatePaymentMethod(paymentMethodSelect).valid) {
             return false;
         }
         // Validation du pro-forma (si applicable)
@@ -2678,10 +2710,40 @@ const PartialOrdersManager = {
                     <label for="price" class="block text-sm font-medium text-gray-700 mb-1">
                         Prix unitaire (FCFA) <span class="text-red-500">*</span>
                     </label>
-                    <input type="number" id="price" 
-                        class="w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+                    <input type="number" id="price"
+                        class="w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         min="0.01" step="0.01" value="${materialInfo.prix_unitaire || ''}"
                         placeholder="Prix par unité">
+                </div>
+
+                <!-- Upload Pro-forma (optionnel) -->
+                <div class="space-y-2">
+                    <label for="proforma-upload" class="block text-sm font-medium text-gray-700 mb-1">
+                        Pro-forma (optionnel)
+                    </label>
+                    <div class="relative">
+                        <input type="file" id="proforma-upload" name="proforma_file"
+                            accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png,.gif"
+                            class="w-full border border-gray-300 rounded-md shadow-sm p-2 file:mr-3 file:py-1 file:px-3 file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                        <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                            <span class="material-icons text-gray-400">attach_file</span>
+                        </div>
+                    </div>
+                    <div id="proforma-file-info" class="mt-2 p-2 bg-green-50 border border-green-200 rounded-lg hidden">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <span class="material-icons text-sm mr-2 text-green-600">check_circle</span>
+                                <div>
+                                    <div id="proforma-file-name" class="font-medium text-green-800"></div>
+                                    <div id="proforma-file-size" class="text-xs text-green-600"></div>
+                                </div>
+                            </div>
+                            <button type="button" id="proforma-remove-file"
+                                class="text-red-600 hover:text-red-800 hover:bg-red-50 p-1 rounded transition-colors">
+                                <span class="material-icons text-sm">close</span>
+                            </button>
+                        </div>
+                    </div>
                 </div>
                 
                 <!-- Champ caché pour la table source -->
@@ -2711,6 +2773,9 @@ const PartialOrdersManager = {
                 this.initPartialSupplierAutocomplete();
                 this.initPartialPaymentMethods();
                 this.setupOrderSummary();
+                if (window.ProformaUploadManager) {
+                    ProformaUploadManager.init(Swal.getHtmlContainer());
+                }
                 // Suggérer un fournisseur si absent
                 if (!materialInfo.fournisseur) {
                     this.suggestSupplier(designation);
@@ -2771,7 +2836,9 @@ const PartialOrdersManager = {
             // Peupler le sélecteur
             const paymentSelect = document.getElementById('payment-method');
             if (paymentSelect) {
-                PaymentMethodsManager.populateSelector(paymentSelect);
+                // Utiliser l'ID du sélecteur pour respecter l'API de
+                // PaymentMethodsManager (qui attend un identifiant)
+                PaymentMethodsManager.populateSelector(paymentSelect.id);
                 console.log('✅ Sélecteur de modes de paiement peuplé');
             }
             // Configurer les événements de changement
@@ -2823,6 +2890,10 @@ const PartialOrdersManager = {
             formData.append('prix_unitaire', price);
             formData.append('payment_method', paymentMethod); // NOUVEAU : obligatoire
             formData.append('source_table', sourceTable);
+            const proformaInput = document.getElementById('proforma-upload');
+            if (proformaInput && proformaInput.files.length > 0) {
+                formData.append('proforma_file', proformaInput.files[0]);
+            }
             if (fournisseurResult.newFournisseur) {
                 formData.append('create_fournisseur', '1');
             }
@@ -2878,9 +2949,8 @@ const PartialOrdersManager = {
                 return false;
             }
             // 5. Validation avancée du mode de paiement
-            const paymentValidation = PaymentMethodsManager.validatePaymentMethod(paymentMethod);
-            if (!paymentValidation.valid) {
-                Swal.showValidationMessage(paymentValidation.message);
+            if (!PaymentMethodsManager.validatePaymentMethod(paymentMethod).valid) {
+                Swal.showValidationMessage('Veuillez sélectionner un mode de paiement');
                 return false;
             }
             console.log('✅ Validation réussie');
@@ -3605,6 +3675,10 @@ window.closePurchaseModal = () => {
 };
 window.closeBulkPurchaseModal = () => {
     ModalManager.close(document.getElementById('bulk-purchase-modal'));
+    // Réinitialiser le gestionnaire du pro-forma pour la prochaine ouverture
+    if (window.ProformaUploadManager) {
+        ProformaUploadManager.init();
+    }
 };
 window.openSubstitutionModal = (materialId, designation, expressionId, sourceTable = 'expression_dym') => {
     ModalManager.openSubstitution(materialId, designation, expressionId, sourceTable);
@@ -4309,4 +4383,3 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 console.log('✅ Script achats_materiaux.js chargé avec support complet des modes de paiement par ID');
-

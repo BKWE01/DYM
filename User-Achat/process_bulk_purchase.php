@@ -195,8 +195,9 @@ function validatePaymentMethod($pdo, $paymentMethodId)
     // Convertir en entier pour sécurité
     $paymentMethodId = intval($paymentMethodId);
 
-    // CORRECTION : Utiliser l'ID au lieu du code supprimé
-    $query = "SELECT id, label, description, icon FROM payment_methods WHERE id = :id AND is_active = 1";
+    // CHANGEMENT : le champ 'icon' a été remplacé par 'icon_path'
+    // On récupère donc icon_path pour l'utiliser dans les interfaces
+    $query = "SELECT id, label, description, icon_path FROM payment_methods WHERE id = :id AND is_active = 1";
     $stmt = $pdo->prepare($query);
     $stmt->bindParam(':id', $paymentMethodId, PDO::PARAM_INT);
     $stmt->execute();

@@ -399,6 +399,11 @@ function handleCompletePartialOrder($pdo, $user_id)
     // NOUVEAU : Récupérer le mode de paiement
     $paymentMethod = isset($_POST['payment_method']) ? $_POST['payment_method'] : '';
 
+    // Gestion du pro-forma
+    require_once 'upload_proforma.php';
+    $proformaHandler = new ProformaUploadHandler($pdo);
+    $hasProforma = isset($_FILES['proforma_file']) && $_FILES['proforma_file']['error'] !== UPLOAD_ERR_NO_FILE;
+
     // Validation des données - MODIFIÉE
     if (!$materialId || $quantiteCommande <= 0 || !$fournisseur || $prixUnitaire <= 0 || !$paymentMethod) {
         header('Content-Type: application/json');
@@ -444,7 +449,10 @@ function handleCompletePartialOrder($pdo, $user_id)
         }
 
         // 1. Récupérer les informations du matériau
-        $materialQuery = "SELECT * FROM expression_dym WHERE id = :id";
+        $materialQuery = "SELECT ed.*, ip.nom_client
+                           FROM expression_dym ed
+                           LEFT JOIN identification_projet ip ON ed.idExpression = ip.idExpression
+                           WHERE ed.id = :id";
         $materialStmt = $pdo->prepare($materialQuery);
         $materialStmt->bindParam(':id', $materialId);
         $materialStmt->execute();
@@ -575,6 +583,22 @@ function handleCompletePartialOrder($pdo, $user_id)
         $_SESSION['download_expression_id'] = $material['idExpression'];
         $_SESSION['download_timestamp'] = time();
 
+        // Upload du pro-forma le cas échéant
+        $proformaUploaded = false;
+        if ($hasProforma) {
+            try {
+                $upload = $proformaHandler->uploadFile(
+                    $_FILES['proforma_file'],
+                    $newOrderId,
+                    $fournisseur,
+                    $material['nom_client'] ?? null
+                );
+                $proformaUploaded = $upload['success'];
+            } catch (Exception $proformaError) {
+                error_log('Erreur upload pro-forma: ' . $proformaError->getMessage());
+            }
+        }
+
         // Retourner le résultat
         header('Content-Type: application/json');
         echo json_encode([
@@ -584,7 +608,8 @@ function handleCompletePartialOrder($pdo, $user_id)
             'remaining' => $nouvelleQuantiteRestante,
             'is_complete' => $isComplete,
             'payment_method' => $paymentMethod,
-            'pdf_url' => 'direct_download.php?token=' . $downloadToken
+            'pdf_url' => 'direct_download.php?token=' . $downloadToken,
+            'proforma_uploaded' => $proformaUploaded
         ]);
     } catch (Exception $e) {
         if ($pdo->inTransaction()) {
@@ -967,7 +992,7 @@ function completeMultiplePartial($pdo, $user_id)
 function processPartialFromBesoins($pdo, $user_id, $materialId, $quantiteCommande, $prixUnitaire, $fournisseur, $paymentMethod)
 {
     // Récupérer les informations du besoin
-    $besoinQuery = "SELECT b.*, ip.code_projet, ip.nom_client 
+    $besoinQuery = "SELECT b.*, b.caracteristique AS unit, ip.code_projet, ip.nom_client
                     FROM besoins b
                     LEFT JOIN identification_projet ip ON b.idBesoin = ip.idExpression
                     WHERE b.id = :id";
@@ -982,41 +1007,40 @@ function processPartialFromBesoins($pdo, $user_id, $materialId, $quantiteCommand
     }
 
     // Vérifier si la quantité demandée est disponible
-    if ($quantiteCommande > $besoin['quantite_restante']) {
-        throw new Exception("Quantité demandée ($quantiteCommande) supérieure à la quantité restante ({$besoin['quantite_restante']})");
+    if ($quantiteCommande > $besoin['qt_restante']) {
+        throw new Exception("Quantité demandée ($quantiteCommande) supérieure à la quantité restante ({$besoin['qt_restante']})");
     }
 
     // Insérer la nouvelle commande
     $insertQuery = "INSERT INTO achats_materiaux (
-        designation, quantity, unit, prix_unitaire, fournisseur, 
+        designation, quantity, unit, prix_unitaire, fournisseur,
         mode_paiement_id, status, is_partial, expression_id, date_achat,
-        original_quantity, created_by
+        original_quantity
     ) VALUES (
         :designation, :quantity, :unit, :prix_unitaire, :fournisseur,
         :mode_paiement_id, 'en_attente', 1, :expression_id, NOW(),
-        :original_quantity, :created_by
+        :original_quantity
     )";
 
     $insertStmt = $pdo->prepare($insertQuery);
     $insertStmt->execute([
         ':designation' => $besoin['designation_article'],
         ':quantity' => $quantiteCommande,
-        ':unit' => $besoin['unite'],
+        ':unit' => $besoin['unit'],
         ':prix_unitaire' => $prixUnitaire,
         ':fournisseur' => $fournisseur,
         ':mode_paiement_id' => $paymentMethod,
         ':expression_id' => $besoin['idBesoin'],
-        ':original_quantity' => $quantiteCommande,
-        ':created_by' => $user_id
+        ':original_quantity' => $quantiteCommande
     ]);
 
     $newOrderId = $pdo->lastInsertId();
 
     // Mettre à jour la quantité restante
-    $nouvelleQuantiteRestante = $besoin['quantite_restante'] - $quantiteCommande;
+    $nouvelleQuantiteRestante = $besoin['qt_restante'] - $quantiteCommande;
     $isComplete = $nouvelleQuantiteRestante <= 0;
 
-    $updateQuery = "UPDATE besoins SET quantite_restante = :nouvelle_quantite WHERE id = :id";
+    $updateQuery = "UPDATE besoins SET qt_restante = :nouvelle_quantite WHERE id = :id";
     $updateStmt = $pdo->prepare($updateQuery);
     $updateStmt->execute([
         ':nouvelle_quantite' => $nouvelleQuantiteRestante,
@@ -1053,41 +1077,40 @@ function processPartialFromExpression($pdo, $user_id, $materialId, $quantiteComm
     }
 
     // Vérifier si la quantité demandée est disponible
-    if ($quantiteCommande > $material['quantite_restante']) {
-        throw new Exception("Quantité demandée ($quantiteCommande) supérieure à la quantité restante ({$material['quantite_restante']})");
+    if ($quantiteCommande > $material['qt_restante']) {
+        throw new Exception("Quantité demandée ($quantiteCommande) supérieure à la quantité restante ({$material['qt_restante']})");
     }
 
     // Insérer la nouvelle commande
     $insertQuery = "INSERT INTO achats_materiaux (
-        designation, quantity, unit, prix_unitaire, fournisseur, 
+        designation, quantity, unit, prix_unitaire, fournisseur,
         mode_paiement_id, status, is_partial, expression_id, date_achat,
-        original_quantity, created_by
+        original_quantity
     ) VALUES (
         :designation, :quantity, :unit, :prix_unitaire, :fournisseur,
         :mode_paiement_id, 'en_attente', 1, :expression_id, NOW(),
-        :original_quantity, :created_by
+        :original_quantity
     )";
 
     $insertStmt = $pdo->prepare($insertQuery);
     $insertStmt->execute([
         ':designation' => $material['designation'],
         ':quantity' => $quantiteCommande,
-        ':unit' => $material['unite'],
+        ':unit' => $material['unit'],
         ':prix_unitaire' => $prixUnitaire,
         ':fournisseur' => $fournisseur,
         ':mode_paiement_id' => $paymentMethod,
         ':expression_id' => $material['idExpression'],
-        ':original_quantity' => $quantiteCommande,
-        ':created_by' => $user_id
+        ':original_quantity' => $quantiteCommande
     ]);
 
     $newOrderId = $pdo->lastInsertId();
 
     // Mettre à jour la quantité restante
-    $nouvelleQuantiteRestante = $material['quantite_restante'] - $quantiteCommande;
+    $nouvelleQuantiteRestante = $material['qt_restante'] - $quantiteCommande;
     $isComplete = $nouvelleQuantiteRestante <= 0;
 
-    $updateQuery = "UPDATE expression_dym SET quantite_restante = :nouvelle_quantite WHERE id = :id";
+    $updateQuery = "UPDATE expression_dym SET qt_restante = :nouvelle_quantite WHERE id = :id";
     $updateStmt = $pdo->prepare($updateQuery);
     $updateStmt->execute([
         ':nouvelle_quantite' => $nouvelleQuantiteRestante,
@@ -1101,4 +1124,34 @@ function processPartialFromExpression($pdo, $user_id, $materialId, $quantiteComm
         'is_complete' => $isComplete,
         'project_client' => $material['nom_client'] ?? null
     ];
+}
+
+/**
+ * Validation du mode de paiement - version simplifiée
+ * Copiée depuis process_bulk_purchase.php pour éviter l'erreur
+ */
+function validatePaymentMethod($pdo, $paymentMethodId)
+{
+    // Vérifier que l'ID est bien un entier positif
+    if (!is_numeric($paymentMethodId) || intval($paymentMethodId) <= 0) {
+        throw new Exception('ID du mode de paiement invalide : ' . $paymentMethodId);
+    }
+
+    $paymentMethodId = intval($paymentMethodId);
+
+    $query = 'SELECT id, label, description, icon_path
+              FROM payment_methods
+              WHERE id = :id AND is_active = 1';
+
+    $stmt = $pdo->prepare($query);
+    $stmt->bindParam(':id', $paymentMethodId, PDO::PARAM_INT);
+    $stmt->execute();
+
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$result) {
+        throw new Exception('Mode de paiement invalide ou inactif (ID: ' . $paymentMethodId . ')');
+    }
+
+    return $result;
 }

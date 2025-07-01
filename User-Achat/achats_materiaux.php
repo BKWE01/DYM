@@ -1971,37 +1971,32 @@ function formatNumber($number)
                                         /* Informations bon de commande */
                                         (SELECT po.id 
                                          FROM purchase_orders po 
-                                         WHERE (BINARY po.expression_id = BINARY main_data.expression_id 
+                                         WHERE (BINARY po.expression_id = BINARY main_data.expression_id
                                                 OR JSON_CONTAINS(po.related_expressions, CONCAT('\"', main_data.expression_id, '\"')))
-                                         AND BINARY po.fournisseur = BINARY main_data.fournisseur
                                          ORDER BY po.generated_at DESC LIMIT 1) as bon_commande_id,
                                                                 
                                         (SELECT po.order_number 
                                          FROM purchase_orders po 
-                                         WHERE (BINARY po.expression_id = BINARY main_data.expression_id 
+                                         WHERE (BINARY po.expression_id = BINARY main_data.expression_id
                                                 OR JSON_CONTAINS(po.related_expressions, CONCAT('\"', main_data.expression_id, '\"')))
-                                         AND BINARY po.fournisseur = BINARY main_data.fournisseur
                                          ORDER BY po.generated_at DESC LIMIT 1) as bon_commande_number,
                                                                 
                                         (SELECT po.signature_finance 
                                          FROM purchase_orders po 
                                          WHERE (BINARY po.expression_id = BINARY main_data.expression_id 
                                                 OR JSON_CONTAINS(po.related_expressions, CONCAT('\"', main_data.expression_id, '\"')))
-                                         AND BINARY po.fournisseur = BINARY main_data.fournisseur
                                          ORDER BY po.generated_at DESC LIMIT 1) as signature_finance,
                                                                 
                                         (SELECT po.user_finance_id 
                                          FROM purchase_orders po 
-                                         WHERE (BINARY po.expression_id = BINARY main_data.expression_id 
+                                         WHERE (BINARY po.expression_id = BINARY main_data.expression_id
                                                 OR JSON_CONTAINS(po.related_expressions, CONCAT('\"', main_data.expression_id, '\"')))
-                                         AND BINARY po.fournisseur = BINARY main_data.fournisseur
                                          ORDER BY po.generated_at DESC LIMIT 1) as user_finance_id,
                                                                 
                                         (SELECT po.file_path 
                                          FROM purchase_orders po 
-                                         WHERE (BINARY po.expression_id = BINARY main_data.expression_id 
+                                         WHERE (BINARY po.expression_id = BINARY main_data.expression_id
                                                 OR JSON_CONTAINS(po.related_expressions, CONCAT('\"', main_data.expression_id, '\"')))
-                                         AND BINARY po.fournisseur = BINARY main_data.fournisseur
                                          ORDER BY po.generated_at DESC LIMIT 1) as bon_commande_path
                                                                 
                                     FROM (
@@ -2012,9 +2007,19 @@ function formatNumber($number)
                                             ed.designation, 
                                             ed.qt_acheter as quantity, 
                                             ed.initial_qt_acheter as original_quantity,
-                                            ed.unit, 
+                                            ed.unit,
                                             ed.prix_unitaire,
-                                            ed.fournisseur,
+                                            COALESCE(
+                                                NULLIF(ed.fournisseur, ''),
+                                                NULLIF((SELECT am.fournisseur
+                                                        FROM achats_materiaux am
+                                                        WHERE BINARY am.expression_id = BINARY ed.idExpression
+                                                        AND BINARY am.designation = BINARY ed.designation
+                                                        AND am.fournisseur IS NOT NULL
+                                                        AND am.fournisseur != ''
+                                                        ORDER BY am.date_achat DESC LIMIT 1), ''),
+                                                'Non spécifié'
+                                            ) as fournisseur,
                                             ed.valide_achat as status,
                                             ed.qt_restante,
                                             ed.quantity_stock,

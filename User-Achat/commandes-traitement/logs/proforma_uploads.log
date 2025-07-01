@@ -2,3 +2,13 @@
 {"timestamp":"2025-06-27 07:21:13","proforma_id":"2","achat_materiau_id":"740","filename":"proforma_20250627072113_df4d5a63_proforma.png","status":"success","user_id":80,"error":null}
 {"timestamp":"2025-06-27 07:51:45","proforma_id":"3","achat_materiau_id":"741","filename":"proforma_20250627075145_11103ed7_proforma.png","status":"success","user_id":"80","error":null}
 {"timestamp":"2025-06-27 07:51:45","proforma_id":null,"achat_materiau_id":"742","filename":"proforma.png","status":"error","user_id":"80","error":"Fichier invalide ou non fourni"}
+{"timestamp":"2025-07-01 13:25:09","proforma_id":"4","achat_materiau_id":"745","filename":"proforma_20250701132509_8786cd70_proforma.png","status":"success","user_id":"80","error":null}
+{"timestamp":"2025-07-01 15:56:12","proforma_id":"5","achat_materiau_id":"747","filename":"proforma_20250701155612_392486ac_proforma.png","status":"success","user_id":"80","error":null}
+{"timestamp":"2025-07-01 15:56:12","proforma_id":null,"achat_materiau_id":"748","filename":"proforma.png","status":"error","user_id":"80","error":"Fichier invalide ou non fourni"}
+{"timestamp":"2025-07-01 16:09:00","proforma_id":"6","achat_materiau_id":"749","filename":"proforma_20250701160900_bf551bdd_proforma.png","status":"success","user_id":"80","error":null}
+{"timestamp":"2025-07-01 16:09:00","proforma_id":null,"achat_materiau_id":"750","filename":"proforma.png","status":"error","user_id":"80","error":"Fichier invalide ou non fourni"}
+{"timestamp":"2025-07-01 16:20:35","proforma_id":"7","achat_materiau_id":"753","filename":"proforma_20250701162035_28b89c6c_facture.jpg","status":"success","user_id":"80","error":null}
+{"timestamp":"2025-07-01 16:22:48","proforma_id":"8","achat_materiau_id":"754","filename":"proforma_20250701162248_134b63df_facture.jpg","status":"success","user_id":"80","error":null}
+{"timestamp":"2025-07-01 17:00:17","proforma_id":"9","achat_materiau_id":"756","filename":"proforma_20250701170017_6c99ae38_facture.jpg","status":"success","user_id":"80","error":null}
+{"timestamp":"2025-07-01 17:00:17","proforma_id":null,"achat_materiau_id":"757","filename":"facture.jpg","status":"error","user_id":"80","error":"Fichier invalide ou non fourni"}
+{"timestamp":"2025-07-01 17:02:08","proforma_id":"10","achat_materiau_id":"758","filename":"proforma_20250701170208_718cdae8_facture.jpg","status":"success","user_id":"80","error":null}
