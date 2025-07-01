@@ -2791,6 +2791,7 @@ const PartialOrdersManager = {
                 const paymentInfo = PaymentMethodsManager.getMethodById(
                     document.getElementById('payment-method')?.value
                 );
+                const paymentLabel = result.value.payment_method_label || paymentInfo?.label;
                 Swal.fire({
                     title: 'Succès !',
                     html: `
@@ -2800,7 +2801,7 @@ const PartialOrdersManager = {
                         </div>
                         <p class="mb-2">Commande enregistrée avec succès</p>
                         <div class="text-sm text-gray-600">
-                            <p>💳 Mode de paiement: ${paymentInfo?.label || 'Non défini'}</p>
+                            <p>💳 Mode de paiement: ${paymentLabel || 'Non défini'}</p>
                             <p>📦 Quantité: ${document.getElementById('quantity')?.value || 0} ${unit}</p>
                         </div>
                         ${result.value.pdf_url ? '<p class="mt-2 text-blue-600">📄 Le bon de commande est en cours de téléchargement</p>' : ''}
