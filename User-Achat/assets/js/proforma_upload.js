@@ -283,17 +283,10 @@ const ProformaUploadManager = {
      * Affiche un message d'erreur
      */
     showError(message) {
-        if (window.Swal) {
-            Swal.fire({
-                text: message,
-                icon: 'error',
-                toast: true,
-                position: 'top-end',
-                timer: 5000,
-                showConfirmButton: false
-            });
+        if (typeof showNotification === 'function') {
+            showNotification(message, 'error');
         } else {
-            alert('Erreur: ' + message);
+            console.error(message);
         }
     },
 
@@ -301,15 +294,10 @@ const ProformaUploadManager = {
      * Affiche un message de succès
      */
     showSuccess(message) {
-        if (window.Swal) {
-            Swal.fire({
-                text: message,
-                icon: 'success',
-                toast: true,
-                position: 'top-end',
-                timer: 3000,
-                showConfirmButton: false
-            });
+        if (typeof showNotification === 'function') {
+            showNotification(message, 'success');
+        } else {
+            console.log(message);
         }
     },
 
@@ -317,15 +305,10 @@ const ProformaUploadManager = {
      * Affiche un message d'information
      */
     showInfo(message) {
-        if (window.Swal) {
-            Swal.fire({
-                text: message,
-                icon: 'info',
-                toast: true,
-                position: 'top-end',
-                timer: 3000,
-                showConfirmButton: false
-            });
+        if (typeof showNotification === 'function') {
+            showNotification(message, 'info');
+        } else {
+            console.info(message);
         }
     }
 };
