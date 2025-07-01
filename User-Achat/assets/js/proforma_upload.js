@@ -29,13 +29,15 @@ const ProformaUploadManager = {
     // État actuel
     currentFile: null,
     isInitialized: false,
+    context: document,
 
     /**
      * Initialise ou réinitialise le gestionnaire d'upload
      * Appelé à chaque ouverture de la modal d'achat groupé
      */
-    init() {
+    init(context = document) {
         console.log('Initialisation ProformaUploadManager');
+        this.context = context || document;
         
         // Nettoyer les anciens événements
         this.cleanup();
@@ -55,8 +57,8 @@ const ProformaUploadManager = {
      * Nettoie les anciens événements pour éviter les doublons
      */
     cleanup() {
-        const fileInput = document.getElementById('proforma-upload');
-        const removeBtn = document.getElementById('proforma-remove-file');
+        const fileInput = this.context.querySelector('#proforma-upload');
+        const removeBtn = this.context.querySelector('#proforma-remove-file');
         
         if (fileInput) {
             // Cloner l'élément pour supprimer tous les événements
@@ -74,8 +76,8 @@ const ProformaUploadManager = {
      * Attache les événements aux éléments
      */
     attachEvents() {
-        const fileInput = document.getElementById('proforma-upload');
-        const removeBtn = document.getElementById('proforma-remove-file');
+        const fileInput = this.context.querySelector('#proforma-upload');
+        const removeBtn = this.context.querySelector('#proforma-remove-file');
         
         if (fileInput) {
             fileInput.addEventListener('change', (e) => this.handleFileSelect(e));
@@ -157,9 +159,9 @@ const ProformaUploadManager = {
      * Met à jour l'affichage des informations du fichier
      */
     updateFileInfo(file) {
-        const fileInfoDiv = document.getElementById('proforma-file-info');
-        const fileNameSpan = document.getElementById('proforma-file-name');
-        const fileSizeSpan = document.getElementById('proforma-file-size');
+        const fileInfoDiv = this.context.querySelector('#proforma-file-info');
+        const fileNameSpan = this.context.querySelector('#proforma-file-name');
+        const fileSizeSpan = this.context.querySelector('#proforma-file-size');
         
         if (fileInfoDiv && fileNameSpan && fileSizeSpan) {
             fileNameSpan.textContent = file.name;
@@ -176,7 +178,7 @@ const ProformaUploadManager = {
         console.log('Suppression du fichier');
         
         // Reset du file input
-        const fileInput = document.getElementById('proforma-upload');
+        const fileInput = this.context.querySelector('#proforma-upload');
         if (fileInput) {
             fileInput.value = '';
         }
@@ -192,8 +194,8 @@ const ProformaUploadManager = {
      * Remet à zéro l'interface utilisateur
      */
     resetUI() {
-        const fileInfoDiv = document.getElementById('proforma-file-info');
-        const progressDiv = document.getElementById('proforma-upload-progress');
+        const fileInfoDiv = this.context.querySelector('#proforma-file-info');
+        const progressDiv = this.context.querySelector('#proforma-upload-progress');
         
         if (fileInfoDiv) {
             fileInfoDiv.classList.add('hidden');
@@ -210,7 +212,7 @@ const ProformaUploadManager = {
      * Affiche la barre de progression
      */
     showProgress() {
-        const progressDiv = document.getElementById('proforma-upload-progress');
+        const progressDiv = this.context.querySelector('#proforma-upload-progress');
         if (progressDiv) {
             progressDiv.classList.remove('hidden');
         }
@@ -220,7 +222,7 @@ const ProformaUploadManager = {
      * Cache la barre de progression
      */
     hideProgress() {
-        const progressDiv = document.getElementById('proforma-upload-progress');
+        const progressDiv = this.context.querySelector('#proforma-upload-progress');
         if (progressDiv) {
             progressDiv.classList.add('hidden');
         }
@@ -230,8 +232,8 @@ const ProformaUploadManager = {
      * Met à jour la barre de progression
      */
     updateProgress(percent, text = null) {
-        const progressBar = document.getElementById('proforma-progress-bar');
-        const progressText = document.getElementById('proforma-progress-text');
+        const progressBar = this.context.querySelector('#proforma-progress-bar');
+        const progressText = this.context.querySelector('#proforma-progress-text');
         
         if (progressBar) {
             progressBar.style.width = `${percent}%`;

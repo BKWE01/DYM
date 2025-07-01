@@ -1659,7 +1659,7 @@ const ModalManager = {
             modal.style.display = 'flex';
             // Initialiser la gestion du pro-forma
             if (window.ProformaUploadManager) {
-                ProformaUploadManager.init();
+                ProformaUploadManager.init(modal);
             }
         }
         // Charger les prix
@@ -1763,7 +1763,7 @@ const ModalManager = {
         modal.style.display = 'flex';
         // Initialiser la gestion du pro-forma
         if (window.ProformaUploadManager) {
-            ProformaUploadManager.init();
+            ProformaUploadManager.init(modal);
         }
         // Charger les prix et informations
         await this.loadPartialOrderPrices(selectedMaterials);
@@ -2764,7 +2764,7 @@ const PartialOrdersManager = {
                 this.initPartialPaymentMethods();
                 this.setupOrderSummary();
                 if (window.ProformaUploadManager) {
-                    ProformaUploadManager.init();
+                    ProformaUploadManager.init(Swal.getHtmlContainer());
                 }
                 // Suggérer un fournisseur si absent
                 if (!materialInfo.fournisseur) {
