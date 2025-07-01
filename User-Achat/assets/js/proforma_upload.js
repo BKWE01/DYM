@@ -285,9 +285,10 @@ const ProformaUploadManager = {
     showError(message) {
         if (window.Swal) {
             Swal.fire({
-                title: 'Erreur de fichier',
                 text: message,
                 icon: 'error',
+                toast: true,
+                position: 'top-end',
                 timer: 5000,
                 showConfirmButton: false
             });
@@ -302,9 +303,10 @@ const ProformaUploadManager = {
     showSuccess(message) {
         if (window.Swal) {
             Swal.fire({
-                title: 'Succès',
                 text: message,
                 icon: 'success',
+                toast: true,
+                position: 'top-end',
                 timer: 3000,
                 showConfirmButton: false
             });
@@ -317,9 +319,10 @@ const ProformaUploadManager = {
     showInfo(message) {
         if (window.Swal) {
             Swal.fire({
-                title: 'Information',
                 text: message,
                 icon: 'info',
+                toast: true,
+                position: 'top-end',
                 timer: 3000,
                 showConfirmButton: false
             });
