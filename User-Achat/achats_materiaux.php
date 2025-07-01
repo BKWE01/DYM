@@ -2007,9 +2007,19 @@ function formatNumber($number)
                                             ed.designation, 
                                             ed.qt_acheter as quantity, 
                                             ed.initial_qt_acheter as original_quantity,
-                                            ed.unit, 
+                                            ed.unit,
                                             ed.prix_unitaire,
-                                            ed.fournisseur,
+                                            COALESCE(
+                                                NULLIF(ed.fournisseur, ''),
+                                                NULLIF((SELECT am.fournisseur
+                                                        FROM achats_materiaux am
+                                                        WHERE BINARY am.expression_id = BINARY ed.idExpression
+                                                        AND BINARY am.designation = BINARY ed.designation
+                                                        AND am.fournisseur IS NOT NULL
+                                                        AND am.fournisseur != ''
+                                                        ORDER BY am.date_achat DESC LIMIT 1), ''),
+                                                'Non spécifié'
+                                            ) as fournisseur,
                                             ed.valide_achat as status,
                                             ed.qt_restante,
                                             ed.quantity_stock,
