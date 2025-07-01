@@ -832,9 +832,13 @@ const EventHandlers = {
         // Fermeture des modals
         document.querySelectorAll('.close-modal-btn, .modal').forEach(element => {
             element.addEventListener('click', (e) => {
-                if (e.target.classList.contains('close-modal-btn') ||
-                    e.target.classList.contains('modal')) {
-                    const modal = e.target.closest('.modal') || e.target;
+                // Fermer si l'on clique directement sur l'arrière-plan du modal
+                if (e.currentTarget.classList.contains('modal') && e.target === e.currentTarget) {
+                    ModalManager.close(e.currentTarget);
+                }
+                // Ou si l'on clique sur un élément dédié à la fermeture
+                if (e.currentTarget.classList.contains('close-modal-btn')) {
+                    const modal = e.currentTarget.closest('.modal');
                     ModalManager.close(modal);
                 }
             });
