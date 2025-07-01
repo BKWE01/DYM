@@ -992,7 +992,7 @@ function completeMultiplePartial($pdo, $user_id)
 function processPartialFromBesoins($pdo, $user_id, $materialId, $quantiteCommande, $prixUnitaire, $fournisseur, $paymentMethod)
 {
     // Récupérer les informations du besoin
-    $besoinQuery = "SELECT b.*, ip.code_projet, ip.nom_client 
+    $besoinQuery = "SELECT b.*, b.caracteristique AS unit, ip.code_projet, ip.nom_client
                     FROM besoins b
                     LEFT JOIN identification_projet ip ON b.idBesoin = ip.idExpression
                     WHERE b.id = :id";
@@ -1013,26 +1013,25 @@ function processPartialFromBesoins($pdo, $user_id, $materialId, $quantiteCommand
 
     // Insérer la nouvelle commande
     $insertQuery = "INSERT INTO achats_materiaux (
-        designation, quantity, unit, prix_unitaire, fournisseur, 
+        designation, quantity, unit, prix_unitaire, fournisseur,
         mode_paiement_id, status, is_partial, expression_id, date_achat,
-        original_quantity, created_by
+        original_quantity
     ) VALUES (
         :designation, :quantity, :unit, :prix_unitaire, :fournisseur,
         :mode_paiement_id, 'en_attente', 1, :expression_id, NOW(),
-        :original_quantity, :created_by
+        :original_quantity
     )";
 
     $insertStmt = $pdo->prepare($insertQuery);
     $insertStmt->execute([
         ':designation' => $besoin['designation_article'],
         ':quantity' => $quantiteCommande,
-        ':unit' => $besoin['unite'],
+        ':unit' => $besoin['unit'],
         ':prix_unitaire' => $prixUnitaire,
         ':fournisseur' => $fournisseur,
         ':mode_paiement_id' => $paymentMethod,
         ':expression_id' => $besoin['idBesoin'],
-        ':original_quantity' => $quantiteCommande,
-        ':created_by' => $user_id
+        ':original_quantity' => $quantiteCommande
     ]);
 
     $newOrderId = $pdo->lastInsertId();
@@ -1084,26 +1083,25 @@ function processPartialFromExpression($pdo, $user_id, $materialId, $quantiteComm
 
     // Insérer la nouvelle commande
     $insertQuery = "INSERT INTO achats_materiaux (
-        designation, quantity, unit, prix_unitaire, fournisseur, 
+        designation, quantity, unit, prix_unitaire, fournisseur,
         mode_paiement_id, status, is_partial, expression_id, date_achat,
-        original_quantity, created_by
+        original_quantity
     ) VALUES (
         :designation, :quantity, :unit, :prix_unitaire, :fournisseur,
         :mode_paiement_id, 'en_attente', 1, :expression_id, NOW(),
-        :original_quantity, :created_by
+        :original_quantity
     )";
 
     $insertStmt = $pdo->prepare($insertQuery);
     $insertStmt->execute([
         ':designation' => $material['designation'],
         ':quantity' => $quantiteCommande,
-        ':unit' => $material['unite'],
+        ':unit' => $material['unit'],
         ':prix_unitaire' => $prixUnitaire,
         ':fournisseur' => $fournisseur,
         ':mode_paiement_id' => $paymentMethod,
         ':expression_id' => $material['idExpression'],
-        ':original_quantity' => $quantiteCommande,
-        ':created_by' => $user_id
+        ':original_quantity' => $quantiteCommande
     ]);
 
     $newOrderId = $pdo->lastInsertId();
