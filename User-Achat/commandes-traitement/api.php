@@ -540,6 +540,18 @@ function handleCompletePartialOrder($pdo, $user_id)
         // Valider la transaction
         $pdo->commit();
 
+        // Récupérer le libellé du mode de paiement pour la suite (bon de commande)
+        $paymentMethodLabel = '';
+        try {
+            $labelStmt = $pdo->prepare("SELECT label FROM payment_methods WHERE id = :id");
+            $labelStmt->bindParam(':id', $paymentMethod);
+            $labelStmt->execute();
+            $paymentMethodLabel = $labelStmt->fetchColumn() ?: '';
+            $_SESSION['temp_payment_method_label'] = $paymentMethodLabel;
+        } catch (Exception $e) {
+            error_log('Erreur récupération label mode paiement: ' . $e->getMessage());
+        }
+
         // Après le commit, effectuer les opérations qui ne nécessitent pas d'être dans la transaction
         if ($isComplete && function_exists('combinePartialOrders')) {
             $combineResult = combinePartialOrders($pdo, $newOrderId);
@@ -585,6 +597,7 @@ function handleCompletePartialOrder($pdo, $user_id)
 
         // Upload du pro-forma le cas échéant
         $proformaUploaded = false;
+        $uploadedProformaId = null;
         if ($hasProforma) {
             try {
                 $upload = $proformaHandler->uploadFile(
@@ -594,6 +607,16 @@ function handleCompletePartialOrder($pdo, $user_id)
                     $material['nom_client'] ?? null
                 );
                 $proformaUploaded = $upload['success'];
+                if ($proformaUploaded && isset($upload['proforma_id'])) {
+                    $uploadedProformaId = $upload['proforma_id'];
+                    // Lier le pro-forma à la commande
+                    $updateProforma = $pdo->prepare(
+                        'UPDATE achats_materiaux SET proforma_id = :pid WHERE id = :id'
+                    );
+                    $updateProforma->bindParam(':pid', $uploadedProformaId);
+                    $updateProforma->bindParam(':id', $newOrderId);
+                    $updateProforma->execute();
+                }
             } catch (Exception $proformaError) {
                 error_log('Erreur upload pro-forma: ' . $proformaError->getMessage());
             }
@@ -608,8 +631,10 @@ function handleCompletePartialOrder($pdo, $user_id)
             'remaining' => $nouvelleQuantiteRestante,
             'is_complete' => $isComplete,
             'payment_method' => $paymentMethod,
+            'payment_method_label' => $paymentMethodLabel,
             'pdf_url' => 'direct_download.php?token=' . $downloadToken,
-            'proforma_uploaded' => $proformaUploaded
+            'proforma_uploaded' => $proformaUploaded,
+            'proforma_id' => $uploadedProformaId
         ]);
     } catch (Exception $e) {
         if ($pdo->inTransaction()) {
