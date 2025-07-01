@@ -48,14 +48,14 @@ try {
     // 2. NOUVEAU : Récupérer le mode de paiement depuis achats_materiaux
     $paymentMode = 'Non spécifié'; // Valeur par défaut
     
-    // Récupérer le mode de paiement depuis les achats liés à ce bon de commande
-    $paymentQuery = "SELECT DISTINCT am.mode_paiement 
-                     FROM achats_materiaux am 
-                     WHERE am.expression_id = ? 
-                     AND am.fournisseur = ? 
+    // Récupérer le libellé du mode de paiement depuis les achats liés à ce bon de commande
+    $paymentQuery = "SELECT DISTINCT pm.label
+                     FROM achats_materiaux am
+                     JOIN payment_methods pm ON am.mode_paiement_id = pm.id
+                     WHERE am.expression_id = ?
+                     AND am.fournisseur = ?
                      AND DATE(am.date_achat) = DATE(?)
-                     AND am.mode_paiement IS NOT NULL 
-                     AND am.mode_paiement != ''
+                     AND am.mode_paiement_id IS NOT NULL
                      LIMIT 1";
     
     $paymentStmt = $pdo->prepare($paymentQuery);
@@ -69,12 +69,12 @@ try {
         $relatedExpressions = json_decode($order['related_expressions'], true);
         if ($relatedExpressions && is_array($relatedExpressions)) {
             $placeholders = implode(',', array_fill(0, count($relatedExpressions), '?'));
-            $altPaymentQuery = "SELECT DISTINCT am.mode_paiement 
-                               FROM achats_materiaux am 
-                               WHERE am.expression_id IN ($placeholders) 
-                               AND am.fournisseur = ? 
-                               AND am.mode_paiement IS NOT NULL 
-                               AND am.mode_paiement != ''
+            $altPaymentQuery = "SELECT DISTINCT pm.label
+                               FROM achats_materiaux am
+                               JOIN payment_methods pm ON am.mode_paiement_id = pm.id
+                               WHERE am.expression_id IN ($placeholders)
+                               AND am.fournisseur = ?
+                               AND am.mode_paiement_id IS NOT NULL
                                LIMIT 1";
             
             $params = $relatedExpressions;

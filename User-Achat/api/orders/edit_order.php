@@ -94,7 +94,7 @@ try {
         ':new_price' => $prixUnitaire,
         ':old_supplier' => $currentData['fournisseur'],
         ':new_supplier' => $fournisseur,
-        ':old_payment_method' => $currentData['mode_paiement'] ?? null,
+        ':old_payment_method' => $currentData['mode_paiement_id'] ?? null,
         ':new_payment_method' => $paymentMethod,
         ':modification_reason' => $notes,
         ':modified_by' => $userId
@@ -105,7 +105,7 @@ try {
                         SET quantity = :quantity, 
                             prix_unitaire = :prix_unitaire, 
                             fournisseur = :fournisseur,
-                            mode_paiement = :payment_method,
+                            mode_paiement_id = :payment_method,
                             notes = :notes,
                             updated_at = NOW()
                         WHERE id = :order_id";
