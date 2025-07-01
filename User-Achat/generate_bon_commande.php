@@ -186,7 +186,6 @@ try {
         try {
             // Récupérer le mode de paiement depuis la première commande trouvée
             $firstMaterialId = array_keys($materialPrices)[0];
-
             $paymentQuery = "SELECT am.mode_paiement_id, pm.label as payment_label, pm.description, pm.icon_path
                 FROM achats_materiaux am
                 LEFT JOIN payment_methods pm ON am.mode_paiement_id = pm.id
@@ -202,9 +201,6 @@ try {
             if ($paymentInfo) {
                 $paymentMethod = $paymentInfo['mode_paiement_id'] ?? '';
                 $paymentMethodLabel = $paymentInfo['payment_label'] ?? 'Non spécifié';
-
-                // NOUVEAU : Informations supplémentaires disponibles
-                $paymentMethodDescription = $paymentInfo['description'] ?? '';
             }
         } catch (Exception $e) {
             error_log("Erreur lors de la récupération du mode de paiement: " . $e->getMessage());
