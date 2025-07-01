@@ -1652,7 +1652,10 @@ const ModalManager = {
             const modalTitle = modal.querySelector('h2');
             if (modalTitle) modalTitle.textContent = 'Achat groupé de matériaux';
             const confirmButton = modal.querySelector('#confirm-bulk-purchase');
-            if (confirmButton) confirmButton.textContent = 'Passer la commande';
+            if (confirmButton) {
+                confirmButton.textContent = 'Passer la commande';
+                confirmButton.disabled = false; // Activer le bouton lors de l'ouverture
+            }
             modal.style.display = 'flex';
         }
         // Charger les prix
@@ -1748,7 +1751,10 @@ const ModalManager = {
         const modalTitle = modal.querySelector('h2');
         if (modalTitle) modalTitle.textContent = 'Compléter les commandes partielles';
         const confirmButton = modal.querySelector('#confirm-bulk-purchase');
-        if (confirmButton) confirmButton.textContent = 'Compléter les commandes';
+        if (confirmButton) {
+            confirmButton.textContent = 'Compléter les commandes';
+            confirmButton.disabled = false; // Réactiver le bouton pour la complétion
+        }
         // Afficher le modal
         modal.style.display = 'flex';
         // Charger les prix et informations
