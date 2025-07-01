@@ -836,6 +836,7 @@ function completeMultiplePartial($pdo, $user_id)
         $successfulOrders = [];
         $errors = [];
         $totalProcessed = 0;
+        $expressionIds = [];
 
         foreach ($materialIds as $materialId) {
             try {
@@ -860,8 +861,12 @@ function completeMultiplePartial($pdo, $user_id)
                         'order_id' => $result['order_id'],
                         'quantity' => $quantiteCommande,
                         'remaining' => $result['remaining'] ?? 0,
-                        'is_complete' => $result['is_complete'] ?? false
+                        'is_complete' => $result['is_complete'] ?? false,
+                        'expression_id' => $result['expression_id'] ?? null
                     ];
+                    if (isset($result['expression_id']) && !in_array($result['expression_id'], $expressionIds)) {
+                        $expressionIds[] = $result['expression_id'];
+                    }
 
                     // NOUVEAU : Traiter le pro-forma pour cette commande si présent
                     if ($hasProforma && !empty($result['order_id'])) {
@@ -909,10 +914,14 @@ function completeMultiplePartial($pdo, $user_id)
         $_SESSION['bulk_purchase_orders'] = $successfulOrders;
         $_SESSION['temp_fournisseur'] = $fournisseur;
         $_SESSION['temp_payment_method'] = $paymentMethod;
+        $_SESSION['bulk_purchase_expressions'] = $expressionIds;
 
         // Générer un token pour le téléchargement
         $downloadToken = md5(time() . $user_id . rand(1000, 9999));
         $_SESSION['download_token'] = $downloadToken;
+        if (!empty($expressionIds)) {
+            $_SESSION['download_expression_id'] = $expressionIds[0];
+        }
         $_SESSION['download_timestamp'] = time();
 
         // Construire l'URL de téléchargement
@@ -1052,7 +1061,8 @@ function processPartialFromBesoins($pdo, $user_id, $materialId, $quantiteCommand
         'order_id' => $newOrderId,
         'remaining' => $nouvelleQuantiteRestante,
         'is_complete' => $isComplete,
-        'project_client' => $besoin['nom_client'] ?? null
+        'project_client' => $besoin['nom_client'] ?? null,
+        'expression_id' => $besoin['idBesoin']
     ];
 }
 
@@ -1122,7 +1132,8 @@ function processPartialFromExpression($pdo, $user_id, $materialId, $quantiteComm
         'order_id' => $newOrderId,
         'remaining' => $nouvelleQuantiteRestante,
         'is_complete' => $isComplete,
-        'project_client' => $material['nom_client'] ?? null
+        'project_client' => $material['nom_client'] ?? null,
+        'expression_id' => $material['idExpression']
     ];
 }
 

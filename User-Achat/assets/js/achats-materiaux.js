@@ -2789,7 +2789,7 @@ const PartialOrdersManager = {
             if (result.isConfirmed && result.value) {
                 // Gestion du succès avec détails
                 const paymentInfo = PaymentMethodsManager.getMethodById(
-                    document.getElementById('payment-method')?.value
+                    result.value.payment_method
                 );
                 Swal.fire({
                     title: 'Succès !',
