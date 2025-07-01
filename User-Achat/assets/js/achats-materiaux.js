@@ -2793,7 +2793,9 @@ const PartialOrdersManager = {
             // Peupler le sélecteur
             const paymentSelect = document.getElementById('payment-method');
             if (paymentSelect) {
-                PaymentMethodsManager.populateSelector(paymentSelect);
+                // Utiliser l'ID du sélecteur pour respecter l'API de
+                // PaymentMethodsManager (qui attend un identifiant)
+                PaymentMethodsManager.populateSelector(paymentSelect.id);
                 console.log('✅ Sélecteur de modes de paiement peuplé');
             }
             // Configurer les événements de changement
