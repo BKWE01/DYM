@@ -18,6 +18,10 @@ include_once '../../../database/connection.php';
 if (file_exists('../utils/system_logger.php')) {
     include_once '../utils/system_logger.php';
 }
+// Gestion du pro-forma
+require_once '../upload_proforma.php';
+$proformaHandler = new ProformaUploadHandler($pdo);
+$hasProforma = isset($_FILES['proforma_file']) && $_FILES['proforma_file']['error'] !== UPLOAD_ERR_NO_FILE;
 
 // Récupérer les données du formulaire
 $materialId = isset($_POST['material_id']) ? $_POST['material_id'] : null;
@@ -219,6 +223,32 @@ try {
     $rootPath = rtrim(str_replace('commandes-traitement/besoins/complete_besoin_partial.php', '', $scriptPath), '/');
     $pdfUrl = $rootPath . '/direct_download.php?token=' . $downloadToken;
 
+    // Upload du pro-forma le cas échéant
+    $proformaUploaded = false;
+    $uploadedProformaId = null;
+    if ($hasProforma) {
+        try {
+            $upload = $proformaHandler->uploadFile(
+                $_FILES['proforma_file'],
+                $newOrderId,
+                $fournisseur,
+                null
+            );
+            $proformaUploaded = $upload['success'];
+            if ($proformaUploaded && isset($upload['proforma_id'])) {
+                $uploadedProformaId = $upload['proforma_id'];
+                $updateProforma = $pdo->prepare(
+                    'UPDATE achats_materiaux SET proforma_id = :pid WHERE id = :id'
+                );
+                $updateProforma->bindParam(':pid', $uploadedProformaId);
+                $updateProforma->bindParam(':id', $newOrderId);
+                $updateProforma->execute();
+            }
+        } catch (Exception $proformaError) {
+            error_log('Erreur upload pro-forma: ' . $proformaError->getMessage());
+        }
+    }
+
     // Retourner le résultat
     header('Content-Type: application/json');
     echo json_encode([
@@ -228,7 +258,9 @@ try {
         'remaining' => $nouvelleQuantiteRestante,
         'is_complete' => $isComplete,
         'payment_method' => $paymentMethod, // NOUVEAU
-        'pdf_url' => $pdfUrl
+        'pdf_url' => $pdfUrl,
+        'proforma_uploaded' => $proformaUploaded,
+        'proforma_id' => $uploadedProformaId
     ]);
 } catch (Exception $e) {
     if ($pdo->inTransaction()) {
