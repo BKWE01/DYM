@@ -2892,8 +2892,16 @@ const PartialOrdersManager = {
             formData.append('payment_method', paymentMethod); // NOUVEAU : obligatoire
             formData.append('source_table', sourceTable);
             const proformaInput = document.getElementById('proforma-upload');
+            let proformaFile = null;
             if (proformaInput && proformaInput.files.length > 0) {
-                formData.append('proforma_file', proformaInput.files[0]);
+                proformaFile = proformaInput.files[0];
+            } else if (window.ProformaUploadManager &&
+                typeof ProformaUploadManager.hasFile === 'function' &&
+                ProformaUploadManager.hasFile()) {
+                proformaFile = ProformaUploadManager.getFile();
+            }
+            if (proformaFile) {
+                formData.append('proforma_file', proformaFile);
             }
             if (fournisseurResult.newFournisseur) {
                 formData.append('create_fournisseur', '1');

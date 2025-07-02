@@ -21,7 +21,7 @@ if (file_exists('../utils/system_logger.php')) {
 // Gestion du pro-forma
 require_once '../upload_proforma.php';
 $proformaHandler = new ProformaUploadHandler($pdo);
-$hasProforma = isset($_FILES['proforma_file']) && $_FILES['proforma_file']['error'] !== UPLOAD_ERR_NO_FILE;
+$hasProforma = isset($_FILES['proforma_file']) && $_FILES['proforma_file']['error'] === UPLOAD_ERR_OK;
 
 // Récupérer les données du formulaire
 $materialId = isset($_POST['material_id']) ? $_POST['material_id'] : null;

@@ -402,7 +402,7 @@ function handleCompletePartialOrder($pdo, $user_id)
     // Gestion du pro-forma
     require_once 'upload_proforma.php';
     $proformaHandler = new ProformaUploadHandler($pdo);
-    $hasProforma = isset($_FILES['proforma_file']) && $_FILES['proforma_file']['error'] !== UPLOAD_ERR_NO_FILE;
+    $hasProforma = isset($_FILES['proforma_file']) && $_FILES['proforma_file']['error'] === UPLOAD_ERR_OK;
 
     // Validation des données - MODIFIÉE
     if (!$materialId || $quantiteCommande <= 0 || !$fournisseur || $prixUnitaire <= 0 || !$paymentMethod) {
@@ -850,7 +850,7 @@ function completeMultiplePartial($pdo, $user_id)
         // NOUVEAU : Initialiser le gestionnaire de pro-forma
         $proformaHandler = new ProformaUploadHandler($pdo);
         $proformaResults = [];
-        $hasProforma = isset($_FILES['proforma_file']) && $_FILES['proforma_file']['error'] !== UPLOAD_ERR_NO_FILE;
+        $hasProforma = isset($_FILES['proforma_file']) && $_FILES['proforma_file']['error'] === UPLOAD_ERR_OK;
 
         // Validation du mode de paiement
         $paymentData = validatePaymentMethod($pdo, $paymentMethod);
