@@ -861,6 +861,13 @@ function completeMultiplePartial($pdo, $user_id)
         $successfulOrders = [];
         $errors = [];
         $totalProcessed = 0;
+        $expressionIds = [];
+        $materialPrices = [];
+        $selectedMaterials = [];
+        $materialSourcesMap = [];
+        if (!isset($_SESSION['commande_partielle_quantities'])) {
+            $_SESSION['commande_partielle_quantities'] = [];
+        }
 
         foreach ($materialIds as $materialId) {
             try {
@@ -887,6 +894,13 @@ function completeMultiplePartial($pdo, $user_id)
                         'remaining' => $result['remaining'] ?? 0,
                         'is_complete' => $result['is_complete'] ?? false
                     ];
+
+                    // Conserver les informations pour le bon de commande
+                    $expressionIds[] = $result['expression_id'];
+                    $selectedMaterials[] = $materialId;
+                    $materialPrices[$materialId] = $prixUnitaire;
+                    $materialSourcesMap[$materialId] = $source;
+                    $_SESSION['commande_partielle_quantities'][$materialId] = $quantiteCommande;
 
                     // NOUVEAU : Traiter le pro-forma pour cette commande si présent
                     if ($hasProforma && !empty($result['order_id'])) {
@@ -934,6 +948,14 @@ function completeMultiplePartial($pdo, $user_id)
         $_SESSION['bulk_purchase_orders'] = $successfulOrders;
         $_SESSION['temp_fournisseur'] = $fournisseur;
         $_SESSION['temp_payment_method'] = $paymentMethod;
+        $_SESSION['temp_payment_method_label'] = $paymentData['label'] ?? '';
+        $_SESSION['temp_material_prices'] = $materialPrices;
+        $_SESSION['selected_material_ids'] = $selectedMaterials;
+        $_SESSION['selected_material_sources'] = $materialSourcesMap;
+        $_SESSION['bulk_purchase_expressions'] = array_values(array_unique($expressionIds));
+        if (!empty($expressionIds)) {
+            $_SESSION['download_expression_id'] = $expressionIds[0];
+        }
 
         // Générer un token pour le téléchargement
         $downloadToken = md5(time() . $user_id . rand(1000, 9999));
@@ -1077,7 +1099,8 @@ function processPartialFromBesoins($pdo, $user_id, $materialId, $quantiteCommand
         'order_id' => $newOrderId,
         'remaining' => $nouvelleQuantiteRestante,
         'is_complete' => $isComplete,
-        'project_client' => $besoin['nom_client'] ?? null
+        'project_client' => $besoin['nom_client'] ?? null,
+        'expression_id' => $besoin['idBesoin']
     ];
 }
 
@@ -1147,7 +1170,8 @@ function processPartialFromExpression($pdo, $user_id, $materialId, $quantiteComm
         'order_id' => $newOrderId,
         'remaining' => $nouvelleQuantiteRestante,
         'is_complete' => $isComplete,
-        'project_client' => $material['nom_client'] ?? null
+        'project_client' => $material['nom_client'] ?? null,
+        'expression_id' => $material['idExpression']
     ];
 }
 
