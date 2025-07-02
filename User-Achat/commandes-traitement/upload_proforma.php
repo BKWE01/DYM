@@ -50,6 +50,8 @@ class ProformaUploadHandler
             'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
             'application/vnd.ms-excel',
             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            // Certains navigateurs envoient les PDF sous ce type MIME générique
+            'application/octet-stream',
             'image/jpeg',
             'image/jpg',
             'image/png',
