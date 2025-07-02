@@ -1085,15 +1085,27 @@ function processPartialFromBesoins($pdo, $user_id, $materialId, $quantiteCommand
 
     $newOrderId = $pdo->lastInsertId();
 
-    // Mettre à jour la quantité restante
+    // Mettre à jour les quantités achetées et restantes
     $nouvelleQuantiteRestante = $besoin['qt_restante'] - $quantiteCommande;
+    $nouvelleQuantiteAchetee  = floatval($besoin['qt_acheter']) + $quantiteCommande;
     $isComplete = $nouvelleQuantiteRestante <= 0;
 
-    $updateQuery = "UPDATE besoins SET qt_restante = :nouvelle_quantite WHERE id = :id";
+    $statusAchat = $isComplete ? 'valide_en_cours' : 'en_cours';
+
+    $updateQuery = "UPDATE besoins
+                        SET qt_restante = :nouvelle_quantite,
+                            qt_acheter  = :nouvelle_qt_acheter,
+                            achat_status = :status,
+                            user_achat   = :user_achat
+                      WHERE id = :id";
+
     $updateStmt = $pdo->prepare($updateQuery);
     $updateStmt->execute([
-        ':nouvelle_quantite' => $nouvelleQuantiteRestante,
-        ':id' => $materialId
+        ':nouvelle_quantite'   => $nouvelleQuantiteRestante,
+        ':nouvelle_qt_acheter' => $nouvelleQuantiteAchetee,
+        ':status'              => $statusAchat,
+        ':user_achat'          => $user_id,
+        ':id'                  => $materialId
     ]);
 
     return [
