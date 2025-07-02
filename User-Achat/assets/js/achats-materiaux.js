@@ -1943,6 +1943,19 @@ const PurchaseManager = {
             });
             // Préparer les données
             const formData = new FormData(form);
+            // Assurer la présence des champs essentiels
+            if (!formData.has('fournisseur')) {
+                formData.append('fournisseur', fournisseur);
+            } else {
+                formData.set('fournisseur', fournisseur);
+            }
+            const paymentMethodValue = document.getElementById('payment-method-bulk').value;
+            if (!formData.has('payment_method')) {
+                formData.append('payment_method', paymentMethodValue);
+            } else {
+                formData.set('payment_method', paymentMethodValue);
+            }
+
             if (!formData.has('bulk_purchase')) {
                 formData.append('bulk_purchase', '1');
             }
