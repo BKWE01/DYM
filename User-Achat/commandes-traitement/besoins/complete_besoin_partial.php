@@ -79,9 +79,11 @@ try {
     }
 
     // 1. Récupérer les informations du besoin
-    $besoinQuery = "SELECT b.*, 
-                   (b.qt_demande - b.qt_acheter) as qt_restante
-                   FROM besoins b 
+    $besoinQuery = "SELECT b.*,
+                   (b.qt_demande - b.qt_acheter) as qt_restante,
+                   d.client
+                   FROM besoins b
+                   LEFT JOIN demandeur d ON b.idBesoin = d.idBesoin
                    WHERE b.id = :id";
     $besoinStmt = $pdo->prepare($besoinQuery);
     $besoinStmt->bindParam(':id', $materialId);
@@ -244,7 +246,7 @@ try {
                 $_FILES['proforma_file'],
                 $newOrderId,
                 $fournisseur,
-                null
+                $besoin['client'] ?? null
             );
             $proformaUploaded = $upload['success'];
             if ($proformaUploaded && isset($upload['proforma_id'])) {
