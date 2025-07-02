@@ -174,6 +174,18 @@ try {
     // Valider la transaction
     $pdo->commit();
 
+    // Récupérer le libellé du mode de paiement pour affichage
+    $paymentMethodLabel = '';
+    try {
+        $labelStmt = $pdo->prepare("SELECT label FROM payment_methods WHERE id = :id");
+        $labelStmt->bindParam(':id', $paymentMethod);
+        $labelStmt->execute();
+        $paymentMethodLabel = $labelStmt->fetchColumn() ?: '';
+        $_SESSION['temp_payment_method_label'] = $paymentMethodLabel;
+    } catch (Exception $e) {
+        error_log('Erreur récupération label mode paiement: ' . $e->getMessage());
+    }
+
     // Journaliser l'événement après le commit
     if (function_exists('logSystemEvent')) {
         $eventType = $isComplete ? 'commande_besoin_partielle_complete' : 'commande_besoin_partielle';
@@ -258,6 +270,7 @@ try {
         'remaining' => $nouvelleQuantiteRestante,
         'is_complete' => $isComplete,
         'payment_method' => $paymentMethod, // NOUVEAU
+        'payment_method_label' => $paymentMethodLabel,
         'pdf_url' => $pdfUrl,
         'proforma_uploaded' => $proformaUploaded,
         'proforma_id' => $uploadedProformaId
