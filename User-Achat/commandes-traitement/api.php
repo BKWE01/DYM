@@ -1039,9 +1039,11 @@ function completeMultiplePartial($pdo, $user_id)
 function processPartialFromBesoins($pdo, $user_id, $materialId, $quantiteCommande, $prixUnitaire, $fournisseur, $paymentMethod)
 {
     // Récupérer les informations du besoin
-    $besoinQuery = "SELECT b.*, b.caracteristique AS unit, ip.code_projet, ip.nom_client
+    // Inclure le client associé depuis la table demandeur afin de pouvoir
+    // renseigner correctement la colonne `projet_client` des pro-formas.
+    $besoinQuery = "SELECT b.*, b.caracteristique AS unit, d.client
                     FROM besoins b
-                    LEFT JOIN identification_projet ip ON b.idBesoin = ip.idExpression
+                    LEFT JOIN demandeur d ON b.idBesoin = d.idBesoin
                     WHERE b.id = :id";
 
     $besoinStmt = $pdo->prepare($besoinQuery);
@@ -1099,7 +1101,8 @@ function processPartialFromBesoins($pdo, $user_id, $materialId, $quantiteCommand
         'order_id' => $newOrderId,
         'remaining' => $nouvelleQuantiteRestante,
         'is_complete' => $isComplete,
-        'project_client' => $besoin['nom_client'] ?? null,
+        // Utiliser le client récupéré depuis la table demandeur
+        'project_client' => $besoin['client'] ?? null,
         'expression_id' => $besoin['idBesoin']
     ];
 }
