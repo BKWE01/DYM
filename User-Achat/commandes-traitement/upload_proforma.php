@@ -64,11 +64,6 @@ class ProformaUploadHandler
 
     /**
      * Upload un fichier pro-forma et l'associe à une commande
-     *
-     * @param array       $fileData          Données du fichier à uploader
-     * @param int         $achatMateriauxId  ID de la commande associée
-     * @param int|string  $fournisseur       ID du fournisseur (ou nom pour compatibilité)
-     * @param mixed       $projetClient      Informations projet/client
      */
     public function uploadFile($fileData, $achatMateriauxId, $fournisseur, $projetClient = null)
     {
