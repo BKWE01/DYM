@@ -270,7 +270,7 @@ try {
                 $_FILES['proforma_file'],
                 $newOrderId,
                 $fournisseurId,
-                $besoin['client'] ?? null
+                $besoin['idBesoin'] ?? null
             );
             $proformaUploaded = $upload['success'];
             if ($proformaUploaded && isset($upload['proforma_id'])) {

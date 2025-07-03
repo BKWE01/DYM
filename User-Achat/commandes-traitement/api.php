@@ -627,7 +627,7 @@ function handleCompletePartialOrder($pdo, $user_id)
                     $_FILES['proforma_file'],
                     $newOrderId,
                     $fournisseurId,
-                    $material['nom_client'] ?? null
+                    $material['code_projet'] ?? null
                 );
                 $proformaUploaded = $upload['success'];
                 if ($proformaUploaded && isset($upload['proforma_id'])) {
@@ -1105,8 +1105,8 @@ function completeMultiplePartial($pdo, $user_id)
 function processPartialFromBesoins($pdo, $user_id, $materialId, $quantiteCommande, $prixUnitaire, $fournisseur, $paymentMethod)
 {
     // Récupérer les informations du besoin
-    // Inclure le client associé depuis la table demandeur afin de pouvoir
-    // renseigner correctement la colonne `projet_client` des pro-formas.
+    // Utiliser l'identifiant du besoin pour renseigner
+    // correctement la colonne `projet_client` des pro-formas.
     $besoinQuery = "SELECT b.*, b.caracteristique AS unit, d.client
                     FROM besoins b
                     LEFT JOIN demandeur d ON b.idBesoin = d.idBesoin
@@ -1180,7 +1180,7 @@ function processPartialFromBesoins($pdo, $user_id, $materialId, $quantiteCommand
         'remaining' => $nouvelleQuantiteRestante,
         'is_complete' => $isComplete,
         // Utiliser le client récupéré depuis la table demandeur
-        'project_client' => $besoin['client'] ?? null,
+        'project_client' => $besoin['idBesoin'] ?? null,
         'expression_id' => $besoin['idBesoin']
     ];
 }
@@ -1191,7 +1191,9 @@ function processPartialFromBesoins($pdo, $user_id, $materialId, $quantiteCommand
 function processPartialFromExpression($pdo, $user_id, $materialId, $quantiteCommande, $prixUnitaire, $fournisseur, $paymentMethod)
 {
     // Récupérer les informations du matériau
-    $materialQuery = "SELECT ed.*, ip.code_projet, ip.nom_client 
+    // On utilise le code projet pour renseigner la colonne
+    // `projet_client` des pro-formas
+    $materialQuery = "SELECT ed.*, ip.code_projet, ip.nom_client
                       FROM expression_dym ed
                       LEFT JOIN identification_projet ip ON ed.idExpression = ip.idExpression
                       WHERE ed.id = :id";
@@ -1251,7 +1253,7 @@ function processPartialFromExpression($pdo, $user_id, $materialId, $quantiteComm
         'order_id' => $newOrderId,
         'remaining' => $nouvelleQuantiteRestante,
         'is_complete' => $isComplete,
-        'project_client' => $material['nom_client'] ?? null,
+        'project_client' => $material['code_projet'] ?? null,
         'expression_id' => $material['idExpression']
     ];
 }
