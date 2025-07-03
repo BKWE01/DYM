@@ -627,7 +627,8 @@ function handleCompletePartialOrder($pdo, $user_id)
                     $_FILES['proforma_file'],
                     $newOrderId,
                     $fournisseurId,
-                    $material['code_projet'] ?? null
+                    $material['code_projet'] ?? null,
+                    $material['product_id'] ?? null
                 );
                 $proformaUploaded = $upload['success'];
                 if ($proformaUploaded && isset($upload['proforma_id'])) {
@@ -975,7 +976,8 @@ function completeMultiplePartial($pdo, $user_id)
                                 $_FILES['proforma_file'],
                                 $result['order_id'],
                                 $fournisseurId,
-                                $result['project_client'] ?? null
+                                $result['project_client'] ?? null,
+                                $result['product_id'] ?? null
                             );
 
                             $proformaResults[] = [

@@ -156,7 +156,7 @@ if (empty($materialIds) || empty($fournisseur) || empty($paymentMethod)) {
 /**
  * Fonction pour traiter l'upload du pro-forma après création de commande
  */
-function processProformaUpload($pdo, $achatMateriauxId, $fournisseurId, $projetClient = null)
+function processProformaUpload($pdo, $achatMateriauxId, $fournisseurId, $projetClient = null, $productId = null)
 {
     // Vérifier qu'un fichier pro-forma a été uploadé
     if (!isset($_FILES['proforma_file']) || $_FILES['proforma_file']['error'] === UPLOAD_ERR_NO_FILE) {
@@ -170,7 +170,8 @@ function processProformaUpload($pdo, $achatMateriauxId, $fournisseurId, $projetC
             $_FILES['proforma_file'],
             $achatMateriauxId,
             $fournisseurId,
-            $projetClient
+            $projetClient,
+            $productId
         );
 
         return $result;
@@ -381,7 +382,7 @@ try {
                 $newOrderId = $pdo->lastInsertId();
 
                 // NOUVEAU : Traiter l'upload du pro-forma
-                $proformaResult = processProformaUpload($pdo, $newOrderId, $fournisseurId, $material['idExpression']);
+                $proformaResult = processProformaUpload($pdo, $newOrderId, $fournisseurId, $material['idExpression'], $material['product_id'] ?? null);
                 if ($proformaResult) {
                     if ($proformaResult['success']) {
                         $proformasUploaded++;
@@ -529,7 +530,7 @@ try {
                 $newOrderId = $pdo->lastInsertId();
 
                 // NOUVEAU : Traiter l'upload du pro-forma
-                $proformaResult = processProformaUpload($pdo, $newOrderId, $fournisseurId, $material['idBesoin']);
+                $proformaResult = processProformaUpload($pdo, $newOrderId, $fournisseurId, $material['idBesoin'], $material['product_id'] ?? null);
                 if ($proformaResult) {
                     if ($proformaResult['success']) {
                         $proformasUploaded++;
