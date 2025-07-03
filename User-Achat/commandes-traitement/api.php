@@ -459,7 +459,7 @@ function handleCompletePartialOrder($pdo, $user_id)
         }
 
         // 1. Récupérer les informations du matériau
-        $materialQuery = "SELECT ed.*, ip.nom_client
+        $materialQuery = "SELECT ed.*, ip.code_projet, ip.nom_client
                            FROM expression_dym ed
                            LEFT JOIN identification_projet ip ON ed.idExpression = ip.idExpression
                            WHERE ed.id = :id";
