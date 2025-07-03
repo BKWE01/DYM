@@ -50,10 +50,11 @@ try {
         $checkStmt = $pdo->prepare($checkFournisseurQuery);
         $checkStmt->bindParam(':nom', $fournisseur);
         $checkStmt->execute();
+        $fournisseurData = $checkStmt->fetch(PDO::FETCH_ASSOC);
 
-        if (!$checkStmt->fetch()) {
+        if (!$fournisseurData) {
             // Créer le fournisseur
-            $createFournisseurQuery = "INSERT INTO fournisseurs (nom, created_by, created_at) 
+            $createFournisseurQuery = "INSERT INTO fournisseurs (nom, created_by, created_at)
                                       VALUES (:nom, :created_by, NOW())";
             $createStmt = $pdo->prepare($createFournisseurQuery);
             $createStmt->bindParam(':nom', $fournisseur);
@@ -75,7 +76,17 @@ try {
                     ])
                 );
             }
+        } else {
+            $fournisseurId = $fournisseurData['id'];
         }
+    }
+
+    if (!isset($fournisseurId)) {
+        $fetchIdStmt = $pdo->prepare("SELECT id FROM fournisseurs WHERE LOWER(nom) = LOWER(:nom)");
+        $fetchIdStmt->bindParam(':nom', $fournisseur);
+        $fetchIdStmt->execute();
+        $existingSupplier = $fetchIdStmt->fetch(PDO::FETCH_ASSOC);
+        $fournisseurId = $existingSupplier['id'] ?? null;
     }
 
     // 1. Récupérer les informations du besoin
@@ -258,7 +269,7 @@ try {
             $upload = $proformaHandler->uploadFile(
                 $_FILES['proforma_file'],
                 $newOrderId,
-                $fournisseur,
+                $fournisseurId,
                 $besoin['client'] ?? null
             );
             $proformaUploaded = $upload['success'];
