@@ -155,13 +155,8 @@ if (empty($materialIds) || empty($fournisseur) || empty($paymentMethod)) {
 
 /**
  * Fonction pour traiter l'upload du pro-forma après création de commande
- *
- * @param PDO    $pdo               Instance PDO pour la base de données
- * @param int    $achatMateriauxId   ID de la commande dans achats_materiaux
- * @param int    $fournisseurId      ID du fournisseur
- * @param mixed  $projetClient       Informations projet/client associées
  */
-function processProformaUpload($pdo, $achatMateriauxId, $fournisseurId, $projetClient = null)
+function processProformaUpload($pdo, $achatMateriauxId, $fournisseur, $projetClient = null)
 {
     // Vérifier qu'un fichier pro-forma a été uploadé
     if (!isset($_FILES['proforma_file']) || $_FILES['proforma_file']['error'] === UPLOAD_ERR_NO_FILE) {
@@ -174,7 +169,7 @@ function processProformaUpload($pdo, $achatMateriauxId, $fournisseurId, $projetC
         $result = $uploadHandler->uploadFile(
             $_FILES['proforma_file'],
             $achatMateriauxId,
-            $fournisseurId,
+            $fournisseur,
             $projetClient
         );
 
@@ -282,7 +277,7 @@ try {
 
     if (!$fournisseurExists) {
         // Le fournisseur n'existe pas, le créer
-        $createFournisseurQuery = "INSERT INTO fournisseurs (nom, created_by, created_at)
+        $createFournisseurQuery = "INSERT INTO fournisseurs (nom, created_by, created_at) 
                                   VALUES (:nom, :created_by, NOW())";
         $createStmt = $pdo->prepare($createFournisseurQuery);
         $createStmt->bindParam(':nom', $fournisseur);
@@ -301,9 +296,6 @@ try {
                 "Création automatique du fournisseur lors d'une commande"
             );
         }
-    } else {
-        // Le fournisseur existe, récupérer son ID
-        $fournisseurId = $fournisseurExists['id'];
     }
 
     // ========================================
@@ -386,8 +378,8 @@ try {
 
                 $newOrderId = $pdo->lastInsertId();
 
-                // NOUVEAU : Traiter l'upload du pro-forma avec l'ID du fournisseur
-                $proformaResult = processProformaUpload($pdo, $newOrderId, $fournisseurId, $material['idExpression']);
+                // NOUVEAU : Traiter l'upload du pro-forma
+                $proformaResult = processProformaUpload($pdo, $newOrderId, $fournisseur, $material['idExpression']);
                 if ($proformaResult) {
                     if ($proformaResult['success']) {
                         $proformasUploaded++;
@@ -534,8 +526,8 @@ try {
 
                 $newOrderId = $pdo->lastInsertId();
 
-                // NOUVEAU : Traiter l'upload du pro-forma avec l'ID du fournisseur
-                $proformaResult = processProformaUpload($pdo, $newOrderId, $fournisseurId, $material['idBesoin']);
+                // NOUVEAU : Traiter l'upload du pro-forma
+                $proformaResult = processProformaUpload($pdo, $newOrderId, $fournisseur, $material['idBesoin']);
                 if ($proformaResult) {
                     if ($proformaResult['success']) {
                         $proformasUploaded++;
