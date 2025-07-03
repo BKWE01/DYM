@@ -861,6 +861,7 @@ function completeMultiplePartial($pdo, $user_id)
         $quantities = $_POST['quantities'] ?? [];
         $prices = $_POST['prices'] ?? [];
         $sourceTable = $_POST['source_table'] ?? [];
+        $createFournisseur = isset($_POST['create_fournisseur']) ? true : false;
 
         // Validation des données de base
         if (empty($materialIds) || empty($fournisseur) || empty($paymentMethod)) {
@@ -877,6 +878,48 @@ function completeMultiplePartial($pdo, $user_id)
 
         // Validation du mode de paiement
         $paymentData = validatePaymentMethod($pdo, $paymentMethod);
+
+        // Récupérer ou créer le fournisseur si nécessaire
+        if ($createFournisseur) {
+            $checkFournisseurQuery = "SELECT id FROM fournisseurs WHERE LOWER(nom) = LOWER(:nom)";
+            $checkStmt = $pdo->prepare($checkFournisseurQuery);
+            $checkStmt->bindParam(':nom', $fournisseur);
+            $checkStmt->execute();
+            $fournisseurData = $checkStmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$fournisseurData) {
+                $createFournisseurQuery = "INSERT INTO fournisseurs (nom, created_by, created_at) VALUES (:nom, :created_by, NOW())";
+                $createStmt = $pdo->prepare($createFournisseurQuery);
+                $createStmt->bindParam(':nom', $fournisseur);
+                $createStmt->bindParam(':created_by', $user_id);
+                $createStmt->execute();
+                $fournisseurId = $pdo->lastInsertId();
+
+                if (function_exists('logSystemEvent')) {
+                    logSystemEvent(
+                        $pdo,
+                        $user_id,
+                        'create',
+                        'fournisseurs',
+                        $fournisseurId,
+                        json_encode([
+                            'nom' => $fournisseur,
+                            'source' => 'commande_partielle'
+                        ])
+                    );
+                }
+            } else {
+                $fournisseurId = $fournisseurData['id'];
+            }
+        }
+
+        if (!isset($fournisseurId)) {
+            $fetchIdStmt = $pdo->prepare("SELECT id FROM fournisseurs WHERE LOWER(nom) = LOWER(:nom)");
+            $fetchIdStmt->bindParam(':nom', $fournisseur);
+            $fetchIdStmt->execute();
+            $existingSupplier = $fetchIdStmt->fetch(PDO::FETCH_ASSOC);
+            $fournisseurId = $existingSupplier['id'] ?? null;
+        }
 
         // Démarrer la transaction
         $pdo->beginTransaction();
