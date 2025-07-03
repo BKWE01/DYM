@@ -454,6 +454,17 @@ try {
 
                 // Mise à jour des prix produits
                 updateProductPrice($pdo, $material['designation'], $price);
+                // Stocker les informations de commande pour le bon de commande
+                if (!isset($_SESSION['bulk_purchase_orders'])) {
+                    $_SESSION['bulk_purchase_orders'] = [];
+                }
+                $_SESSION['bulk_purchase_orders'][] = [
+                    "material_id" => $materialId,
+                    "order_id" => $newOrderId,
+                    "quantity" => $quantity,
+                    "remaining" => $remainingQuantity,
+                    "is_complete" => !$isPartialOrder
+                ];
             }
         } else if ($tableSource === 'besoins') {
             // ========================================
@@ -586,6 +597,17 @@ try {
 
                 // Mise à jour des prix produits
                 updateProductPrice($pdo, $material['designation_article'], $price);
+                // Stocker les informations de commande pour le bon de commande
+                if (!isset($_SESSION['bulk_purchase_orders'])) {
+                    $_SESSION['bulk_purchase_orders'] = [];
+                }
+                $_SESSION['bulk_purchase_orders'][] = [
+                    "material_id" => $materialId,
+                    "order_id" => $newOrderId,
+                    "quantity" => $quantity,
+                    "remaining" => $remainingQuantity,
+                    "is_complete" => !$isPartialOrder
+                ];
             }
         }
     }
