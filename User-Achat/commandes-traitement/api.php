@@ -589,6 +589,19 @@ function handleCompletePartialOrder($pdo, $user_id)
         $_SESSION['temp_material_prices'][$materialId] = $prixUnitaire;
         $_SESSION['selected_material_ids'] = [$materialId];
 
+        // Enregistrer l'ID de la commande pour mise à jour du pro-forma lors de
+        // la génération du bon de commande
+        if (!isset($_SESSION['bulk_purchase_orders'])) {
+            $_SESSION['bulk_purchase_orders'] = [];
+        }
+        $_SESSION['bulk_purchase_orders'][] = [
+            'material_id' => $materialId,
+            'order_id' => $newOrderId,
+            'quantity' => $quantiteCommande,
+            'remaining' => $nouvelleQuantiteRestante,
+            'is_complete' => $isComplete
+        ];
+
         // Générer un jeton pour le téléchargement
         $downloadToken = md5(time() . $material['idExpression'] . rand(1000, 9999));
         $_SESSION['download_token'] = $downloadToken;
