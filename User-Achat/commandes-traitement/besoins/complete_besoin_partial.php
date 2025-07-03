@@ -226,6 +226,19 @@ try {
     $_SESSION['selected_material_ids'] = [$materialId];
     $_SESSION['selected_material_sources'] = [$materialId => 'besoins'];
 
+    // Enregistrer l'ID de la commande pour mettre 
+    // à jour le pro-forma lors de la génération du bon de commande
+    if (!isset($_SESSION['bulk_purchase_orders'])) {
+        $_SESSION['bulk_purchase_orders'] = [];
+    }
+    $_SESSION['bulk_purchase_orders'][] = [
+        'material_id' => $materialId,
+        'order_id' => $newOrderId,
+        'quantity' => $quantiteCommande,
+        'remaining' => $nouvelleQuantiteRestante,
+        'is_complete' => $isComplete
+    ];
+
     // Générer un jeton de sécurité temporaire pour le téléchargement
     $downloadToken = md5(time() . $besoin['idBesoin'] . rand(1000, 9999));
     $_SESSION['download_token'] = $downloadToken;
