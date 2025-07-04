@@ -160,28 +160,51 @@ function processProformaUpload($pdo, $achatMateriauxId, $fournisseurId, $projetC
 {
     // Vérifier qu'un fichier pro-forma a été uploadé
     if (!isset($_FILES['proforma_file']) || $_FILES['proforma_file']['error'] === UPLOAD_ERR_NO_FILE) {
-        return null; // Pas de pro-forma, ce n'est pas une erreur
+        return null; // Pas de pro-forma
     }
+
+    static $storedFile = null;
 
     try {
         $uploadHandler = new ProformaUploadHandler($pdo);
 
-        $result = $uploadHandler->uploadFile(
-            $_FILES['proforma_file'],
+        if ($storedFile === null) {
+            // Première insertion : on déplace le fichier
+            $result = $uploadHandler->uploadFile(
+                $_FILES['proforma_file'],
+                $achatMateriauxId,
+                $fournisseurId,
+                $projetClient,
+                $productId
+            );
+
+            if ($result && $result['success']) {
+                $storedFile = [
+                    'filename' => $result['filename'],
+                    'data' => [
+                        'name' => $_FILES['proforma_file']['name'],
+                        'type' => $_FILES['proforma_file']['type'],
+                        'size' => $_FILES['proforma_file']['size']
+                    ]
+                ];
+            }
+            return $result;
+        }
+
+        // Autres lignes : réutiliser le même fichier
+        return $uploadHandler->linkExistingFile(
+            $storedFile['filename'],
+            $storedFile['data'],
             $achatMateriauxId,
             $fournisseurId,
             $projetClient,
             $productId
         );
-
-        return $result;
     } catch (Exception $e) {
-        // Log l'erreur mais ne pas faire échouer toute la commande
         error_log("Erreur upload pro-forma pour commande {$achatMateriauxId}: " . $e->getMessage());
         return ['success' => false, 'error' => $e->getMessage()];
     }
 }
-
 /**
  * Validation du mode de paiement - VERSION CORRIGÉE
  * Valide l'ID du mode de paiement et retourne ses informations
