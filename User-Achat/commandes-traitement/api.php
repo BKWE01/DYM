@@ -24,6 +24,8 @@ include_once 'utils/combine_orders.php';
 
 // Inclure les fonctions de journalisation
 include_once 'utils/system_logger.php';
+// Fonctions liées aux produits (création et mise à jour de prix)
+require_once '../price_update_functions.php';
 
 // Traiter les requêtes en fonction de l'action demandée
 $action = isset($_GET['action']) ? $_GET['action'] : (isset($_POST['action']) ? $_POST['action'] : '');
@@ -521,6 +523,9 @@ function handleCompletePartialOrder($pdo, $user_id)
 
         $newOrderId = $pdo->lastInsertId();
 
+        // Créer ou récupérer l'id du produit associé à cette commande
+        $productId = createProductIfNotExists($pdo, $designation, $unit);
+
         // 5. Mettre à jour la quantité restante et le statut si nécessaire
         if ($isComplete) {
             // Si la commande est complète, marquer comme "valide_en_cours"
@@ -629,7 +634,8 @@ function handleCompletePartialOrder($pdo, $user_id)
                     $_FILES['proforma_file'],
                     $newOrderId,
                     $fournisseurId,
-                    $material['code_projet'] ?? null
+                    $material['code_projet'] ?? null,
+                    $productId
                 );
                 $proformaUploaded = $upload['success'];
                 if ($proformaUploaded && isset($upload['proforma_id'])) {
@@ -956,6 +962,11 @@ function completeMultiplePartial($pdo, $user_id)
                     $result = processPartialFromExpression($pdo, $user_id, $materialId, $quantiteCommande, $prixUnitaire, $fournisseur, $paymentMethod);
                 }
 
+                // Si aucun product_id n'est fourni, utiliser celui renvoyé par la fonction
+                if ($productId === null && isset($result['product_id'])) {
+                    $productId = $result['product_id'];
+                }
+
                 if ($result['success']) {
                     $successfulOrders[] = [
                         'material_id' => $materialId,
@@ -1156,6 +1167,9 @@ function processPartialFromBesoins($pdo, $user_id, $materialId, $quantiteCommand
 
     $newOrderId = $pdo->lastInsertId();
 
+    // Déterminer le produit associé
+    $productId = createProductIfNotExists($pdo, $besoin['designation_article'], $besoin['unit']);
+
     // Mettre à jour les quantités achetées et restantes
     $nouvelleQuantiteRestante = $besoin['qt_restante'] - $quantiteCommande;
     $nouvelleQuantiteAchetee  = floatval($besoin['qt_acheter']) + $quantiteCommande;
@@ -1186,7 +1200,10 @@ function processPartialFromBesoins($pdo, $user_id, $materialId, $quantiteCommand
         'is_complete' => $isComplete,
         // Utiliser le client récupéré depuis la table demandeur
         'project_client' => $besoin['idBesoin'] ?? null,
-        'expression_id' => $besoin['idBesoin']
+        'expression_id' => $besoin['idBesoin'],
+        'product_id' => $productId,
+        'designation' => $besoin['designation_article'],
+        'unit' => $besoin['unit']
     ];
 }
 
@@ -1242,6 +1259,9 @@ function processPartialFromExpression($pdo, $user_id, $materialId, $quantiteComm
 
     $newOrderId = $pdo->lastInsertId();
 
+    // Déterminer le produit associé
+    $productId = createProductIfNotExists($pdo, $material['designation'], $material['unit']);
+
     // Mettre à jour la quantité restante
     $nouvelleQuantiteRestante = $material['qt_restante'] - $quantiteCommande;
     $isComplete = $nouvelleQuantiteRestante <= 0;
@@ -1259,7 +1279,10 @@ function processPartialFromExpression($pdo, $user_id, $materialId, $quantiteComm
         'remaining' => $nouvelleQuantiteRestante,
         'is_complete' => $isComplete,
         'project_client' => $material['code_projet'] ?? null,
-        'expression_id' => $material['idExpression']
+        'expression_id' => $material['idExpression'],
+        'product_id' => $productId,
+        'designation' => $material['designation'],
+        'unit' => $material['unit']
     ];
 }
 
