@@ -185,19 +185,19 @@ try {
 
     // Compteur pour matériaux vraiment en attente (excluant les partiels)
     $pendingMaterialsQuery = "SELECT (
-    (SELECT COUNT(*) 
+    (SELECT COUNT(*)
      FROM expression_dym ed
-     WHERE ed.qt_acheter IS NOT NULL 
-     AND ed.qt_acheter > 0 
-     AND (ed.valide_achat = 'pas validé' OR ed.valide_achat IS NULL)
+     WHERE ed.qt_acheter IS NOT NULL
+     AND ed.qt_acheter > 0
+     AND (ed.valide_achat = 'pas validé' OR ed.valide_achat IS NULL OR ed.valide_achat = '')
      AND ed.valide_achat != 'en_cours'
      AND " . getFilteredDateCondition('ed.created_at') . ")
     +
-    (SELECT COUNT(*) 
+    (SELECT COUNT(*)
      FROM besoins b
-     WHERE b.qt_acheter IS NOT NULL 
-     AND b.qt_acheter > 0 
-     AND (b.achat_status = 'pas validé' OR b.achat_status IS NULL)
+     WHERE b.qt_acheter IS NOT NULL
+     AND b.qt_acheter > 0
+     AND (b.achat_status = 'pas validé' OR b.achat_status IS NULL OR b.achat_status = '')
      AND b.achat_status != 'en_cours'
      AND " . getFilteredDateCondition('b.created_at') . ")
 ) as pending_total";
@@ -1568,7 +1568,11 @@ function formatNumber($number)
                                         try {
                                             // N'afficher que les matériaux qui sont réellement en attente (pas validé)
                                             // et qui ne sont pas en cours de commande partielle
-                                            $isPending = ($material['valide_achat'] === 'pas validé' || $material['valide_achat'] === NULL);
+                                            $isPending = (
+                                                $material['valide_achat'] === 'pas validé' ||
+                                                $material['valide_achat'] === NULL ||
+                                                $material['valide_achat'] === ''
+                                            );
                                             $isPartial = $material['valide_achat'] === 'en_cours';
 
                                             // On n'affiche que les matériaux complètement en attente
