@@ -55,6 +55,7 @@ try {
         COALESCE(ed.unit, b.caracteristique, CASE WHEN co.order_id = 0 THEN NULL ELSE am.unit END) as unit,
         COALESCE(ed.prix_unitaire, CASE WHEN co.order_id = 0 THEN NULL ELSE am.prix_unitaire END) as prix_unitaire,
         COALESCE(ed.fournisseur, CASE WHEN co.order_id = 0 THEN NULL ELSE am.fournisseur END) as fournisseur,
+        p.product_image,
         /* Récupérer les infos pour les besoins système */
         d.client as demandeur_nom,
         d.service_demandeur,
@@ -93,6 +94,8 @@ try {
     LEFT JOIN besoins b ON (co.project_id = b.idBesoin AND LOWER(co.designation) = LOWER(b.designation_article))
     /* Jointure avec demandeur pour les infos sur les besoins système */
     LEFT JOIN demandeur d ON b.idBesoin = d.idBesoin
+    /* Récupérer l'image du produit */
+    LEFT JOIN products p ON LOWER(p.product_name) = LOWER(co.designation)
     ORDER BY co.canceled_at DESC";
 
     $stmt = $pdo->prepare($query);
@@ -210,6 +213,7 @@ try {
             'original_status' => $formattedStatus,
             'quantity' => $formattedQuantity,
             'fournisseur' => $order['fournisseur'] ?: 'Non spécifié',
+            'product_image' => $order['product_image'],
             'canceled_at' => $canceledAt,
             'cancel_reason' => $order['cancel_reason'],
             'order_id' => $order['order_id'],

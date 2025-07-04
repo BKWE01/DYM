@@ -2802,6 +2802,7 @@ function formatNumber($number)
                             <tr>
                                 <th>Projet</th>
                                 <th>Client</th>
+                                <th>Image</th>
                                 <th>Produit</th>
                                 <th>Statut original</th>
                                 <th>Quantité</th>
@@ -2814,7 +2815,7 @@ function formatNumber($number)
                         <tbody>
                             <!-- Les données seront chargées dynamiquement -->
                             <tr>
-                                <td colspan="9" class="text-center py-4">Chargement des données...</td>
+                                <td colspan="10" class="text-center py-4">Chargement des données...</td>
                             </tr>
                         </tbody>
                     </table>

@@ -1264,6 +1264,16 @@ const DataTablesManager = {
                 data: 'nom_client'
             },
             {
+                data: 'product_image',
+                render: (data, type, row) => {
+                    if (data) {
+                        return `<img src="../${Utils.escapeHtml(data)}" alt="${Utils.escapeHtml(row.designation)}" class="product-image">`;
+                    }
+                    return `<span class="material-icons text-gray-400">inventory_2</span>`;
+                },
+                orderable: false
+            },
+            {
                 data: 'designation'
             },
             {
@@ -1294,10 +1304,10 @@ const DataTablesManager = {
             ],
             columnDefs: [{
                 type: 'date-fr',
-                targets: 6
+                targets: 7
             }],
             order: [
-                [6, 'desc']
+                [7, 'desc']
             ],
             pageLength: CONFIG.DATATABLES.PAGE_LENGTH
         });
