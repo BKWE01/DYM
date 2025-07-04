@@ -1846,6 +1846,7 @@ function formatNumber($number)
                                     </th>
                                     <th>Projet</th>
                                     <th>Client</th>
+                                    <th>Image</th>
                                     <th>Désignation</th>
                                     <th>Quantité initiale</th>
                                     <th>Quantité commandée</th>
@@ -1857,7 +1858,7 @@ function formatNumber($number)
                             <tbody id="partial-orders-body">
                                 <!-- Les données seront chargées dynamiquement par JavaScript -->
                                 <tr>
-                                    <td colspan="9" class="px-6 py-4 text-center text-sm text-gray-500">
+                                    <td colspan="10" class="px-6 py-4 text-center text-sm text-gray-500">
                                         Chargement des données...
                                     </td>
                                 </tr>

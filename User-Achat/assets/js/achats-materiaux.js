@@ -844,6 +844,15 @@ const EventHandlers = {
                 }
             });
         }
+        const partialTable = document.getElementById('partialOrdersTable');
+        if (partialTable) {
+            partialTable.addEventListener('click', (e) => {
+                const target = e.target;
+                if (target.classList.contains('product-image')) {
+                    ModalManager.openImageViewer(target.getAttribute('src'), target.getAttribute('alt') || 'Aper\u00e7u');
+                }
+            });
+        }
     },
     setupModalEvents() {
         // Fermeture des modals
@@ -2409,7 +2418,7 @@ const PartialOrdersManager = {
         if (tbody) {
             tbody.innerHTML = `
             <tr>
-                <td colspan="9" class="px-6 py-4 text-center text-sm text-gray-500">
+                <td colspan="10" class="px-6 py-4 text-center text-sm text-gray-500">
                     <div class="flex items-center justify-center">
                         <svg class="animate-spin h-5 w-5 mr-3" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -2430,7 +2439,7 @@ const PartialOrdersManager = {
         if (tbody) {
             tbody.innerHTML = `
             <tr>
-                <td colspan="9" class="px-6 py-4 text-center text-sm text-red-500">
+                <td colspan="10" class="px-6 py-4 text-center text-sm text-red-500">
                     <div class="flex items-center justify-center">
                         <span class="material-icons mr-2">error_outline</span>
                         Erreur: ${message || 'Veuillez réessayer'}
@@ -2485,7 +2494,7 @@ const PartialOrdersManager = {
         if (!materials || materials.length === 0) {
             tbody.innerHTML = `
             <tr>
-                <td colspan="9" class="px-6 py-4 text-center text-sm text-gray-500">
+                <td colspan="10" class="px-6 py-4 text-center text-sm text-gray-500">
                     <div class="flex flex-col items-center">
                         <span class="material-icons text-4xl mb-2 text-gray-300">inventory_2</span>
                         <span>Aucune commande partielle trouvée.</span>
@@ -2531,6 +2540,9 @@ const PartialOrdersManager = {
         const expressionId = sourceTable === 'besoins' ?
             material.idExpression || material.idBesoin || '' :
             material.idExpression || '';
+        const imageHtml = material.product_image
+            ? `<img src="../${Utils.escapeHtml(material.product_image)}" alt="${Utils.escapeHtml(designation)}" class="product-image">`
+            : `<div class="product-image-placeholder"><span class="material-icons text-gray-400">inventory_2</span></div>`;
         // Calculer les valeurs
         const initialQty = parseFloat(material.quantite_initiale || material.initial_qt_acheter || 0);
         const orderedQty = parseFloat(material.quantite_commandee || material.quantite_deja_commandee || 0);
@@ -2556,6 +2568,7 @@ const PartialOrdersManager = {
             </td>
             <td class="px-6 py-4 whitespace-nowrap">${material.code_projet || '-'}</td>
             <td class="px-6 py-4 whitespace-nowrap">${material.nom_client || '-'}</td>
+            <td class="px-6 py-4 whitespace-nowrap">${imageHtml}</td>
             <td class="px-6 py-4 whitespace-nowrap font-medium">${Utils.escapeHtml(designation)}</td>
             <td class="px-6 py-4 whitespace-nowrap">${Utils.formatQuantity(initialQty)} ${Utils.escapeHtml(unit)}</td>
             <td class="px-6 py-4 whitespace-nowrap">${Utils.formatQuantity(orderedQty)} ${Utils.escapeHtml(unit)}</td>
@@ -2632,13 +2645,13 @@ const PartialOrdersManager = {
             buttons: CONFIG.DATATABLES.BUTTONS,
             columnDefs: [{
                 orderable: false,
-                targets: [0, 8]
+                targets: [0, 9]
             }, {
                 responsivePriority: 1,
-                targets: [3, 6]
+                targets: [4, 7]
             }],
             order: [
-                [4, 'desc']
+                [5, 'desc']
             ],
             pageLength: 10,
             drawCallback: () => {
