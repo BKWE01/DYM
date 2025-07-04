@@ -184,27 +184,7 @@ try {
     // ===============================
 
     // Compteur pour matériaux vraiment en attente (excluant les partiels)
-    $pendingMaterialsQuery = "SELECT (
-    (SELECT COUNT(*) 
-     FROM expression_dym ed
-     WHERE ed.qt_acheter IS NOT NULL 
-     AND ed.qt_acheter > 0 
-     AND (ed.valide_achat = 'pas validé' OR ed.valide_achat IS NULL)
-     AND ed.valide_achat != 'en_cours'
-     AND " . getFilteredDateCondition('ed.created_at') . ")
-    +
-    (SELECT COUNT(*) 
-     FROM besoins b
-     WHERE b.qt_acheter IS NOT NULL 
-     AND b.qt_acheter > 0 
-     AND (b.achat_status = 'pas validé' OR b.achat_status IS NULL)
-     AND b.achat_status != 'en_cours'
-     AND " . getFilteredDateCondition('b.created_at') . ")
-) as pending_total";
-
-    $pendingStmt = $pdo->prepare($pendingMaterialsQuery);
-    $pendingStmt->execute();
-    $pendingMaterialsCount = $pendingStmt->fetch(PDO::FETCH_ASSOC)['pending_total'];
+    $pendingMaterialsCount = 0; // valeur par défaut
 
     // Compteur total pour l'onglet principal (tous les matériaux à acheter)
     $countMateriauxQuery = "SELECT (
@@ -369,6 +349,16 @@ try {
     $allMaterialsStmt = $pdo->prepare($allMaterialsQuery);
     $allMaterialsStmt->execute();
     $allMaterials = $allMaterialsStmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Recalculer le compteur des matériaux en attente de commande
+    foreach ($allMaterials as $mat) {
+        $status = $mat['valide_achat'] ?? null;
+        $isPending = ($status === 'pas validé' || $status === '' || $status === null);
+        $isPartial = ($status === 'en_cours');
+        if ($isPending && !$isPartial) {
+            $pendingMaterialsCount++;
+        }
+    }
 
     // Récupérer les matériaux reçus avec informations d'achat
     $recentsQuery = "
