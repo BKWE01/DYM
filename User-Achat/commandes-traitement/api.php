@@ -211,6 +211,7 @@ function handleGetRemainingMaterials($pdo)
                      ed.fournisseur,
                      ip.code_projet,
                      ip.nom_client,
+                     NULL as product_id,
                      'expression_dym' as source_table,
                      (
                          SELECT COALESCE(SUM(am.quantity), 0) 
@@ -237,6 +238,7 @@ function handleGetRemainingMaterials($pdo)
                      NULL as fournisseur,
                      CONCAT('SYS-', COALESCE(d.service_demandeur, 'Système')) as code_projet,
                      COALESCE(d.client, 'Demande interne') as nom_client,
+                     b.product_id,
                      'besoins' as source_table,
                      (
                          SELECT COALESCE(SUM(am.quantity), 0) 
@@ -861,6 +863,7 @@ function completeMultiplePartial($pdo, $user_id)
         $quantities = $_POST['quantities'] ?? [];
         $prices = $_POST['prices'] ?? [];
         $sourceTable = $_POST['source_table'] ?? [];
+        $productIds = $_POST['product_id'] ?? [];
         $createFournisseur = isset($_POST['create_fournisseur']) ? true : false;
 
         // Validation des données de base
@@ -940,6 +943,7 @@ function completeMultiplePartial($pdo, $user_id)
                 $quantiteCommande = floatval($quantities[$materialId] ?? 0);
                 $prixUnitaire = floatval($prices[$materialId] ?? 0);
                 $source = $sourceTable[$materialId] ?? 'expression_dym';
+                $productId = isset($productIds[$materialId]) && $productIds[$materialId] !== '' ? intval($productIds[$materialId]) : null;
 
                 if ($quantiteCommande <= 0 || $prixUnitaire <= 0) {
                     throw new Exception("Quantité ou prix invalide pour le matériau ID $materialId");
@@ -975,7 +979,8 @@ function completeMultiplePartial($pdo, $user_id)
                                 $_FILES['proforma_file'],
                                 $result['order_id'],
                                 $fournisseurId,
-                                $result['project_client'] ?? null
+                                $result['project_client'] ?? null,
+                                $productId
                             );
 
                             $proformaResults[] = [
