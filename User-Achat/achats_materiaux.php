@@ -303,8 +303,9 @@ try {
             ed.fournisseur, 
             ed.qt_restante, 
             ed.initial_qt_acheter,
-            ip.code_projet, 
-            ip.nom_client, 
+            ip.code_projet,
+            ip.nom_client,
+            p.product_image,
             ip.created_at,
             'expression_dym' AS source_table,
             (SELECT am.fournisseur 
@@ -321,6 +322,7 @@ try {
              LIMIT 1) AS categorie_fournisseur
         FROM expression_dym ed
         INNER JOIN identification_projet ip ON ed.idExpression = ip.idExpression
+        LEFT JOIN products p ON LOWER(p.product_name) = LOWER(ed.designation)
         WHERE ed.qt_acheter IS NOT NULL 
         AND ed.qt_acheter > 0
         AND ed.valide_achat != 'annulé'
@@ -334,14 +336,15 @@ try {
             b.idBesoin as idExpression, 
             b.designation_article as designation, 
             b.qt_acheter, 
-            b.caracteristique as unit, 
-            b.achat_status as valide_achat, 
-            NULL as prix_unitaire, 
-            NULL as fournisseur, 
+            b.caracteristique as unit,
+            b.achat_status as valide_achat,
+            NULL as prix_unitaire,
+            NULL as fournisseur,
             NULL as qt_restante,
             NULL as initial_qt_acheter,
-            CONCAT('SYSTÈME-', d.client) as code_projet, 
-            d.client as nom_client, 
+            CONCAT('SYSTÈME-', d.client) as code_projet,
+            d.client as nom_client,
+            p.product_image,
             b.created_at,
             'besoins' as source_table,
             (SELECT am.fournisseur 
@@ -358,6 +361,7 @@ try {
              LIMIT 1) AS categorie_fournisseur
         FROM besoins b
         LEFT JOIN demandeur d ON b.idBesoin = d.idBesoin
+        LEFT JOIN products p ON p.id = b.product_id
         WHERE b.qt_acheter IS NOT NULL 
         AND b.qt_acheter != '' 
         AND b.qt_acheter > 0
@@ -1036,6 +1040,26 @@ function formatNumber($number)
             display: block;
         }
 
+        /* Style pour les images de produit */
+        .product-image {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 2px solid #e5e7eb;
+        }
+
+        .product-image-placeholder {
+            width: 50px;
+            height: 50px;
+            background-color: #f3f4f6;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #e5e7eb;
+        }
+
         /* Tooltips */
         .tooltip {
             position: relative;
@@ -1551,6 +1575,7 @@ function formatNumber($number)
                                             class="select-all-checkbox"></th>
                                     <th>Projet</th>
                                     <th>Client</th>
+                                    <th>Image</th>
                                     <th>Produit</th>
                                     <th>Quantité</th>
                                     <th>Unité</th>
@@ -1615,6 +1640,15 @@ function formatNumber($number)
                                                 </td>
                                                 <td><?= $projet ?></td>
                                                 <td><?= $client ?></td>
+                                                <td>
+                                                    <?php if (!empty($material['product_image']) && file_exists('../' . ltrim($material['product_image'], '/'))): ?>
+                                                        <img src="../<?= htmlspecialchars($material['product_image']) ?>" alt="<?= htmlspecialchars($designation) ?>" class="product-image">
+                                                    <?php else: ?>
+                                                        <div class="product-image-placeholder">
+                                                            <span class="material-icons text-gray-400">inventory_2</span>
+                                                        </div>
+                                                    <?php endif; ?>
+                                                </td>
                                                 <td><?= htmlspecialchars($designation) ?>
                                                     <span class="source-indicator hidden" data-source="<?= $sourceTable ?>"></span>
                                                     <?php if ($sourceTable === 'besoins'): ?>
@@ -1688,7 +1722,7 @@ function formatNumber($number)
                                             error_log("Erreur de traitement du matériau : " . $materialException->getMessage());
                                         ?>
                                             <tr class="bg-red-100">
-                                                <td colspan="10">Erreur de chargement du matériau</td>
+                                                <td colspan="11">Erreur de chargement du matériau</td>
                                             </tr>
                                     <?php
                                         }
@@ -1697,7 +1731,7 @@ function formatNumber($number)
                                     error_log("Erreur globale lors du chargement des matériaux : " . $globalException->getMessage());
                                     ?>
                                     <tr>
-                                        <td colspan="10" class="text-center text-red-600">
+                                        <td colspan="11" class="text-center text-red-600">
                                             Impossible de charger les matériaux. Une erreur s'est produite.
                                         </td>
                                     </tr>
@@ -2576,7 +2610,7 @@ function formatNumber($number)
                                             error_log("Erreur de traitement du matériau : " . $materialException->getMessage());
                                         ?>
                                             <tr class="bg-red-100">
-                                                <td colspan="10">Erreur de chargement du matériau</td>
+                                                <td colspan="11">Erreur de chargement du matériau</td>
                                             </tr>
                                     <?php
                                         }
@@ -2585,7 +2619,7 @@ function formatNumber($number)
                                     error_log("Erreur globale lors du chargement des matériaux : " . $globalException->getMessage());
                                     ?>
                                     <tr>
-                                        <td colspan="10" class="text-center text-red-600">
+                                        <td colspan="11" class="text-center text-red-600">
                                             Impossible de charger les matériaux. Une erreur s'est produite.
                                         </td>
                                     </tr>
