@@ -995,15 +995,15 @@ const DataTablesManager = {
             buttons: CONFIG.DATATABLES.BUTTONS,
             columnDefs: [{
                 orderable: false,
-                targets: [0, 9]
+                targets: [0, 10]
             },
             {
                 type: 'date-fr',
-                targets: 8
+                targets: 9
             }
             ],
             order: [
-                [8, 'desc']
+                [9, 'desc']
             ],
             pageLength: CONFIG.DATATABLES.PAGE_LENGTH,
             drawCallback: function () {
