@@ -1060,6 +1060,77 @@ function formatNumber($number)
             border: 2px solid #e5e7eb;
         }
 
+        /* === STYLES POUR LA MODAL DE VISUALISATION D'IMAGE === */
+        #imageViewerModal {
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+
+        #imageViewerModal .modal-content {
+            animation: modalFadeIn 0.3s ease-out;
+        }
+
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .image-viewer-container {
+            max-height: 80vh;
+            max-width: 90vw;
+            overflow: hidden;
+            border-radius: 12px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        .image-viewer-img {
+            max-width: 100%;
+            max-height: 80vh;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+
+        .image-viewer-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 12px 12px 0 0;
+        }
+
+        .image-viewer-actions {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 1.5rem;
+            border-radius: 0 0 12px 12px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .image-viewer-download-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .image-viewer-download-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
         /* Tooltips */
         .tooltip {
             position: relative;
@@ -3367,6 +3438,30 @@ function formatNumber($number)
                     </button>
                 </div>
             </form>
+        </div>
+    </div>
+    <!-- Modal: Visualisation d'image en grand -->
+    <div id="imageViewerModal" class="fixed inset-0 flex items-center justify-center z-50 hidden bg-black bg-opacity-75">
+        <div class="modal-content bg-white rounded-lg shadow-xl max-w-6xl mx-4 overflow-hidden">
+            <div class="image-viewer-header flex items-center justify-between">
+                <h3 class="text-lg font-semibold" id="imageViewerTitle">Aperçu de l'image</h3>
+                <button type="button" id="closeImageViewerBtn" class="text-white hover:text-gray-200 focus:outline-none">
+                    <span class="material-icons text-2xl">close</span>
+                </button>
+            </div>
+            <div class="image-viewer-container bg-gray-50 flex items-center justify-center p-4">
+                <img id="imageViewerImg" class="image-viewer-img" alt="Aperçu du produit" />
+            </div>
+            <div class="image-viewer-actions flex justify-between items-center">
+                <div class="text-sm text-gray-600">
+                    <span class="material-icons text-sm mr-1 align-middle">info</span>
+                    Utilisez la molette pour zoomer
+                </div>
+                <button id="downloadImageBtn" class="image-viewer-download-btn">
+                    <span class="material-icons text-sm">download</span>
+                    Télécharger
+                </button>
+            </div>
         </div>
     </div>
     <!-- ============== end modal ================ -->
