@@ -200,7 +200,8 @@ CREATE TABLE IF NOT EXISTS `proformas` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `achat_materiau_id` int(11) NOT NULL COMMENT 'ID de la commande dans achats_materiaux',
   `bon_commande_id` int(11) DEFAULT NULL COMMENT 'ID du bon de commande (si table séparée)',
-  `fournisseur` varchar(255) NOT NULL COMMENT 'Nom du fournisseur',
+  `fournisseur_id` int(11) NOT NULL COMMENT 'ID du fournisseur',
+  `id_product` int(11) DEFAULT NULL COMMENT 'ID du produit concerné',
   `projet_client` varchar(255) DEFAULT NULL COMMENT 'Projet ou client associé',
   `file_path` varchar(500) NOT NULL COMMENT 'Chemin vers le fichier pro-forma',
   `original_filename` varchar(255) NOT NULL COMMENT 'Nom original du fichier',
@@ -214,10 +215,11 @@ CREATE TABLE IF NOT EXISTS `proformas` (
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`id`),
   KEY `idx_achat_materiau` (`achat_materiau_id`),
-  KEY `idx_fournisseur` (`fournisseur`),
+  KEY `idx_fournisseur` (`fournisseur_id`),
   KEY `idx_upload_date` (`upload_date`),
   KEY `idx_status` (`status`),
   KEY `idx_upload_user` (`upload_user_id`),
+  KEY `idx_product` (`id_product`),
   -- Contrainte pour lier aux achats de matériaux
   CONSTRAINT `fk_proforma_achat` FOREIGN KEY (`achat_materiau_id`) 
     REFERENCES `achats_materiaux` (`id`) ON DELETE CASCADE ON UPDATE CASCADE

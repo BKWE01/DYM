@@ -50,6 +50,8 @@ class ProformaUploadHandler
             'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
             'application/vnd.ms-excel',
             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            // Certains navigateurs envoient les PDF sous ce type MIME générique
+            'application/octet-stream',
             'image/jpeg',
             'image/jpg',
             'image/png',
@@ -63,7 +65,7 @@ class ProformaUploadHandler
     /**
      * Upload un fichier pro-forma et l'associe à une commande
      */
-    public function uploadFile($fileData, $achatMateriauxId, $fournisseur, $projetClient = null)
+    public function uploadFile($fileData, $achatMateriauxId, $fournisseurId, $projetClient = null)
     {
         try {
             // Validation de base
@@ -89,7 +91,7 @@ class ProformaUploadHandler
             // Enregistrer en base de données
             $proformaId = $this->saveToDatabase(
                 $achatMateriauxId,
-                $fournisseur,
+                $fournisseurId,
                 $projetClient,
                 $filename,
                 $fileData
@@ -202,14 +204,14 @@ class ProformaUploadHandler
     /**
      * Sauvegarde les informations en base de données
      */
-    private function saveToDatabase($achatMateriauxId, $fournisseur, $projetClient, $filename, $fileData)
+    private function saveToDatabase($achatMateriauxId, $fournisseurId, $projetClient, $filename, $fileData)
     {
         $query = "INSERT INTO proformas (
-            achat_materiau_id, 
-            fournisseur, 
-            projet_client, 
-            file_path, 
-            original_filename, 
+            achat_materiau_id,
+            fournisseur_id,
+            projet_client,
+            file_path,
+            original_filename,
             file_type, 
             file_size, 
             upload_user_id, 
@@ -223,7 +225,7 @@ class ProformaUploadHandler
 
         $stmt->execute([
             $achatMateriauxId,
-            $fournisseur,
+            $fournisseurId,
             $projetClient,
             $filePath,
             $fileData['name'],

@@ -1943,6 +1943,19 @@ const PurchaseManager = {
             });
             // Préparer les données
             const formData = new FormData(form);
+            // Assurer la présence des champs essentiels
+            if (!formData.has('fournisseur')) {
+                formData.append('fournisseur', fournisseur);
+            } else {
+                formData.set('fournisseur', fournisseur);
+            }
+            const paymentMethodValue = document.getElementById('payment-method-bulk').value;
+            if (!formData.has('payment_method')) {
+                formData.append('payment_method', paymentMethodValue);
+            } else {
+                formData.set('payment_method', paymentMethodValue);
+            }
+
             if (!formData.has('bulk_purchase')) {
                 formData.append('bulk_purchase', '1');
             }
@@ -2791,6 +2804,7 @@ const PartialOrdersManager = {
                 const paymentInfo = PaymentMethodsManager.getMethodById(
                     document.getElementById('payment-method')?.value
                 );
+                const paymentLabel = result.value.payment_method_label || paymentInfo?.label;
                 Swal.fire({
                     title: 'Succès !',
                     html: `
@@ -2800,7 +2814,7 @@ const PartialOrdersManager = {
                         </div>
                         <p class="mb-2">Commande enregistrée avec succès</p>
                         <div class="text-sm text-gray-600">
-                            <p>💳 Mode de paiement: ${paymentInfo?.label || 'Non défini'}</p>
+                            <p>💳 Mode de paiement: ${paymentLabel || 'Non défini'}</p>
                             <p>📦 Quantité: ${document.getElementById('quantity')?.value || 0} ${unit}</p>
                         </div>
                         ${result.value.pdf_url ? '<p class="mt-2 text-blue-600">📄 Le bon de commande est en cours de téléchargement</p>' : ''}
@@ -2891,8 +2905,16 @@ const PartialOrdersManager = {
             formData.append('payment_method', paymentMethod); // NOUVEAU : obligatoire
             formData.append('source_table', sourceTable);
             const proformaInput = document.getElementById('proforma-upload');
+            let proformaFile = null;
             if (proformaInput && proformaInput.files.length > 0) {
-                formData.append('proforma_file', proformaInput.files[0]);
+                proformaFile = proformaInput.files[0];
+            } else if (window.ProformaUploadManager &&
+                typeof ProformaUploadManager.hasFile === 'function' &&
+                ProformaUploadManager.hasFile()) {
+                proformaFile = ProformaUploadManager.getFile();
+            }
+            if (proformaFile) {
+                formData.append('proforma_file', proformaFile);
             }
             if (fournisseurResult.newFournisseur) {
                 formData.append('create_fournisseur', '1');

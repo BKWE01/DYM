@@ -1,1 +1,1 @@
-2025-06-27 07:51:45 [PROFORMA ERROR] Fichier invalide ou non fourni Context: {"material_id":"229","order_id":"742","designation":"Savon mecanique"}
+2025-06-27 07:51:45 [PROFORMA ERROR] Fichier invalide ou non fourni Context: {"material_id":"229","order_id":"742","designation":"Savon mecanique"}2025-07-04 09:18:25 [PROFORMA ERROR] SQLSTATE[23000]: Integrity constraint violation: 1048 Column 'id_product' cannot be null Context: {"material_id":"219","order_id":"809","designation":"D\u00e9grippant - Formule MOS2"}

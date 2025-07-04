@@ -156,7 +156,7 @@ if (empty($materialIds) || empty($fournisseur) || empty($paymentMethod)) {
 /**
  * Fonction pour traiter l'upload du pro-forma après création de commande
  */
-function processProformaUpload($pdo, $achatMateriauxId, $fournisseur, $projetClient = null)
+function processProformaUpload($pdo, $achatMateriauxId, $fournisseurId, $projetClient = null)
 {
     // Vérifier qu'un fichier pro-forma a été uploadé
     if (!isset($_FILES['proforma_file']) || $_FILES['proforma_file']['error'] === UPLOAD_ERR_NO_FILE) {
@@ -169,7 +169,7 @@ function processProformaUpload($pdo, $achatMateriauxId, $fournisseur, $projetCli
         $result = $uploadHandler->uploadFile(
             $_FILES['proforma_file'],
             $achatMateriauxId,
-            $fournisseur,
+            $fournisseurId,
             $projetClient
         );
 
@@ -277,7 +277,7 @@ try {
 
     if (!$fournisseurExists) {
         // Le fournisseur n'existe pas, le créer
-        $createFournisseurQuery = "INSERT INTO fournisseurs (nom, created_by, created_at) 
+        $createFournisseurQuery = "INSERT INTO fournisseurs (nom, created_by, created_at)
                                   VALUES (:nom, :created_by, NOW())";
         $createStmt = $pdo->prepare($createFournisseurQuery);
         $createStmt->bindParam(':nom', $fournisseur);
@@ -296,6 +296,8 @@ try {
                 "Création automatique du fournisseur lors d'une commande"
             );
         }
+    } else {
+        $fournisseurId = $fournisseurExists['id'];
     }
 
     // ========================================
@@ -379,7 +381,7 @@ try {
                 $newOrderId = $pdo->lastInsertId();
 
                 // NOUVEAU : Traiter l'upload du pro-forma
-                $proformaResult = processProformaUpload($pdo, $newOrderId, $fournisseur, $material['idExpression']);
+                $proformaResult = processProformaUpload($pdo, $newOrderId, $fournisseurId, $material['idExpression']);
                 if ($proformaResult) {
                     if ($proformaResult['success']) {
                         $proformasUploaded++;
@@ -454,6 +456,17 @@ try {
 
                 // Mise à jour des prix produits
                 updateProductPrice($pdo, $material['designation'], $price);
+                // Stocker les informations de commande pour le bon de commande
+                if (!isset($_SESSION['bulk_purchase_orders'])) {
+                    $_SESSION['bulk_purchase_orders'] = [];
+                }
+                $_SESSION['bulk_purchase_orders'][] = [
+                    "material_id" => $materialId,
+                    "order_id" => $newOrderId,
+                    "quantity" => $quantity,
+                    "remaining" => $remainingQuantity,
+                    "is_complete" => !$isPartialOrder
+                ];
             }
         } else if ($tableSource === 'besoins') {
             // ========================================
@@ -516,7 +529,7 @@ try {
                 $newOrderId = $pdo->lastInsertId();
 
                 // NOUVEAU : Traiter l'upload du pro-forma
-                $proformaResult = processProformaUpload($pdo, $newOrderId, $fournisseur, $material['idBesoin']);
+                $proformaResult = processProformaUpload($pdo, $newOrderId, $fournisseurId, $material['idBesoin']);
                 if ($proformaResult) {
                     if ($proformaResult['success']) {
                         $proformasUploaded++;
@@ -586,6 +599,17 @@ try {
 
                 // Mise à jour des prix produits
                 updateProductPrice($pdo, $material['designation_article'], $price);
+                // Stocker les informations de commande pour le bon de commande
+                if (!isset($_SESSION['bulk_purchase_orders'])) {
+                    $_SESSION['bulk_purchase_orders'] = [];
+                }
+                $_SESSION['bulk_purchase_orders'][] = [
+                    "material_id" => $materialId,
+                    "order_id" => $newOrderId,
+                    "quantity" => $quantity,
+                    "remaining" => $remainingQuantity,
+                    "is_complete" => !$isPartialOrder
+                ];
             }
         }
     }

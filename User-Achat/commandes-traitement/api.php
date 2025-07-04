@@ -402,7 +402,7 @@ function handleCompletePartialOrder($pdo, $user_id)
     // Gestion du pro-forma
     require_once 'upload_proforma.php';
     $proformaHandler = new ProformaUploadHandler($pdo);
-    $hasProforma = isset($_FILES['proforma_file']) && $_FILES['proforma_file']['error'] !== UPLOAD_ERR_NO_FILE;
+    $hasProforma = isset($_FILES['proforma_file']) && $_FILES['proforma_file']['error'] === UPLOAD_ERR_OK;
 
     // Validation des données - MODIFIÉE
     if (!$materialId || $quantiteCommande <= 0 || !$fournisseur || $prixUnitaire <= 0 || !$paymentMethod) {
@@ -420,19 +420,19 @@ function handleCompletePartialOrder($pdo, $user_id)
             $checkStmt = $pdo->prepare($checkFournisseurQuery);
             $checkStmt->bindParam(':nom', $fournisseur);
             $checkStmt->execute();
+            $fournisseurData = $checkStmt->fetch(PDO::FETCH_ASSOC);
 
-            if (!$checkStmt->fetch()) {
+            if (!$fournisseurData) {
                 // Créer le fournisseur
-                $createFournisseurQuery = "INSERT INTO fournisseurs (nom, created_by, created_at) 
+                $createFournisseurQuery = "INSERT INTO fournisseurs (nom, created_by, created_at)
                                           VALUES (:nom, :created_by, NOW())";
                 $createStmt = $pdo->prepare($createFournisseurQuery);
                 $createStmt->bindParam(':nom', $fournisseur);
                 $createStmt->bindParam(':created_by', $user_id);
                 $createStmt->execute();
-
+                $fournisseurId = $pdo->lastInsertId();
                 // Journaliser la création
                 if (function_exists('logSystemEvent')) {
-                    $fournisseurId = $pdo->lastInsertId();
                     logSystemEvent(
                         $pdo,
                         $user_id,
@@ -445,11 +445,21 @@ function handleCompletePartialOrder($pdo, $user_id)
                         ])
                     );
                 }
+            } else {
+                $fournisseurId = $fournisseurData['id'];
             }
         }
 
+        if (!isset($fournisseurId)) {
+            $fetchIdStmt = $pdo->prepare("SELECT id FROM fournisseurs WHERE LOWER(nom) = LOWER(:nom)");
+            $fetchIdStmt->bindParam(':nom', $fournisseur);
+            $fetchIdStmt->execute();
+            $existingSupplier = $fetchIdStmt->fetch(PDO::FETCH_ASSOC);
+            $fournisseurId = $existingSupplier['id'] ?? null;
+        }
+
         // 1. Récupérer les informations du matériau
-        $materialQuery = "SELECT ed.*, ip.nom_client
+        $materialQuery = "SELECT ed.*, ip.code_projet, ip.nom_client
                            FROM expression_dym ed
                            LEFT JOIN identification_projet ip ON ed.idExpression = ip.idExpression
                            WHERE ed.id = :id";
@@ -540,6 +550,18 @@ function handleCompletePartialOrder($pdo, $user_id)
         // Valider la transaction
         $pdo->commit();
 
+        // Récupérer le libellé du mode de paiement pour la suite (bon de commande)
+        $paymentMethodLabel = '';
+        try {
+            $labelStmt = $pdo->prepare("SELECT label FROM payment_methods WHERE id = :id");
+            $labelStmt->bindParam(':id', $paymentMethod);
+            $labelStmt->execute();
+            $paymentMethodLabel = $labelStmt->fetchColumn() ?: '';
+            $_SESSION['temp_payment_method_label'] = $paymentMethodLabel;
+        } catch (Exception $e) {
+            error_log('Erreur récupération label mode paiement: ' . $e->getMessage());
+        }
+
         // Après le commit, effectuer les opérations qui ne nécessitent pas d'être dans la transaction
         if ($isComplete && function_exists('combinePartialOrders')) {
             $combineResult = combinePartialOrders($pdo, $newOrderId);
@@ -577,6 +599,19 @@ function handleCompletePartialOrder($pdo, $user_id)
         $_SESSION['temp_material_prices'][$materialId] = $prixUnitaire;
         $_SESSION['selected_material_ids'] = [$materialId];
 
+        // Enregistrer l'ID de la commande pour mise à jour du pro-forma lors de
+        // la génération du bon de commande
+        if (!isset($_SESSION['bulk_purchase_orders'])) {
+            $_SESSION['bulk_purchase_orders'] = [];
+        }
+        $_SESSION['bulk_purchase_orders'][] = [
+            'material_id' => $materialId,
+            'order_id' => $newOrderId,
+            'quantity' => $quantiteCommande,
+            'remaining' => $nouvelleQuantiteRestante,
+            'is_complete' => $isComplete
+        ];
+
         // Générer un jeton pour le téléchargement
         $downloadToken = md5(time() . $material['idExpression'] . rand(1000, 9999));
         $_SESSION['download_token'] = $downloadToken;
@@ -585,15 +620,26 @@ function handleCompletePartialOrder($pdo, $user_id)
 
         // Upload du pro-forma le cas échéant
         $proformaUploaded = false;
+        $uploadedProformaId = null;
         if ($hasProforma) {
             try {
                 $upload = $proformaHandler->uploadFile(
                     $_FILES['proforma_file'],
                     $newOrderId,
-                    $fournisseur,
-                    $material['nom_client'] ?? null
+                    $fournisseurId,
+                    $material['code_projet'] ?? null
                 );
                 $proformaUploaded = $upload['success'];
+                if ($proformaUploaded && isset($upload['proforma_id'])) {
+                    $uploadedProformaId = $upload['proforma_id'];
+                    // Lier le pro-forma à la commande
+                    $updateProforma = $pdo->prepare(
+                        'UPDATE achats_materiaux SET proforma_id = :pid WHERE id = :id'
+                    );
+                    $updateProforma->bindParam(':pid', $uploadedProformaId);
+                    $updateProforma->bindParam(':id', $newOrderId);
+                    $updateProforma->execute();
+                }
             } catch (Exception $proformaError) {
                 error_log('Erreur upload pro-forma: ' . $proformaError->getMessage());
             }
@@ -608,8 +654,10 @@ function handleCompletePartialOrder($pdo, $user_id)
             'remaining' => $nouvelleQuantiteRestante,
             'is_complete' => $isComplete,
             'payment_method' => $paymentMethod,
+            'payment_method_label' => $paymentMethodLabel,
             'pdf_url' => 'direct_download.php?token=' . $downloadToken,
-            'proforma_uploaded' => $proformaUploaded
+            'proforma_uploaded' => $proformaUploaded,
+            'proforma_id' => $uploadedProformaId
         ]);
     } catch (Exception $e) {
         if ($pdo->inTransaction()) {
@@ -813,6 +861,7 @@ function completeMultiplePartial($pdo, $user_id)
         $quantities = $_POST['quantities'] ?? [];
         $prices = $_POST['prices'] ?? [];
         $sourceTable = $_POST['source_table'] ?? [];
+        $createFournisseur = isset($_POST['create_fournisseur']) ? true : false;
 
         // Validation des données de base
         if (empty($materialIds) || empty($fournisseur) || empty($paymentMethod)) {
@@ -825,10 +874,52 @@ function completeMultiplePartial($pdo, $user_id)
         // NOUVEAU : Initialiser le gestionnaire de pro-forma
         $proformaHandler = new ProformaUploadHandler($pdo);
         $proformaResults = [];
-        $hasProforma = isset($_FILES['proforma_file']) && $_FILES['proforma_file']['error'] !== UPLOAD_ERR_NO_FILE;
+        $hasProforma = isset($_FILES['proforma_file']) && $_FILES['proforma_file']['error'] === UPLOAD_ERR_OK;
 
         // Validation du mode de paiement
         $paymentData = validatePaymentMethod($pdo, $paymentMethod);
+
+        // Récupérer ou créer le fournisseur si nécessaire
+        if ($createFournisseur) {
+            $checkFournisseurQuery = "SELECT id FROM fournisseurs WHERE LOWER(nom) = LOWER(:nom)";
+            $checkStmt = $pdo->prepare($checkFournisseurQuery);
+            $checkStmt->bindParam(':nom', $fournisseur);
+            $checkStmt->execute();
+            $fournisseurData = $checkStmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$fournisseurData) {
+                $createFournisseurQuery = "INSERT INTO fournisseurs (nom, created_by, created_at) VALUES (:nom, :created_by, NOW())";
+                $createStmt = $pdo->prepare($createFournisseurQuery);
+                $createStmt->bindParam(':nom', $fournisseur);
+                $createStmt->bindParam(':created_by', $user_id);
+                $createStmt->execute();
+                $fournisseurId = $pdo->lastInsertId();
+
+                if (function_exists('logSystemEvent')) {
+                    logSystemEvent(
+                        $pdo,
+                        $user_id,
+                        'create',
+                        'fournisseurs',
+                        $fournisseurId,
+                        json_encode([
+                            'nom' => $fournisseur,
+                            'source' => 'commande_partielle'
+                        ])
+                    );
+                }
+            } else {
+                $fournisseurId = $fournisseurData['id'];
+            }
+        }
+
+        if (!isset($fournisseurId)) {
+            $fetchIdStmt = $pdo->prepare("SELECT id FROM fournisseurs WHERE LOWER(nom) = LOWER(:nom)");
+            $fetchIdStmt->bindParam(':nom', $fournisseur);
+            $fetchIdStmt->execute();
+            $existingSupplier = $fetchIdStmt->fetch(PDO::FETCH_ASSOC);
+            $fournisseurId = $existingSupplier['id'] ?? null;
+        }
 
         // Démarrer la transaction
         $pdo->beginTransaction();
@@ -836,6 +927,13 @@ function completeMultiplePartial($pdo, $user_id)
         $successfulOrders = [];
         $errors = [];
         $totalProcessed = 0;
+        $expressionIds = [];
+        $materialPrices = [];
+        $selectedMaterials = [];
+        $materialSourcesMap = [];
+        if (!isset($_SESSION['commande_partielle_quantities'])) {
+            $_SESSION['commande_partielle_quantities'] = [];
+        }
 
         foreach ($materialIds as $materialId) {
             try {
@@ -863,13 +961,20 @@ function completeMultiplePartial($pdo, $user_id)
                         'is_complete' => $result['is_complete'] ?? false
                     ];
 
+                    // Conserver les informations pour le bon de commande
+                    $expressionIds[] = $result['expression_id'];
+                    $selectedMaterials[] = $materialId;
+                    $materialPrices[$materialId] = $prixUnitaire;
+                    $materialSourcesMap[$materialId] = $source;
+                    $_SESSION['commande_partielle_quantities'][$materialId] = $quantiteCommande;
+
                     // NOUVEAU : Traiter le pro-forma pour cette commande si présent
                     if ($hasProforma && !empty($result['order_id'])) {
                         try {
                             $proformaResult = $proformaHandler->uploadFile(
                                 $_FILES['proforma_file'],
                                 $result['order_id'],
-                                $fournisseur,
+                                $fournisseurId,
                                 $result['project_client'] ?? null
                             );
 
@@ -909,6 +1014,14 @@ function completeMultiplePartial($pdo, $user_id)
         $_SESSION['bulk_purchase_orders'] = $successfulOrders;
         $_SESSION['temp_fournisseur'] = $fournisseur;
         $_SESSION['temp_payment_method'] = $paymentMethod;
+        $_SESSION['temp_payment_method_label'] = $paymentData['label'] ?? '';
+        $_SESSION['temp_material_prices'] = $materialPrices;
+        $_SESSION['selected_material_ids'] = $selectedMaterials;
+        $_SESSION['selected_material_sources'] = $materialSourcesMap;
+        $_SESSION['bulk_purchase_expressions'] = array_values(array_unique($expressionIds));
+        if (!empty($expressionIds)) {
+            $_SESSION['download_expression_id'] = $expressionIds[0];
+        }
 
         // Générer un token pour le téléchargement
         $downloadToken = md5(time() . $user_id . rand(1000, 9999));
@@ -992,9 +1105,11 @@ function completeMultiplePartial($pdo, $user_id)
 function processPartialFromBesoins($pdo, $user_id, $materialId, $quantiteCommande, $prixUnitaire, $fournisseur, $paymentMethod)
 {
     // Récupérer les informations du besoin
-    $besoinQuery = "SELECT b.*, b.caracteristique AS unit, ip.code_projet, ip.nom_client
+    // Utiliser l'identifiant du besoin pour renseigner
+    // correctement la colonne `projet_client` des pro-formas.
+    $besoinQuery = "SELECT b.*, b.caracteristique AS unit, d.client
                     FROM besoins b
-                    LEFT JOIN identification_projet ip ON b.idBesoin = ip.idExpression
+                    LEFT JOIN demandeur d ON b.idBesoin = d.idBesoin
                     WHERE b.id = :id";
 
     $besoinStmt = $pdo->prepare($besoinQuery);
@@ -1036,15 +1151,27 @@ function processPartialFromBesoins($pdo, $user_id, $materialId, $quantiteCommand
 
     $newOrderId = $pdo->lastInsertId();
 
-    // Mettre à jour la quantité restante
+    // Mettre à jour les quantités achetées et restantes
     $nouvelleQuantiteRestante = $besoin['qt_restante'] - $quantiteCommande;
+    $nouvelleQuantiteAchetee  = floatval($besoin['qt_acheter']) + $quantiteCommande;
     $isComplete = $nouvelleQuantiteRestante <= 0;
 
-    $updateQuery = "UPDATE besoins SET qt_restante = :nouvelle_quantite WHERE id = :id";
+    $statusAchat = $isComplete ? 'valide_en_cours' : 'en_cours';
+
+    $updateQuery = "UPDATE besoins
+                        SET qt_restante = :nouvelle_quantite,
+                            qt_acheter  = :nouvelle_qt_acheter,
+                            achat_status = :status,
+                            user_achat   = :user_achat
+                      WHERE id = :id";
+
     $updateStmt = $pdo->prepare($updateQuery);
     $updateStmt->execute([
-        ':nouvelle_quantite' => $nouvelleQuantiteRestante,
-        ':id' => $materialId
+        ':nouvelle_quantite'   => $nouvelleQuantiteRestante,
+        ':nouvelle_qt_acheter' => $nouvelleQuantiteAchetee,
+        ':status'              => $statusAchat,
+        ':user_achat'          => $user_id,
+        ':id'                  => $materialId
     ]);
 
     return [
@@ -1052,7 +1179,9 @@ function processPartialFromBesoins($pdo, $user_id, $materialId, $quantiteCommand
         'order_id' => $newOrderId,
         'remaining' => $nouvelleQuantiteRestante,
         'is_complete' => $isComplete,
-        'project_client' => $besoin['nom_client'] ?? null
+        // Utiliser le client récupéré depuis la table demandeur
+        'project_client' => $besoin['idBesoin'] ?? null,
+        'expression_id' => $besoin['idBesoin']
     ];
 }
 
@@ -1062,7 +1191,9 @@ function processPartialFromBesoins($pdo, $user_id, $materialId, $quantiteCommand
 function processPartialFromExpression($pdo, $user_id, $materialId, $quantiteCommande, $prixUnitaire, $fournisseur, $paymentMethod)
 {
     // Récupérer les informations du matériau
-    $materialQuery = "SELECT ed.*, ip.code_projet, ip.nom_client 
+    // On utilise le code projet pour renseigner la colonne
+    // `projet_client` des pro-formas
+    $materialQuery = "SELECT ed.*, ip.code_projet, ip.nom_client
                       FROM expression_dym ed
                       LEFT JOIN identification_projet ip ON ed.idExpression = ip.idExpression
                       WHERE ed.id = :id";
@@ -1122,7 +1253,8 @@ function processPartialFromExpression($pdo, $user_id, $materialId, $quantiteComm
         'order_id' => $newOrderId,
         'remaining' => $nouvelleQuantiteRestante,
         'is_complete' => $isComplete,
-        'project_client' => $material['nom_client'] ?? null
+        'project_client' => $material['code_projet'] ?? null,
+        'expression_id' => $material['idExpression']
     ];
 }
 

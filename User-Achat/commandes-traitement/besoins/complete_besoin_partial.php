@@ -18,6 +18,10 @@ include_once '../../../database/connection.php';
 if (file_exists('../utils/system_logger.php')) {
     include_once '../utils/system_logger.php';
 }
+// Gestion du pro-forma
+require_once '../upload_proforma.php';
+$proformaHandler = new ProformaUploadHandler($pdo);
+$hasProforma = isset($_FILES['proforma_file']) && $_FILES['proforma_file']['error'] === UPLOAD_ERR_OK;
 
 // Récupérer les données du formulaire
 $materialId = isset($_POST['material_id']) ? $_POST['material_id'] : null;
@@ -46,10 +50,11 @@ try {
         $checkStmt = $pdo->prepare($checkFournisseurQuery);
         $checkStmt->bindParam(':nom', $fournisseur);
         $checkStmt->execute();
+        $fournisseurData = $checkStmt->fetch(PDO::FETCH_ASSOC);
 
-        if (!$checkStmt->fetch()) {
+        if (!$fournisseurData) {
             // Créer le fournisseur
-            $createFournisseurQuery = "INSERT INTO fournisseurs (nom, created_by, created_at) 
+            $createFournisseurQuery = "INSERT INTO fournisseurs (nom, created_by, created_at)
                                       VALUES (:nom, :created_by, NOW())";
             $createStmt = $pdo->prepare($createFournisseurQuery);
             $createStmt->bindParam(':nom', $fournisseur);
@@ -71,13 +76,25 @@ try {
                     ])
                 );
             }
+        } else {
+            $fournisseurId = $fournisseurData['id'];
         }
     }
 
+    if (!isset($fournisseurId)) {
+        $fetchIdStmt = $pdo->prepare("SELECT id FROM fournisseurs WHERE LOWER(nom) = LOWER(:nom)");
+        $fetchIdStmt->bindParam(':nom', $fournisseur);
+        $fetchIdStmt->execute();
+        $existingSupplier = $fetchIdStmt->fetch(PDO::FETCH_ASSOC);
+        $fournisseurId = $existingSupplier['id'] ?? null;
+    }
+
     // 1. Récupérer les informations du besoin
-    $besoinQuery = "SELECT b.*, 
-                   (b.qt_demande - b.qt_acheter) as qt_restante
-                   FROM besoins b 
+    $besoinQuery = "SELECT b.*,
+                   (b.qt_demande - b.qt_acheter) as qt_restante,
+                   d.client
+                   FROM besoins b
+                   LEFT JOIN demandeur d ON b.idBesoin = d.idBesoin
                    WHERE b.id = :id";
     $besoinStmt = $pdo->prepare($besoinQuery);
     $besoinStmt->bindParam(':id', $materialId);
@@ -170,6 +187,18 @@ try {
     // Valider la transaction
     $pdo->commit();
 
+    // Récupérer le libellé du mode de paiement pour affichage
+    $paymentMethodLabel = '';
+    try {
+        $labelStmt = $pdo->prepare("SELECT label FROM payment_methods WHERE id = :id");
+        $labelStmt->bindParam(':id', $paymentMethod);
+        $labelStmt->execute();
+        $paymentMethodLabel = $labelStmt->fetchColumn() ?: '';
+        $_SESSION['temp_payment_method_label'] = $paymentMethodLabel;
+    } catch (Exception $e) {
+        error_log('Erreur récupération label mode paiement: ' . $e->getMessage());
+    }
+
     // Journaliser l'événement après le commit
     if (function_exists('logSystemEvent')) {
         $eventType = $isComplete ? 'commande_besoin_partielle_complete' : 'commande_besoin_partielle';
@@ -208,6 +237,19 @@ try {
     $_SESSION['selected_material_ids'] = [$materialId];
     $_SESSION['selected_material_sources'] = [$materialId => 'besoins'];
 
+    // Enregistrer l'ID de la commande pour mettre 
+    // à jour le pro-forma lors de la génération du bon de commande
+    if (!isset($_SESSION['bulk_purchase_orders'])) {
+        $_SESSION['bulk_purchase_orders'] = [];
+    }
+    $_SESSION['bulk_purchase_orders'][] = [
+        'material_id' => $materialId,
+        'order_id' => $newOrderId,
+        'quantity' => $quantiteCommande,
+        'remaining' => $nouvelleQuantiteRestante,
+        'is_complete' => $isComplete
+    ];
+
     // Générer un jeton de sécurité temporaire pour le téléchargement
     $downloadToken = md5(time() . $besoin['idBesoin'] . rand(1000, 9999));
     $_SESSION['download_token'] = $downloadToken;
@@ -219,6 +261,32 @@ try {
     $rootPath = rtrim(str_replace('commandes-traitement/besoins/complete_besoin_partial.php', '', $scriptPath), '/');
     $pdfUrl = $rootPath . '/direct_download.php?token=' . $downloadToken;
 
+    // Upload du pro-forma le cas échéant
+    $proformaUploaded = false;
+    $uploadedProformaId = null;
+    if ($hasProforma) {
+        try {
+            $upload = $proformaHandler->uploadFile(
+                $_FILES['proforma_file'],
+                $newOrderId,
+                $fournisseurId,
+                $besoin['idBesoin'] ?? null
+            );
+            $proformaUploaded = $upload['success'];
+            if ($proformaUploaded && isset($upload['proforma_id'])) {
+                $uploadedProformaId = $upload['proforma_id'];
+                $updateProforma = $pdo->prepare(
+                    'UPDATE achats_materiaux SET proforma_id = :pid WHERE id = :id'
+                );
+                $updateProforma->bindParam(':pid', $uploadedProformaId);
+                $updateProforma->bindParam(':id', $newOrderId);
+                $updateProforma->execute();
+            }
+        } catch (Exception $proformaError) {
+            error_log('Erreur upload pro-forma: ' . $proformaError->getMessage());
+        }
+    }
+
     // Retourner le résultat
     header('Content-Type: application/json');
     echo json_encode([
@@ -228,7 +296,10 @@ try {
         'remaining' => $nouvelleQuantiteRestante,
         'is_complete' => $isComplete,
         'payment_method' => $paymentMethod, // NOUVEAU
-        'pdf_url' => $pdfUrl
+        'payment_method_label' => $paymentMethodLabel,
+        'pdf_url' => $pdfUrl,
+        'proforma_uploaded' => $proformaUploaded,
+        'proforma_id' => $uploadedProformaId
     ]);
 } catch (Exception $e) {
     if ($pdo->inTransaction()) {

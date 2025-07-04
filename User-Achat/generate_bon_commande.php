@@ -767,6 +767,22 @@ try {
     try {
         $saveOrderStmt->execute();
 
+        // Récupérer l'ID du bon de commande nouvellement créé
+        $bonCommandeId = $pdo->lastInsertId();
+
+        // Associer cet ID aux pro-formas éventuels créés lors de la complétion
+        if (isset($_SESSION['bulk_purchase_orders']) && is_array($_SESSION['bulk_purchase_orders'])) {
+            $orderIds = array_column($_SESSION['bulk_purchase_orders'], 'order_id');
+            $orderIds = array_filter($orderIds);
+            if (!empty($orderIds)) {
+                $placeholders = implode(',', array_fill(0, count($orderIds), '?'));
+                $updateQuery = "UPDATE proformas SET bon_commande_id = ? WHERE achat_materiau_id IN ($placeholders)";
+                $updateStmt = $pdo->prepare($updateQuery);
+                $updateStmt->execute(array_merge([$bonCommandeId], $orderIds));
+            }
+            unset($_SESSION['bulk_purchase_orders']);
+        }
+
         // Enregistrer un log du système
         if (function_exists('logSystemEvent')) {
             $logDetails = [
@@ -783,7 +799,7 @@ try {
                 $_SESSION['user_id'],
                 'generate_bon_commande',
                 'purchase_orders',
-                $pdo->lastInsertId(),
+                $bonCommandeId,
                 json_encode($logDetails)
             );
         }
