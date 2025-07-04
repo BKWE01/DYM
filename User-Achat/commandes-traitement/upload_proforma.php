@@ -65,7 +65,7 @@ class ProformaUploadHandler
     /**
      * Upload un fichier pro-forma et l'associe à une commande
      */
-    public function uploadFile($fileData, $achatMateriauxId, $fournisseurId, $projetClient = null)
+    public function uploadFile($fileData, $achatMateriauxId, $fournisseurId, $projetClient = null, $productId = null)
     {
         try {
             // Validation de base
@@ -94,7 +94,8 @@ class ProformaUploadHandler
                 $fournisseurId,
                 $projetClient,
                 $filename,
-                $fileData
+                $fileData,
+                $productId
             );
 
             // Log de succès
@@ -204,7 +205,7 @@ class ProformaUploadHandler
     /**
      * Sauvegarde les informations en base de données
      */
-    private function saveToDatabase($achatMateriauxId, $fournisseurId, $projetClient, $filename, $fileData)
+    private function saveToDatabase($achatMateriauxId, $fournisseurId, $projetClient, $filename, $fileData, $productId = null)
     {
         $query = "INSERT INTO proformas (
             achat_materiau_id,
@@ -212,11 +213,12 @@ class ProformaUploadHandler
             projet_client,
             file_path,
             original_filename,
-            file_type, 
-            file_size, 
-            upload_user_id, 
+            file_type,
+            file_size,
+            upload_user_id,
+            id_product,
             status
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'en_attente')";
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'en_attente')";
 
         $stmt = $this->pdo->prepare($query);
 
@@ -231,7 +233,8 @@ class ProformaUploadHandler
             $fileData['name'],
             $fileData['type'],
             $fileData['size'],
-            $userId
+            $userId,
+            $productId
         ]);
 
         return $this->pdo->lastInsertId();
