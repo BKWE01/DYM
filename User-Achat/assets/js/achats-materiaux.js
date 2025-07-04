@@ -1071,15 +1071,15 @@ const DataTablesManager = {
             buttons: CONFIG.DATATABLES.BUTTONS,
             columnDefs: [{
                 orderable: false,
-                targets: [0, 11]
+                targets: [0, 12]
             },
             {
                 type: 'date-fr',
-                targets: 9
+                targets: 10
             },
             {
                 type: 'num',
-                targets: 10
+                targets: 11
             }
             ],
             order: [

@@ -2033,6 +2033,7 @@ function formatNumber($number)
                                             class="select-all-checkbox"></th>
                                     <th>Projet</th>
                                     <th>Client</th>
+                                    <th>Image</th>
                                     <th>Produit</th>
                                     <th>Quantité</th>
                                     <th>Unité</th>
@@ -2461,6 +2462,16 @@ function formatNumber($number)
                                                         <span class="text-gray-700">
                                                             <?= htmlspecialchars($material['nom_client'] ?? 'N/A') ?>
                                                         </span>
+                                                    </td>
+
+                                                    <td class="px-4 py-3">
+                                                        <?php if (!empty($material['product_image']) && file_exists('../' . ltrim($material['product_image'], '/'))): ?>
+                                                            <img src="../<?= htmlspecialchars($material['product_image']) ?>" alt="<?= htmlspecialchars($material['designation'] ?? 'Produit') ?>" class="product-image">
+                                                        <?php else: ?>
+                                                            <div class="product-image-placeholder">
+                                                                <span class="material-icons text-gray-400">inventory_2</span>
+                                                            </div>
+                                                        <?php endif; ?>
                                                     </td>
 
                                                     <td class="px-4 py-3">
