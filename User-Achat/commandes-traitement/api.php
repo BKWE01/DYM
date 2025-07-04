@@ -214,6 +214,7 @@ function handleGetRemainingMaterials($pdo)
                      ip.code_projet,
                      ip.nom_client,
                      NULL as product_id,
+                     p.product_image,
                      'expression_dym' as source_table,
                      (
                          SELECT COALESCE(SUM(am.quantity), 0) 
@@ -224,6 +225,7 @@ function handleGetRemainingMaterials($pdo)
                      ) as quantite_deja_commandee
                   FROM expression_dym ed
                   JOIN identification_projet ip ON ed.idExpression = ip.idExpression
+                  LEFT JOIN products p ON LOWER(p.product_name) = LOWER(ed.designation)
                   WHERE ed.qt_restante > 0 
                   AND ed.valide_achat = 'en_cours'";
 
@@ -241,6 +243,7 @@ function handleGetRemainingMaterials($pdo)
                      CONCAT('SYS-', COALESCE(d.service_demandeur, 'Système')) as code_projet,
                      COALESCE(d.client, 'Demande interne') as nom_client,
                      b.product_id,
+                     p.product_image,
                      'besoins' as source_table,
                      (
                          SELECT COALESCE(SUM(am.quantity), 0) 
@@ -251,6 +254,7 @@ function handleGetRemainingMaterials($pdo)
                      ) as quantite_deja_commandee
                   FROM besoins b
                   LEFT JOIN demandeur d ON b.idBesoin = d.idBesoin
+                  LEFT JOIN products p ON p.id = b.product_id
                   WHERE b.qt_demande > b.qt_acheter
                   AND b.achat_status = 'en_cours'";
 
