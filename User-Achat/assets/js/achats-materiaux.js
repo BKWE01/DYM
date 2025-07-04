@@ -1334,7 +1334,8 @@ const SelectionManager = {
             quantity: checkbox.dataset.quantity || checkbox.getAttribute('data-quantity'),
             unit: checkbox.dataset.unit || checkbox.getAttribute('data-unit'),
             sourceTable: checkbox.dataset.sourceTable || checkbox.getAttribute('data-source-table') || 'expression_dym',
-            project: checkbox.dataset.project || checkbox.getAttribute('data-project') || ''
+            project: checkbox.dataset.project || checkbox.getAttribute('data-project') || '',
+            productId: checkbox.dataset.productId || checkbox.getAttribute('data-product-id') || ''
         };
     },
     /**
@@ -1750,6 +1751,7 @@ const ModalManager = {
                     <input type="hidden" name="material_ids[]" value="${material.id}">
                     <input type="hidden" name="source_table[${material.id}]" value="${material.sourceTable || 'expression_dym'}">
                     <input type="hidden" name="is_partial[${material.id}]" value="1">
+                    <input type="hidden" name="product_id[${material.id}]" value="${material.productId || ''}">
                 `;
         });
         // Initialiser l'autocomplétion des fournisseurs
@@ -2501,7 +2503,7 @@ const PartialOrdersManager = {
         // Vérifier la sélection
         const isChecked = selectedIds.includes(material.id?.toString()) ? 'checked' : '';
         return `
-        <tr class="${progress < 50 ? 'bg-yellow-50 pulse-animation' : ''}" data-id="${material.id}">
+        <tr class="${progress < 50 ? 'bg-yellow-50 pulse-animation' : ''}" data-id="${material.id}" data-product-id="${material.product_id || ''}">
             <td class="px-6 py-4 whitespace-nowrap">
                 <input type="checkbox" class="material-checkbox partial-material-checkbox"
                     data-id="${material.id}"
@@ -2509,6 +2511,7 @@ const PartialOrdersManager = {
                     data-designation="${Utils.escapeHtml(designation)}"
                     data-quantity="${restante}"
                     data-unit="${Utils.escapeHtml(unit)}"
+                    data-product-id="${material.product_id || ''}"
                     data-source-table="${sourceTable}"
                     ${isChecked}>
             </td>
