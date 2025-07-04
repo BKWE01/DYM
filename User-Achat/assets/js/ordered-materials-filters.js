@@ -505,15 +505,15 @@ const OrderedMaterialsFilters = {
         }
 
         if (this.filters.produit) {
-            this.dataTable.column(3).search(this.filters.produit, true, false);
+            this.dataTable.column(4).search(this.filters.produit, true, false);
         }
 
         if (this.filters.unite) {
-            this.dataTable.column(5).search(this.escapeRegex(this.filters.unite), true, false);
+            this.dataTable.column(6).search(this.escapeRegex(this.filters.unite), true, false);
         }
 
         if (this.filters.fournisseur) {
-            this.dataTable.column(8).search(this.escapeRegex(this.filters.fournisseur), true, false);
+            this.dataTable.column(9).search(this.escapeRegex(this.filters.fournisseur), true, false);
         }
 
         // Appliquer les filtres personnalisés (date, prix, validation)
@@ -552,7 +552,7 @@ const OrderedMaterialsFilters = {
 
             // Filtre de date
             if (this.filters.dateDebut || this.filters.dateFin) {
-                const dateStr = data[9]; // Colonne Date
+                const dateStr = data[10]; // Colonne Date
                 if (!dateStr) return false;
 
                 try {
@@ -584,7 +584,7 @@ const OrderedMaterialsFilters = {
 
             // Filtre de prix
             if (this.filters.prixMin || this.filters.prixMax) {
-                const priceStr = data[7]; // Colonne Prix unitaire
+                const priceStr = data[8]; // Colonne Prix unitaire
                 if (!priceStr) return false;
 
                 try {
@@ -609,7 +609,7 @@ const OrderedMaterialsFilters = {
 
             // Filtre statut de validation basé sur les statuts spécifiques
             if (this.filters.validation) {
-                const statusColumn = data[6]; // Colonne Statut
+                const statusColumn = data[7]; // Colonne Statut
 
                 // Créer un élément temporaire pour extraire le texte du statut sans HTML
                 const tempDiv = document.createElement('div');

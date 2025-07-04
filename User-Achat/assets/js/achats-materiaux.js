@@ -809,6 +809,15 @@ const EventHandlers = {
                 ButtonStateManager.updateAllButtons();
             });
         }
+        const recentsTable = document.getElementById('recentPurchasesTable');
+        if (recentsTable) {
+            recentsTable.addEventListener('click', (e) => {
+                const target = e.target;
+                if (target.classList.contains('product-image')) {
+                    ModalManager.openImageViewer(target.getAttribute('src'), target.getAttribute('alt') || 'Aper\u00e7u');
+                }
+            });
+        }
         // Case à cocher "Tout sélectionner" pour les matériaux commandés
         const selectAllOrdered = document.getElementById('select-all-ordered-materials');
         if (selectAllOrdered) {
@@ -833,6 +842,26 @@ const EventHandlers = {
                 ButtonStateManager.updateAllButtons();
             });
         }
+
+        // Affichage de l'image en grand au clic
+        const pendingTable = document.getElementById('pendingMaterialsTable');
+        if (pendingTable) {
+            pendingTable.addEventListener('click', (e) => {
+                const target = e.target;
+                if (target.classList.contains('product-image')) {
+                    ModalManager.openImageViewer(target.getAttribute('src'), target.getAttribute('alt') || 'Aper\u00e7u');
+                }
+            });
+        }
+        const partialTable = document.getElementById('partialOrdersTable');
+        if (partialTable) {
+            partialTable.addEventListener('click', (e) => {
+                const target = e.target;
+                if (target.classList.contains('product-image')) {
+                    ModalManager.openImageViewer(target.getAttribute('src'), target.getAttribute('alt') || 'Aper\u00e7u');
+                }
+            });
+        }
     },
     setupModalEvents() {
         // Fermeture des modals
@@ -849,6 +878,21 @@ const EventHandlers = {
                 }
             });
         });
+
+        const imageViewer = document.getElementById('imageViewerModal');
+        const closeImageBtn = document.getElementById('closeImageViewerBtn');
+        if (imageViewer) {
+            imageViewer.addEventListener('click', (e) => {
+                if (e.target === imageViewer) {
+                    ModalManager.close(imageViewer);
+                }
+            });
+        }
+        if (closeImageBtn) {
+            closeImageBtn.addEventListener('click', () => {
+                ModalManager.close(imageViewer);
+            });
+        }
     },
     setupFormEvents() {
         // Formulaire d'achat individuel
@@ -995,15 +1039,15 @@ const DataTablesManager = {
             buttons: CONFIG.DATATABLES.BUTTONS,
             columnDefs: [{
                 orderable: false,
-                targets: [0, 9]
+                targets: [0, 10]
             },
             {
                 type: 'date-fr',
-                targets: 8
+                targets: 9
             }
             ],
             order: [
-                [8, 'desc']
+                [9, 'desc']
             ],
             pageLength: CONFIG.DATATABLES.PAGE_LENGTH,
             drawCallback: function () {
@@ -1036,15 +1080,15 @@ const DataTablesManager = {
             buttons: CONFIG.DATATABLES.BUTTONS,
             columnDefs: [{
                 orderable: false,
-                targets: [0, 11]
+                targets: [0, 12]
             },
             {
                 type: 'date-fr',
-                targets: 9
+                targets: 10
             },
             {
                 type: 'num',
-                targets: 10
+                targets: 11
             }
             ],
             order: [
@@ -1082,14 +1126,14 @@ const DataTablesManager = {
             buttons: CONFIG.DATATABLES.BUTTONS,
             columnDefs: [{
                 type: 'date-fr',
-                targets: 8
+                targets: 9
             },
             {
-                targets: 9,
+                targets: 10,
                 render: (data, type, row) => {
-                    const expressionId = row[10] || '';
-                    const orderId = row[11] || '';
-                    let designation = row[2] || '';
+                    const expressionId = row[11] || '';
+                    const orderId = row[12] || '';
+                    let designation = row[3] || '';
                     designation = designation.replace(/<[^>]*>/g, '');
                     const cleanDesignation = Utils.escapeString(designation);
                     return `
@@ -1113,7 +1157,7 @@ const DataTablesManager = {
             }
             ],
             order: [
-                [8, 'desc']
+                [9, 'desc']
             ],
             pageLength: CONFIG.DATATABLES.PAGE_LENGTH
         });
@@ -1334,7 +1378,8 @@ const SelectionManager = {
             quantity: checkbox.dataset.quantity || checkbox.getAttribute('data-quantity'),
             unit: checkbox.dataset.unit || checkbox.getAttribute('data-unit'),
             sourceTable: checkbox.dataset.sourceTable || checkbox.getAttribute('data-source-table') || 'expression_dym',
-            project: checkbox.dataset.project || checkbox.getAttribute('data-project') || ''
+            project: checkbox.dataset.project || checkbox.getAttribute('data-project') || '',
+            productId: checkbox.dataset.productId || checkbox.getAttribute('data-product-id') || ''
         };
     },
     /**
@@ -1750,6 +1795,7 @@ const ModalManager = {
                     <input type="hidden" name="material_ids[]" value="${material.id}">
                     <input type="hidden" name="source_table[${material.id}]" value="${material.sourceTable || 'expression_dym'}">
                     <input type="hidden" name="is_partial[${material.id}]" value="1">
+                    <input type="hidden" name="product_id[${material.id}]" value="${material.productId || ''}">
                 `;
         });
         // Initialiser l'autocomplétion des fournisseurs
@@ -1852,6 +1898,19 @@ const ModalManager = {
         modal.style.display = 'flex';
         // Configurer l'autocomplétion
         SubstitutionManager.setupProductAutocomplete();
+    },
+    openImageViewer(src, title = '') {
+        const modal = document.getElementById('imageViewerModal');
+        if (!modal) return;
+        const img = document.getElementById('imageViewerImg');
+        const titleEl = document.getElementById('imageViewerTitle');
+        const downloadBtn = document.getElementById('downloadImageBtn');
+        if (img) img.src = src;
+        if (titleEl) titleEl.textContent = title;
+        if (downloadBtn) {
+            downloadBtn.onclick = () => downloadImage(src, title.replace(/\s+/g, '_'));
+        }
+        modal.style.display = 'flex';
     },
     close(modal) {
         if (modal) modal.style.display = 'none';
@@ -2368,7 +2427,7 @@ const PartialOrdersManager = {
         if (tbody) {
             tbody.innerHTML = `
             <tr>
-                <td colspan="9" class="px-6 py-4 text-center text-sm text-gray-500">
+                <td colspan="10" class="px-6 py-4 text-center text-sm text-gray-500">
                     <div class="flex items-center justify-center">
                         <svg class="animate-spin h-5 w-5 mr-3" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -2389,7 +2448,7 @@ const PartialOrdersManager = {
         if (tbody) {
             tbody.innerHTML = `
             <tr>
-                <td colspan="9" class="px-6 py-4 text-center text-sm text-red-500">
+                <td colspan="10" class="px-6 py-4 text-center text-sm text-red-500">
                     <div class="flex items-center justify-center">
                         <span class="material-icons mr-2">error_outline</span>
                         Erreur: ${message || 'Veuillez réessayer'}
@@ -2444,7 +2503,7 @@ const PartialOrdersManager = {
         if (!materials || materials.length === 0) {
             tbody.innerHTML = `
             <tr>
-                <td colspan="9" class="px-6 py-4 text-center text-sm text-gray-500">
+                <td colspan="10" class="px-6 py-4 text-center text-sm text-gray-500">
                     <div class="flex flex-col items-center">
                         <span class="material-icons text-4xl mb-2 text-gray-300">inventory_2</span>
                         <span>Aucune commande partielle trouvée.</span>
@@ -2490,6 +2549,9 @@ const PartialOrdersManager = {
         const expressionId = sourceTable === 'besoins' ?
             material.idExpression || material.idBesoin || '' :
             material.idExpression || '';
+        const imageHtml = material.product_image
+            ? `<img src="../${Utils.escapeHtml(material.product_image)}" alt="${Utils.escapeHtml(designation)}" class="product-image">`
+            : `<div class="product-image-placeholder"><span class="material-icons text-gray-400">inventory_2</span></div>`;
         // Calculer les valeurs
         const initialQty = parseFloat(material.quantite_initiale || material.initial_qt_acheter || 0);
         const orderedQty = parseFloat(material.quantite_commandee || material.quantite_deja_commandee || 0);
@@ -2501,7 +2563,7 @@ const PartialOrdersManager = {
         // Vérifier la sélection
         const isChecked = selectedIds.includes(material.id?.toString()) ? 'checked' : '';
         return `
-        <tr class="${progress < 50 ? 'bg-yellow-50 pulse-animation' : ''}" data-id="${material.id}">
+        <tr class="${progress < 50 ? 'bg-yellow-50 pulse-animation' : ''}" data-id="${material.id}" data-product-id="${material.product_id || ''}">
             <td class="px-6 py-4 whitespace-nowrap">
                 <input type="checkbox" class="material-checkbox partial-material-checkbox"
                     data-id="${material.id}"
@@ -2509,11 +2571,13 @@ const PartialOrdersManager = {
                     data-designation="${Utils.escapeHtml(designation)}"
                     data-quantity="${restante}"
                     data-unit="${Utils.escapeHtml(unit)}"
+                    data-product-id="${material.product_id || ''}"
                     data-source-table="${sourceTable}"
                     ${isChecked}>
             </td>
             <td class="px-6 py-4 whitespace-nowrap">${material.code_projet || '-'}</td>
             <td class="px-6 py-4 whitespace-nowrap">${material.nom_client || '-'}</td>
+            <td class="px-6 py-4 whitespace-nowrap">${imageHtml}</td>
             <td class="px-6 py-4 whitespace-nowrap font-medium">${Utils.escapeHtml(designation)}</td>
             <td class="px-6 py-4 whitespace-nowrap">${Utils.formatQuantity(initialQty)} ${Utils.escapeHtml(unit)}</td>
             <td class="px-6 py-4 whitespace-nowrap">${Utils.formatQuantity(orderedQty)} ${Utils.escapeHtml(unit)}</td>
@@ -2590,13 +2654,13 @@ const PartialOrdersManager = {
             buttons: CONFIG.DATATABLES.BUTTONS,
             columnDefs: [{
                 orderable: false,
-                targets: [0, 8]
+                targets: [0, 9]
             }, {
                 responsivePriority: 1,
-                targets: [3, 6]
+                targets: [4, 7]
             }],
             order: [
-                [4, 'desc']
+                [5, 'desc']
             ],
             pageLength: 10,
             drawCallback: () => {
@@ -3740,6 +3804,12 @@ window.openEditOrderModal = (orderId, expressionId, designation, sourceTable, qu
 window.closeEditOrderModal = () => {
     EditOrderManager.closeModal();
 };
+window.openImageViewerModal = (src, title = '') => {
+    ModalManager.openImageViewer(src, title);
+};
+window.closeImageViewerModal = () => {
+    ModalManager.close(document.getElementById('imageViewerModal'));
+};
 // ==========================================
 // FONCTION PRINCIPALE: DÉTAILS DE COMMANDE
 // ==========================================
@@ -4388,6 +4458,26 @@ window.checkOrderValidationStatus = () => {
 window.exportPartialOrdersExcel = () => {
     ExportManager.exportPartialOrdersToExcel();
 };
+
+function downloadImage(imageSrc, filename) {
+    let imageFileName;
+    if (imageSrc.includes('/')) {
+        imageFileName = imageSrc.split('/').pop();
+    } else {
+        imageFileName = imageSrc;
+    }
+    const downloadUrl = `api/download_image.php?file=${encodeURIComponent(imageFileName)}&name=${encodeURIComponent(filename)}`;
+    const link = document.createElement('a');
+    link.href = downloadUrl;
+    link.download = `${filename}.jpg`;
+    link.style.display = 'none';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    if (typeof showNotification === 'function') {
+        showNotification('Téléchargement démarré', 'success');
+    }
+}
 // Configurer l'intervalle de vérification (toutes les 5 minutes)
 window.checkOrderStatusInterval = setInterval(() => {
     OrderValidationChecker.check();

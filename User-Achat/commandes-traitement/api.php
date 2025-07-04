@@ -24,6 +24,8 @@ include_once 'utils/combine_orders.php';
 
 // Inclure les fonctions de journalisation
 include_once 'utils/system_logger.php';
+// Fonctions liées aux produits (création et mise à jour de prix)
+require_once '../price_update_functions.php';
 
 // Traiter les requêtes en fonction de l'action demandée
 $action = isset($_GET['action']) ? $_GET['action'] : (isset($_POST['action']) ? $_POST['action'] : '');
@@ -211,6 +213,8 @@ function handleGetRemainingMaterials($pdo)
                      ed.fournisseur,
                      ip.code_projet,
                      ip.nom_client,
+                     NULL as product_id,
+                     p.product_image,
                      'expression_dym' as source_table,
                      (
                          SELECT COALESCE(SUM(am.quantity), 0) 
@@ -221,6 +225,7 @@ function handleGetRemainingMaterials($pdo)
                      ) as quantite_deja_commandee
                   FROM expression_dym ed
                   JOIN identification_projet ip ON ed.idExpression = ip.idExpression
+                  LEFT JOIN products p ON LOWER(p.product_name) = LOWER(ed.designation)
                   WHERE ed.qt_restante > 0 
                   AND ed.valide_achat = 'en_cours'";
 
@@ -237,6 +242,8 @@ function handleGetRemainingMaterials($pdo)
                      NULL as fournisseur,
                      CONCAT('SYS-', COALESCE(d.service_demandeur, 'Système')) as code_projet,
                      COALESCE(d.client, 'Demande interne') as nom_client,
+                     b.product_id,
+                     p.product_image,
                      'besoins' as source_table,
                      (
                          SELECT COALESCE(SUM(am.quantity), 0) 
@@ -247,6 +254,7 @@ function handleGetRemainingMaterials($pdo)
                      ) as quantite_deja_commandee
                   FROM besoins b
                   LEFT JOIN demandeur d ON b.idBesoin = d.idBesoin
+                  LEFT JOIN products p ON p.id = b.product_id
                   WHERE b.qt_demande > b.qt_acheter
                   AND b.achat_status = 'en_cours'";
 
@@ -519,6 +527,9 @@ function handleCompletePartialOrder($pdo, $user_id)
 
         $newOrderId = $pdo->lastInsertId();
 
+        // Créer ou récupérer l'id du produit associé à cette commande
+        $productId = createProductIfNotExists($pdo, $designation, $unit);
+
         // 5. Mettre à jour la quantité restante et le statut si nécessaire
         if ($isComplete) {
             // Si la commande est complète, marquer comme "valide_en_cours"
@@ -627,7 +638,8 @@ function handleCompletePartialOrder($pdo, $user_id)
                     $_FILES['proforma_file'],
                     $newOrderId,
                     $fournisseurId,
-                    $material['code_projet'] ?? null
+                    $material['code_projet'] ?? null,
+                    $productId
                 );
                 $proformaUploaded = $upload['success'];
                 if ($proformaUploaded && isset($upload['proforma_id'])) {
@@ -861,6 +873,7 @@ function completeMultiplePartial($pdo, $user_id)
         $quantities = $_POST['quantities'] ?? [];
         $prices = $_POST['prices'] ?? [];
         $sourceTable = $_POST['source_table'] ?? [];
+        $productIds = $_POST['product_id'] ?? [];
         $createFournisseur = isset($_POST['create_fournisseur']) ? true : false;
 
         // Validation des données de base
@@ -875,6 +888,8 @@ function completeMultiplePartial($pdo, $user_id)
         $proformaHandler = new ProformaUploadHandler($pdo);
         $proformaResults = [];
         $hasProforma = isset($_FILES['proforma_file']) && $_FILES['proforma_file']['error'] === UPLOAD_ERR_OK;
+        $storedFilename = null; // Pour réutiliser le fichier sur plusieurs commandes
+        $storedFileInfo = null;  // Informations originales du fichier
 
         // Validation du mode de paiement
         $paymentData = validatePaymentMethod($pdo, $paymentMethod);
@@ -940,6 +955,7 @@ function completeMultiplePartial($pdo, $user_id)
                 $quantiteCommande = floatval($quantities[$materialId] ?? 0);
                 $prixUnitaire = floatval($prices[$materialId] ?? 0);
                 $source = $sourceTable[$materialId] ?? 'expression_dym';
+                $productId = isset($productIds[$materialId]) && $productIds[$materialId] !== '' ? intval($productIds[$materialId]) : null;
 
                 if ($quantiteCommande <= 0 || $prixUnitaire <= 0) {
                     throw new Exception("Quantité ou prix invalide pour le matériau ID $materialId");
@@ -950,6 +966,11 @@ function completeMultiplePartial($pdo, $user_id)
                     $result = processPartialFromBesoins($pdo, $user_id, $materialId, $quantiteCommande, $prixUnitaire, $fournisseur, $paymentMethod);
                 } else {
                     $result = processPartialFromExpression($pdo, $user_id, $materialId, $quantiteCommande, $prixUnitaire, $fournisseur, $paymentMethod);
+                }
+
+                // Si aucun product_id n'est fourni, utiliser celui renvoyé par la fonction
+                if ($productId === null && isset($result['product_id'])) {
+                    $productId = $result['product_id'];
                 }
 
                 if ($result['success']) {
@@ -971,12 +992,35 @@ function completeMultiplePartial($pdo, $user_id)
                     // NOUVEAU : Traiter le pro-forma pour cette commande si présent
                     if ($hasProforma && !empty($result['order_id'])) {
                         try {
-                            $proformaResult = $proformaHandler->uploadFile(
-                                $_FILES['proforma_file'],
-                                $result['order_id'],
-                                $fournisseurId,
-                                $result['project_client'] ?? null
-                            );
+                            if ($storedFilename === null) {
+                                // Première commande : déplacer le fichier
+                                $proformaResult = $proformaHandler->uploadFile(
+                                    $_FILES['proforma_file'],
+                                    $result['order_id'],
+                                    $fournisseurId,
+                                    $result['project_client'] ?? null,
+                                    $productId
+                                );
+
+                                if ($proformaResult && $proformaResult['success']) {
+                                    $storedFilename = $proformaResult['filename'];
+                                    $storedFileInfo = [
+                                        'name' => $_FILES['proforma_file']['name'],
+                                        'type' => $_FILES['proforma_file']['type'],
+                                        'size' => $_FILES['proforma_file']['size']
+                                    ];
+                                }
+                            } else {
+                                // Commandes suivantes : réutiliser le fichier existant
+                                $proformaResult = $proformaHandler->linkExistingFile(
+                                    $storedFilename,
+                                    $storedFileInfo,
+                                    $result['order_id'],
+                                    $fournisseurId,
+                                    $result['project_client'] ?? null,
+                                    $productId
+                                );
+                            }
 
                             $proformaResults[] = [
                                 'order_id' => $result['order_id'],
@@ -1151,6 +1195,9 @@ function processPartialFromBesoins($pdo, $user_id, $materialId, $quantiteCommand
 
     $newOrderId = $pdo->lastInsertId();
 
+    // Déterminer le produit associé
+    $productId = createProductIfNotExists($pdo, $besoin['designation_article'], $besoin['unit']);
+
     // Mettre à jour les quantités achetées et restantes
     $nouvelleQuantiteRestante = $besoin['qt_restante'] - $quantiteCommande;
     $nouvelleQuantiteAchetee  = floatval($besoin['qt_acheter']) + $quantiteCommande;
@@ -1181,7 +1228,10 @@ function processPartialFromBesoins($pdo, $user_id, $materialId, $quantiteCommand
         'is_complete' => $isComplete,
         // Utiliser le client récupéré depuis la table demandeur
         'project_client' => $besoin['idBesoin'] ?? null,
-        'expression_id' => $besoin['idBesoin']
+        'expression_id' => $besoin['idBesoin'],
+        'product_id' => $productId,
+        'designation' => $besoin['designation_article'],
+        'unit' => $besoin['unit']
     ];
 }
 
@@ -1237,6 +1287,9 @@ function processPartialFromExpression($pdo, $user_id, $materialId, $quantiteComm
 
     $newOrderId = $pdo->lastInsertId();
 
+    // Déterminer le produit associé
+    $productId = createProductIfNotExists($pdo, $material['designation'], $material['unit']);
+
     // Mettre à jour la quantité restante
     $nouvelleQuantiteRestante = $material['qt_restante'] - $quantiteCommande;
     $isComplete = $nouvelleQuantiteRestante <= 0;
@@ -1254,7 +1307,10 @@ function processPartialFromExpression($pdo, $user_id, $materialId, $quantiteComm
         'remaining' => $nouvelleQuantiteRestante,
         'is_complete' => $isComplete,
         'project_client' => $material['code_projet'] ?? null,
-        'expression_id' => $material['idExpression']
+        'expression_id' => $material['idExpression'],
+        'product_id' => $productId,
+        'designation' => $material['designation'],
+        'unit' => $material['unit']
     ];
 }
 

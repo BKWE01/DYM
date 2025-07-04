@@ -22,6 +22,8 @@ if (file_exists('../utils/system_logger.php')) {
 require_once '../upload_proforma.php';
 $proformaHandler = new ProformaUploadHandler($pdo);
 $hasProforma = isset($_FILES['proforma_file']) && $_FILES['proforma_file']['error'] === UPLOAD_ERR_OK;
+// Fonctions utilitaires pour la gestion des produits
+require_once '../../price_update_functions.php';
 
 // Récupérer les données du formulaire
 $materialId = isset($_POST['material_id']) ? $_POST['material_id'] : null;
@@ -155,6 +157,9 @@ try {
 
     $newOrderId = $pdo->lastInsertId();
 
+    // Identifier le produit associé pour l'enregistrement du pro-forma
+    $productId = createProductIfNotExists($pdo, $designation, $unit);
+
     // 5. Mettre à jour la quantité achetée et le statut si nécessaire
     if ($isComplete) {
         // Si la commande est complète, marquer comme "valide_en_cours"
@@ -270,7 +275,8 @@ try {
                 $_FILES['proforma_file'],
                 $newOrderId,
                 $fournisseurId,
-                $besoin['idBesoin'] ?? null
+                $besoin['idBesoin'] ?? null,
+                $productId
             );
             $proformaUploaded = $upload['success'];
             if ($proformaUploaded && isset($upload['proforma_id'])) {

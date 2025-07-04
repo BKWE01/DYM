@@ -156,31 +156,55 @@ if (empty($materialIds) || empty($fournisseur) || empty($paymentMethod)) {
 /**
  * Fonction pour traiter l'upload du pro-forma après création de commande
  */
-function processProformaUpload($pdo, $achatMateriauxId, $fournisseurId, $projetClient = null)
+function processProformaUpload($pdo, $achatMateriauxId, $fournisseurId, $projetClient = null, $productId = null)
 {
     // Vérifier qu'un fichier pro-forma a été uploadé
     if (!isset($_FILES['proforma_file']) || $_FILES['proforma_file']['error'] === UPLOAD_ERR_NO_FILE) {
-        return null; // Pas de pro-forma, ce n'est pas une erreur
+        return null; // Pas de pro-forma
     }
+
+    static $storedFile = null;
 
     try {
         $uploadHandler = new ProformaUploadHandler($pdo);
 
-        $result = $uploadHandler->uploadFile(
-            $_FILES['proforma_file'],
+        if ($storedFile === null) {
+            // Première insertion : on déplace le fichier
+            $result = $uploadHandler->uploadFile(
+                $_FILES['proforma_file'],
+                $achatMateriauxId,
+                $fournisseurId,
+                $projetClient,
+                $productId
+            );
+
+            if ($result && $result['success']) {
+                $storedFile = [
+                    'filename' => $result['filename'],
+                    'data' => [
+                        'name' => $_FILES['proforma_file']['name'],
+                        'type' => $_FILES['proforma_file']['type'],
+                        'size' => $_FILES['proforma_file']['size']
+                    ]
+                ];
+            }
+            return $result;
+        }
+
+        // Autres lignes : réutiliser le même fichier
+        return $uploadHandler->linkExistingFile(
+            $storedFile['filename'],
+            $storedFile['data'],
             $achatMateriauxId,
             $fournisseurId,
-            $projetClient
+            $projetClient,
+            $productId
         );
-
-        return $result;
     } catch (Exception $e) {
-        // Log l'erreur mais ne pas faire échouer toute la commande
         error_log("Erreur upload pro-forma pour commande {$achatMateriauxId}: " . $e->getMessage());
         return ['success' => false, 'error' => $e->getMessage()];
     }
 }
-
 /**
  * Validation du mode de paiement - VERSION CORRIGÉE
  * Valide l'ID du mode de paiement et retourne ses informations
@@ -380,8 +404,11 @@ try {
 
                 $newOrderId = $pdo->lastInsertId();
 
+                // Déterminer l'ID du produit associé
+                $productId = createProductIfNotExists($pdo, $material['designation'], $material['unit']);
+
                 // NOUVEAU : Traiter l'upload du pro-forma
-                $proformaResult = processProformaUpload($pdo, $newOrderId, $fournisseurId, $material['idExpression']);
+                $proformaResult = processProformaUpload($pdo, $newOrderId, $fournisseurId, $material['idExpression'], $productId);
                 if ($proformaResult) {
                     if ($proformaResult['success']) {
                         $proformasUploaded++;
@@ -528,8 +555,11 @@ try {
 
                 $newOrderId = $pdo->lastInsertId();
 
+                // Déterminer l'ID du produit associé
+                $productId = createProductIfNotExists($pdo, $material['designation_article'], $material['caracteristique']);
+
                 // NOUVEAU : Traiter l'upload du pro-forma
-                $proformaResult = processProformaUpload($pdo, $newOrderId, $fournisseurId, $material['idBesoin']);
+                $proformaResult = processProformaUpload($pdo, $newOrderId, $fournisseurId, $material['idBesoin'], $productId);
                 if ($proformaResult) {
                     if ($proformaResult['success']) {
                         $proformasUploaded++;
