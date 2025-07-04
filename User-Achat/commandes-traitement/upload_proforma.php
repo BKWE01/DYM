@@ -121,6 +121,32 @@ class ProformaUploadHandler
     }
 
     /**
+     * Ajoute un enregistrement en base pour un fichier déjà uploadé
+     */
+    public function linkExistingFile($filename, $fileData, $achatMateriauxId, $fournisseurId, $projetClient = null, $productId = null)
+    {
+        // Pas de déplacement de fichier, on réutilise le fichier existant
+        $proformaId = $this->saveToDatabase(
+            $achatMateriauxId,
+            $fournisseurId,
+            $projetClient,
+            $filename,
+            $fileData,
+            $productId
+        );
+
+        // Journaliser comme duplication
+        $this->logUpload($proformaId, $achatMateriauxId, $filename, 'duplicate');
+
+        return [
+            'success' => true,
+            'proforma_id' => $proformaId,
+            'filename' => $filename,
+            'file_path' => 'uploads/proformas/' . $filename
+        ];
+    }
+
+    /**
      * Validation de base de l'upload
      */
     private function validateFileUpload($fileData)
