@@ -884,6 +884,8 @@ function completeMultiplePartial($pdo, $user_id)
         $proformaHandler = new ProformaUploadHandler($pdo);
         $proformaResults = [];
         $hasProforma = isset($_FILES['proforma_file']) && $_FILES['proforma_file']['error'] === UPLOAD_ERR_OK;
+        $storedFilename = null; // Pour réutiliser le fichier sur plusieurs commandes
+        $storedFileInfo = null;  // Informations originales du fichier
 
         // Validation du mode de paiement
         $paymentData = validatePaymentMethod($pdo, $paymentMethod);
@@ -986,13 +988,35 @@ function completeMultiplePartial($pdo, $user_id)
                     // NOUVEAU : Traiter le pro-forma pour cette commande si présent
                     if ($hasProforma && !empty($result['order_id'])) {
                         try {
-                            $proformaResult = $proformaHandler->uploadFile(
-                                $_FILES['proforma_file'],
-                                $result['order_id'],
-                                $fournisseurId,
-                                $result['project_client'] ?? null,
-                                $productId
-                            );
+                            if ($storedFilename === null) {
+                                // Première commande : déplacer le fichier
+                                $proformaResult = $proformaHandler->uploadFile(
+                                    $_FILES['proforma_file'],
+                                    $result['order_id'],
+                                    $fournisseurId,
+                                    $result['project_client'] ?? null,
+                                    $productId
+                                );
+
+                                if ($proformaResult && $proformaResult['success']) {
+                                    $storedFilename = $proformaResult['filename'];
+                                    $storedFileInfo = [
+                                        'name' => $_FILES['proforma_file']['name'],
+                                        'type' => $_FILES['proforma_file']['type'],
+                                        'size' => $_FILES['proforma_file']['size']
+                                    ];
+                                }
+                            } else {
+                                // Commandes suivantes : réutiliser le fichier existant
+                                $proformaResult = $proformaHandler->linkExistingFile(
+                                    $storedFilename,
+                                    $storedFileInfo,
+                                    $result['order_id'],
+                                    $fournisseurId,
+                                    $result['project_client'] ?? null,
+                                    $productId
+                                );
+                            }
 
                             $proformaResults[] = [
                                 'order_id' => $result['order_id'],
