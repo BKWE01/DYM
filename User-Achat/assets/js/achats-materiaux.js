@@ -809,6 +809,15 @@ const EventHandlers = {
                 ButtonStateManager.updateAllButtons();
             });
         }
+        const recentsTable = document.getElementById('recentPurchasesTable');
+        if (recentsTable) {
+            recentsTable.addEventListener('click', (e) => {
+                const target = e.target;
+                if (target.classList.contains('product-image')) {
+                    ModalManager.openImageViewer(target.getAttribute('src'), target.getAttribute('alt') || 'Aper\u00e7u');
+                }
+            });
+        }
         // Case à cocher "Tout sélectionner" pour les matériaux commandés
         const selectAllOrdered = document.getElementById('select-all-ordered-materials');
         if (selectAllOrdered) {
@@ -1117,14 +1126,14 @@ const DataTablesManager = {
             buttons: CONFIG.DATATABLES.BUTTONS,
             columnDefs: [{
                 type: 'date-fr',
-                targets: 8
+                targets: 9
             },
             {
-                targets: 9,
+                targets: 10,
                 render: (data, type, row) => {
-                    const expressionId = row[10] || '';
-                    const orderId = row[11] || '';
-                    let designation = row[2] || '';
+                    const expressionId = row[11] || '';
+                    const orderId = row[12] || '';
+                    let designation = row[3] || '';
                     designation = designation.replace(/<[^>]*>/g, '');
                     const cleanDesignation = Utils.escapeString(designation);
                     return `
@@ -1148,7 +1157,7 @@ const DataTablesManager = {
             }
             ],
             order: [
-                [8, 'desc']
+                [9, 'desc']
             ],
             pageLength: CONFIG.DATATABLES.PAGE_LENGTH
         });

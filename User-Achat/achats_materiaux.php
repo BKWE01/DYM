@@ -377,7 +377,7 @@ try {
     // Récupérer les matériaux reçus avec informations d'achat
     $recentsQuery = "
     -- Requête pour les matériaux de expression_dym
-    SELECT 
+    SELECT
         ed.id as ed_id,
         ed.idExpression,
         ed.designation,
@@ -393,6 +393,7 @@ try {
         ip.code_projet,
         ip.nom_client,
         u.name as acheteur_name,
+        p.product_image,
         (
             SELECT MAX(id) 
             FROM achats_materiaux 
@@ -416,6 +417,7 @@ try {
     FROM expression_dym ed
     LEFT JOIN identification_projet ip ON ed.idExpression = ip.idExpression
     LEFT JOIN users_exp u ON ed.user_achat = u.id
+    LEFT JOIN products p ON LOWER(p.product_name) = LOWER(ed.designation)
     WHERE ed.valide_achat = 'reçu'";
 
     // Ajouter la condition de date si la fonction existe
@@ -449,6 +451,7 @@ try {
             AND am.designation = b.designation_article
         ) as fournisseur,
         b.achat_status as valide_achat,
+        p.product_image,
         b.created_at,
         b.updated_at,
         'SYS' as code_projet,
@@ -480,6 +483,7 @@ try {
         'besoins' as source_table
     FROM besoins b
     LEFT JOIN demandeur d ON b.idBesoin = d.idBesoin
+    LEFT JOIN products p ON p.id = b.product_id
     WHERE b.achat_status = 'reçu'";
 
     // Ajouter la condition de date si la fonction existe
@@ -1793,7 +1797,7 @@ function formatNumber($number)
                                             error_log("Erreur de traitement du matériau : " . $materialException->getMessage());
                                         ?>
                                             <tr class="bg-red-100">
-                                                <td colspan="11">Erreur de chargement du matériau</td>
+                                                <td colspan="12">Erreur de chargement du matériau</td>
                                             </tr>
                                     <?php
                                         }
@@ -2623,6 +2627,7 @@ function formatNumber($number)
                                 <tr>
                                     <th>Projet</th>
                                     <th>Client</th>
+                                    <th>Image</th>
                                     <th>Produit</th>
                                     <th>Quantité</th>
                                     <th>Unité</th>
@@ -2672,6 +2677,15 @@ function formatNumber($number)
                                             <tr class="material-row received">
                                                 <td><?= $projet ?></td>
                                                 <td><?= $client ?></td>
+                                                <td>
+                                                    <?php if (!empty($material['product_image']) && file_exists('../' . ltrim($material['product_image'], '/'))): ?>
+                                                        <img src="../<?= htmlspecialchars($material['product_image']) ?>" alt="<?= htmlspecialchars($designation) ?>" class="product-image">
+                                                    <?php else: ?>
+                                                        <div class="product-image-placeholder">
+                                                            <span class="material-icons text-gray-400">inventory_2</span>
+                                                        </div>
+                                                    <?php endif; ?>
+                                                </td>
                                                 <td><?= $designation ?><?= $sourceIndicator ?></td>
                                                 <td><?= number_format(floatval($quantite), 2, ',', ' ') ?></td>
                                                 <td><?= $unite ?></td>
