@@ -833,6 +833,17 @@ const EventHandlers = {
                 ButtonStateManager.updateAllButtons();
             });
         }
+
+        // Affichage de l'image en grand au clic
+        const pendingTable = document.getElementById('pendingMaterialsTable');
+        if (pendingTable) {
+            pendingTable.addEventListener('click', (e) => {
+                const target = e.target;
+                if (target.classList.contains('product-image')) {
+                    ModalManager.openImageViewer(target.getAttribute('src'), target.getAttribute('alt') || 'Aper\u00e7u');
+                }
+            });
+        }
     },
     setupModalEvents() {
         // Fermeture des modals
@@ -849,6 +860,21 @@ const EventHandlers = {
                 }
             });
         });
+
+        const imageViewer = document.getElementById('imageViewerModal');
+        const closeImageBtn = document.getElementById('closeImageViewerBtn');
+        if (imageViewer) {
+            imageViewer.addEventListener('click', (e) => {
+                if (e.target === imageViewer) {
+                    ModalManager.close(imageViewer);
+                }
+            });
+        }
+        if (closeImageBtn) {
+            closeImageBtn.addEventListener('click', () => {
+                ModalManager.close(imageViewer);
+            });
+        }
     },
     setupFormEvents() {
         // Formulaire d'achat individuel
@@ -1854,6 +1880,19 @@ const ModalManager = {
         modal.style.display = 'flex';
         // Configurer l'autocomplétion
         SubstitutionManager.setupProductAutocomplete();
+    },
+    openImageViewer(src, title = '') {
+        const modal = document.getElementById('imageViewerModal');
+        if (!modal) return;
+        const img = document.getElementById('imageViewerImg');
+        const titleEl = document.getElementById('imageViewerTitle');
+        const downloadBtn = document.getElementById('downloadImageBtn');
+        if (img) img.src = src;
+        if (titleEl) titleEl.textContent = title;
+        if (downloadBtn) {
+            downloadBtn.onclick = () => downloadImage(src, title.replace(/\s+/g, '_'));
+        }
+        modal.style.display = 'flex';
     },
     close(modal) {
         if (modal) modal.style.display = 'none';
@@ -3743,6 +3782,12 @@ window.openEditOrderModal = (orderId, expressionId, designation, sourceTable, qu
 window.closeEditOrderModal = () => {
     EditOrderManager.closeModal();
 };
+window.openImageViewerModal = (src, title = '') => {
+    ModalManager.openImageViewer(src, title);
+};
+window.closeImageViewerModal = () => {
+    ModalManager.close(document.getElementById('imageViewerModal'));
+};
 // ==========================================
 // FONCTION PRINCIPALE: DÉTAILS DE COMMANDE
 // ==========================================
@@ -4391,6 +4436,26 @@ window.checkOrderValidationStatus = () => {
 window.exportPartialOrdersExcel = () => {
     ExportManager.exportPartialOrdersToExcel();
 };
+
+function downloadImage(imageSrc, filename) {
+    let imageFileName;
+    if (imageSrc.includes('/')) {
+        imageFileName = imageSrc.split('/').pop();
+    } else {
+        imageFileName = imageSrc;
+    }
+    const downloadUrl = `api/download_image.php?file=${encodeURIComponent(imageFileName)}&name=${encodeURIComponent(filename)}`;
+    const link = document.createElement('a');
+    link.href = downloadUrl;
+    link.download = `${filename}.jpg`;
+    link.style.display = 'none';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    if (typeof showNotification === 'function') {
+        showNotification('Téléchargement démarré', 'success');
+    }
+}
 // Configurer l'intervalle de vérification (toutes les 5 minutes)
 window.checkOrderStatusInterval = setInterval(() => {
     OrderValidationChecker.check();
