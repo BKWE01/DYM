@@ -22,7 +22,7 @@ if (!isset($_SESSION['bulk_purchase'])) {
 $bulkPurchase = $_SESSION['bulk_purchase'];
 $projectId = $bulkPurchase['project_id'];
 $materialIds = $bulkPurchase['material_ids'];
-$fournisseur = $bulkPurchase['fournisseur'];
+$fournisseurId = $bulkPurchase['fournisseur'];
 
 // Connexion à la base de données
 include_once '../database/connection.php';
@@ -68,7 +68,7 @@ try {
         $user_id = $_SESSION['user_id'];
         $materialPrices = $_POST['material_prices'] ?? [];
         // Stocker temporairement dans la session
-        $_SESSION['temp_fournisseur'] = $fournisseur;
+        $_SESSION['temp_fournisseur'] = $fournisseurId;
         $_SESSION['temp_material_prices'] = $materialPrices;
         $_SESSION['selected_material_ids'] = $materialIds;
 
@@ -102,9 +102,9 @@ try {
                 $originalQuantity = isset($originalQuantities[$materialId]) ? $originalQuantities[$materialId] : $material['qt_acheter'];
 
                 // Insérer dans la table achats_materiaux
-                $insertAchatQuery = "INSERT INTO achats_materiaux 
-                               (expression_id, designation, quantity, unit, prix_unitaire, fournisseur, status, user_achat, original_quantity) 
-                               VALUES (:expression_id, :designation, :quantity, :unit, :prix, :fournisseur, 'commandé', :user_achat, :original_qty)";
+                $insertAchatQuery = "INSERT INTO achats_materiaux
+                               (expression_id, designation, quantity, unit, prix_unitaire, fournisseur_id, status, user_achat, original_quantity)
+                               VALUES (:expression_id, :designation, :quantity, :unit, :prix, :fournisseur_id, 'commandé', :user_achat, :original_qty)";
 
                 $insertStmt = $pdo->prepare($insertAchatQuery);
                 $insertStmt->bindParam(':expression_id', $material['idExpression']);
@@ -112,7 +112,7 @@ try {
                 $insertStmt->bindParam(':quantity', $quantity);
                 $insertStmt->bindParam(':unit', $material['unit']);
                 $insertStmt->bindParam(':prix', $prix);
-                $insertStmt->bindParam(':fournisseur', $fournisseur);
+                $insertStmt->bindParam(':fournisseur_id', $fournisseurId);
                 $insertStmt->bindParam(':user_achat', $user_id);
                 $insertStmt->bindParam(':original_qty', $originalQuantity);
                 $insertStmt->execute();
@@ -129,7 +129,7 @@ try {
 
                 $updateStmt = $pdo->prepare($updateExpressionQuery);
                 $updateStmt->bindParam(':prix', $prix);
-                $updateStmt->bindParam(':fournisseur', $fournisseur);
+                $updateStmt->bindParam(':fournisseur', $fournisseurId);
                 $updateStmt->bindParam(':user_achat', $user_id);
                 $updateStmt->bindParam(':quantity', $quantity);
                 $updateStmt->bindParam(':original_qty', $originalQuantity);
@@ -295,7 +295,7 @@ try {
                 <h2 class="text-lg font-semibold text-gray-800 mb-4">Fournisseur commun</h2>
                 <div class="bg-gray-50 p-4 rounded-lg">
                     <p class="text-sm text-gray-600">Fournisseur sélectionné:</p>
-                    <p class="font-medium"><?php echo htmlspecialchars($fournisseur); ?></p>
+                    <p class="font-medium"><?php echo htmlspecialchars($fournisseurId); ?></p>
                 </div>
             </div>
 

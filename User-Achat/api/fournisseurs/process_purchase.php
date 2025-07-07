@@ -28,6 +28,7 @@ $designation = $_POST['designation'] ?? '';
 $quantite = $_POST['quantite'] ?? 0;
 $unite = $_POST['unite'] ?? '';
 $prix = $_POST['prix'] ?? 0;
+$fournisseurId = null;
 $fournisseur = $_POST['fournisseur'] ?? '';
 $createFournisseur = isset($_POST['create_fournisseur']) && $_POST['create_fournisseur'] == '1';
 
@@ -42,36 +43,36 @@ try {
     $pdo->beginTransaction();
 
     // Vérifier si le fournisseur existe, sinon le créer
-    if ($createFournisseur) {
-        $checkFournisseurQuery = "SELECT id FROM fournisseurs WHERE LOWER(nom) = LOWER(:nom)";
-        $checkStmt = $pdo->prepare($checkFournisseurQuery);
-        $checkStmt->bindParam(':nom', $fournisseur);
-        $checkStmt->execute();
+    $checkFournisseurQuery = "SELECT id FROM fournisseurs WHERE LOWER(nom) = LOWER(:nom)";
+    $checkStmt = $pdo->prepare($checkFournisseurQuery);
+    $checkStmt->bindParam(':nom', $fournisseur);
+    $checkStmt->execute();
 
-        $fournisseurExists = $checkStmt->fetch(PDO::FETCH_ASSOC);
+    $fournisseurExists = $checkStmt->fetch(PDO::FETCH_ASSOC);
 
-        if (!$fournisseurExists) {
-            // Le fournisseur n'existe pas, le créer
-            $createFournisseurQuery = "INSERT INTO fournisseurs (nom, created_by, created_at) 
-                                      VALUES (:nom, :created_by, NOW())";
-            $createStmt = $pdo->prepare($createFournisseurQuery);
-            $createStmt->bindParam(':nom', $fournisseur);
-            $createStmt->bindParam(':created_by', $user_id);
-            $createStmt->execute();
+    if (!$fournisseurExists && $createFournisseur) {
+        // Le fournisseur n'existe pas, le créer
+        $createFournisseurQuery = "INSERT INTO fournisseurs (nom, created_by, created_at)
+                                  VALUES (:nom, :created_by, NOW())";
+        $createStmt = $pdo->prepare($createFournisseurQuery);
+        $createStmt->bindParam(':nom', $fournisseur);
+        $createStmt->bindParam(':created_by', $user_id);
+        $createStmt->execute();
 
-            // Journaliser la création du fournisseur
-            $fournisseurId = $pdo->lastInsertId();
-            if (function_exists('logSystemEvent')) {
-                logSystemEvent(
-                    $pdo,
-                    $user_id,
-                    'create',
-                    'fournisseurs',
-                    $fournisseurId,
-                    "Création automatique du fournisseur lors d'une commande individuelle"
-                );
-            }
+        $fournisseurId = $pdo->lastInsertId();
+
+        if (function_exists('logSystemEvent')) {
+            logSystemEvent(
+                $pdo,
+                $user_id,
+                'create',
+                'fournisseurs',
+                $fournisseurId,
+                "Création automatique du fournisseur lors d'une commande individuelle"
+            );
         }
+    } else {
+        $fournisseurId = $fournisseurExists['id'];
     }
 
     // Récupérer l'ID du matériau à partir de l'expression et de la désignation
@@ -91,9 +92,9 @@ try {
     $materialId = $material['id'];
 
     // Insérer dans la table achats_materiaux
-    $insertAchatQuery = "INSERT INTO achats_materiaux 
-                       (expression_id, designation, quantity, unit, prix_unitaire, fournisseur, status, user_achat) 
-                       VALUES (:expression_id, :designation, :quantity, :unit, :prix, :fournisseur, 'commandé', :user_achat)";
+    $insertAchatQuery = "INSERT INTO achats_materiaux
+                       (expression_id, designation, quantity, unit, prix_unitaire, fournisseur_id, status, user_achat)
+                       VALUES (:expression_id, :designation, :quantity, :unit, :prix, :fournisseur_id, 'commandé', :user_achat)";
 
     $insertStmt = $pdo->prepare($insertAchatQuery);
     $insertStmt->bindParam(':expression_id', $expressionId);
@@ -101,7 +102,7 @@ try {
     $insertStmt->bindParam(':quantity', $quantite);
     $insertStmt->bindParam(':unit', $unite);
     $insertStmt->bindParam(':prix', $prix);
-    $insertStmt->bindParam(':fournisseur', $fournisseur);
+    $insertStmt->bindParam(':fournisseur_id', $fournisseurId);
     $insertStmt->bindParam(':user_achat', $user_id);
     $insertStmt->execute();
 
