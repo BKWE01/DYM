@@ -4260,7 +4260,7 @@ function formatNumber($number)
                         }
                     ],
                     order: [
-                        [9, 'desc']
+                        [10, 'desc']
                     ],
                     pageLength: CONFIG.DATATABLES.PAGE_LENGTH,
                     drawCallback: () => {

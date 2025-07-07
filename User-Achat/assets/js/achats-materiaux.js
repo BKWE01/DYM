@@ -1112,7 +1112,7 @@ const DataTablesManager = {
             }
             ],
             order: [
-                [9, 'desc']
+                [10, 'desc']
             ],
             pageLength: CONFIG.DATATABLES.PAGE_LENGTH,
             drawCallback: () => {
