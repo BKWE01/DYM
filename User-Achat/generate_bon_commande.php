@@ -746,12 +746,12 @@ try {
     // Créer un identifiant de référence pour ce téléchargement spécifique
     $downloadReference = 'REF-' . date('YmdHis') . '-' . substr(md5(uniqid(mt_rand(), true)), 0, 8);
 
-    $saveOrderQuery = "INSERT INTO purchase_orders 
-                      (order_number, expression_id, related_expressions, file_path, 
-                       fournisseur, montant_total, user_id, is_multi_project, download_reference, generated_at) 
-                      VALUES 
-                      (:order_number, :expression_id, :related_expressions, :file_path, 
-                       :fournisseur, :montant_total, :user_id, :is_multi_project, :download_reference, NOW())";
+    $saveOrderQuery = "INSERT INTO purchase_orders
+                      (order_number, expression_id, related_expressions, file_path,
+                       fournisseur, mode_paiement_id, montant_total, user_id, is_multi_project, download_reference, generated_at)
+                      VALUES
+                      (:order_number, :expression_id, :related_expressions, :file_path,
+                       :fournisseur, :mode_paiement_id, :montant_total, :user_id, :is_multi_project, :download_reference, NOW())";
 
     $saveOrderStmt = $pdo->prepare($saveOrderQuery);
     $saveOrderStmt->bindParam(':order_number', $bonCommandeNumber);
@@ -759,6 +759,7 @@ try {
     $saveOrderStmt->bindParam(':related_expressions', $relatedExpressions);
     $saveOrderStmt->bindParam(':file_path', $relativePathForDB);
     $saveOrderStmt->bindParam(':fournisseur', $fournisseurCommande);
+    $saveOrderStmt->bindParam(':mode_paiement_id', $paymentMethod);
     $saveOrderStmt->bindParam(':montant_total', $totalAmount);
     $saveOrderStmt->bindParam(':user_id', $_SESSION['user_id']);
     $saveOrderStmt->bindParam(':is_multi_project', $isMultiProject);
