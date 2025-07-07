@@ -41,17 +41,18 @@ try {
             ed.valide_achat,
             ed.fournisseur as material_fournisseur,
             am.id as achat_id,
-            am.fournisseur as achat_fournisseur,
+            f.nom as achat_fournisseur,
             am.quantity as achat_quantity,
             am.date_achat,
             am.status as achat_status,
             'expression_dym' as source_table
         FROM expression_dym ed
         INNER JOIN achats_materiaux am ON (
-            BINARY am.expression_id = BINARY ed.idExpression 
+            BINARY am.expression_id = BINARY ed.idExpression
             AND LOWER(TRIM(am.designation)) = LOWER(TRIM(ed.designation))
             AND am.status = 'commandé'
         )
+        LEFT JOIN fournisseurs f ON am.fournisseur_id = f.id
         WHERE ed.valide_achat = 'valide_en_cours'
         
         UNION ALL
@@ -63,17 +64,18 @@ try {
             b.achat_status as valide_achat,
             NULL as material_fournisseur,
             am.id as achat_id,
-            am.fournisseur as achat_fournisseur,
+            f2.nom as achat_fournisseur,
             am.quantity as achat_quantity,
             am.date_achat,
             am.status as achat_status,
             'besoins' as source_table
         FROM besoins b
         INNER JOIN achats_materiaux am ON (
-            BINARY am.expression_id = BINARY b.idBesoin 
+            BINARY am.expression_id = BINARY b.idBesoin
             AND LOWER(TRIM(am.designation)) = LOWER(TRIM(b.designation_article))
             AND am.status = 'commandé'
         )
+        LEFT JOIN fournisseurs f2 ON am.fournisseur_id = f2.id
         WHERE b.achat_status = 'valide_en_cours'
         
         ORDER BY material_id, achat_id
@@ -137,10 +139,11 @@ try {
             $commandeCorrespondQuery = "
                 SELECT COUNT(*) as count_match
                 FROM achats_materiaux am
+                LEFT JOIN fournisseurs f ON am.fournisseur_id = f.id
                 WHERE am.id = :achat_id
                 AND BINARY am.expression_id = :expression_id
                 AND LOWER(TRIM(am.designation)) = LOWER(TRIM(:designation))
-                AND LOWER(TRIM(am.fournisseur)) = LOWER(TRIM(:po_fournisseur))
+                AND LOWER(TRIM(f.nom)) = LOWER(TRIM(:po_fournisseur))
                 AND am.status = 'commandé'
             ";
             
