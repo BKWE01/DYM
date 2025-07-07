@@ -777,9 +777,19 @@ try {
             $orderIds = array_filter($orderIds);
             if (!empty($orderIds)) {
                 $placeholders = implode(',', array_fill(0, count($orderIds), '?'));
-                $updateQuery = "UPDATE proformas SET bon_commande_id = ? WHERE achat_materiau_id IN ($placeholders)";
-                $updateStmt = $pdo->prepare($updateQuery);
-                $updateStmt->execute(array_merge([$bonCommandeId], $orderIds));
+
+                // Mise à jour de la table des pro-formas
+                $updateProformaQuery = "UPDATE proformas SET bon_commande_id = ? WHERE achat_materiau_id IN ($placeholders)";
+                $updateProformaStmt = $pdo->prepare($updateProformaQuery);
+                $updateProformaStmt->execute(array_merge([$bonCommandeId], $orderIds));
+
+                // Vérifier si la colonne bon_commande_id existe dans achats_materiaux
+                $columnCheck = $pdo->query("SHOW COLUMNS FROM achats_materiaux LIKE 'bon_commande_id'");
+                if ($columnCheck && $columnCheck->rowCount() > 0) {
+                    $updateAchatQuery = "UPDATE achats_materiaux SET bon_commande_id = ? WHERE id IN ($placeholders)";
+                    $updateAchatStmt = $pdo->prepare($updateAchatQuery);
+                    $updateAchatStmt->execute(array_merge([$bonCommandeId], $orderIds));
+                }
             }
             unset($_SESSION['bulk_purchase_orders']);
         }
