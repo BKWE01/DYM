@@ -2104,12 +2104,23 @@ function formatNumber($number)
                                                 OR JSON_CONTAINS(po.related_expressions, CONCAT('\"', main_data.expression_id, '\"')))
                                          ORDER BY po.generated_at DESC LIMIT 1) as user_finance_id,
                                                                 
-                                        (SELECT po.file_path 
-                                         FROM purchase_orders po 
+                                        (SELECT po.file_path
+                                         FROM purchase_orders po
                                          WHERE (BINARY po.expression_id = BINARY main_data.expression_id
                                                 OR JSON_CONTAINS(po.related_expressions, CONCAT('\"', main_data.expression_id, '\"')))
-                                         ORDER BY po.generated_at DESC LIMIT 1) as bon_commande_path
-                                                                
+                                         ORDER BY po.generated_at DESC LIMIT 1) as bon_commande_path,
+
+                                        (SELECT pr.file_path
+                                         FROM proformas pr
+                                         WHERE pr.achat_materiau_id = (
+                                             SELECT am.id
+                                             FROM achats_materiaux am
+                                             WHERE BINARY am.expression_id = BINARY main_data.expression_id
+                                             AND BINARY am.designation = BINARY main_data.designation
+                                             ORDER BY am.date_achat DESC LIMIT 1
+                                         )
+                                         ORDER BY pr.upload_date DESC LIMIT 1) as proforma_path
+
                                     FROM (
                                         /* SOUS-REQUÊTE 1: Matériaux depuis expression_dym */
                                         SELECT 
@@ -2548,6 +2559,20 @@ function formatNumber($number)
                                                                     </a>
                                                                 <?php
                                                                 }
+                                                            }
+
+                                                            // Bouton pour voir le pro-forma associé
+                                                            if (!empty($material['proforma_path'])) {
+                                                                $proformaPath = $material['proforma_path'];
+                                                                if (strpos($proformaPath, 'uploads/proformas/') !== 0) {
+                                                                    $proformaPath = 'uploads/proformas/' . ltrim($proformaPath, '/');
+                                                                }
+                                                                $proformaUrl = '../' . $proformaPath;
+                                                            ?>
+                                                                <a href="<?= htmlspecialchars($proformaUrl) ?>" class="btn-action text-purple-600 hover:text-purple-800 mr-2" title="Voir le pro-forma" target="_blank">
+                                                                    <span class="material-icons">visibility</span>
+                                                                </a>
+                                                            <?php
                                                             }
 
                                                             // Bouton Modifier (Super Admin uniquement)

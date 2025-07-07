@@ -45,17 +45,23 @@ function formatAmountSafely($amount) {
 
 try {
     // MISE À JOUR : Récupérer tous les bons de commande avec gestion des rejets
-    $query = "SELECT 
-                po.id, 
-                po.order_number, 
+    $query = "SELECT
+                po.id,
+                po.order_number,
                 po.download_reference,
-                po.expression_id, 
+                po.expression_id,
                 po.related_expressions,
-                po.file_path, 
-                po.fournisseur, 
-                po.montant_total, 
-                po.user_id, 
-                po.is_multi_project, 
+                po.file_path,
+                -- Chemin du dernier pro-forma lié à ce bon de commande
+                (SELECT pr.file_path
+                 FROM proformas pr
+                 WHERE pr.bon_commande_id = po.id
+                 ORDER BY pr.upload_date DESC
+                 LIMIT 1) AS proforma_path,
+                po.fournisseur,
+                po.montant_total,
+                po.user_id,
+                po.is_multi_project,
                 po.generated_at,
                 po.signature_finance,
                 po.user_finance_id,
@@ -66,9 +72,9 @@ try {
                 u.name as username,
                 uf.name as finance_username,
                 ur.name as rejected_by_username,
-                CASE 
-                    WHEN po.expression_id LIKE '%EXP_B%' THEN 'besoins' 
-                    ELSE 'expression_dym' 
+                CASE
+                    WHEN po.expression_id LIKE '%EXP_B%' THEN 'besoins'
+                    ELSE 'expression_dym'
                 END as source_table
               FROM purchase_orders po
               LEFT JOIN users_exp u ON po.user_id = u.id
@@ -164,6 +170,7 @@ try {
                 'expression_id' => $order['expression_id'] ?? '',
                 'related_expressions' => $order['related_expressions'],
                 'file_path' => $order['file_path'] ?? '',
+                'proforma_path' => $order['proforma_path'] ?? null,
                 'fournisseur' => $order['fournisseur'] ?? 'N/A',
                 'montant_total' => $amountData['formatted'],
                 'montant_total_raw' => $amountData['raw'],
@@ -199,6 +206,7 @@ try {
                 'expression_id' => '',
                 'related_expressions' => null,
                 'file_path' => '',
+                'proforma_path' => null,
                 'fournisseur' => 'Erreur',
                 'montant_total' => '0 FCFA',
                 'montant_total_raw' => 0,

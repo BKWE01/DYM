@@ -1340,13 +1340,20 @@ if ($action === 'delete' && isset($_GET['id'])) {
 
                         // NOUVEAU : Bouton pour voir les détails de rejet
                         const rejectionBtn = isRejected ?
-                            `<button onclick="Modal.showRejectionDetails(${orderId})" 
+                            `<button onclick="Modal.showRejectionDetails(${orderId})"
                class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm"
                title="Détails du rejet">
                <i class="material-icons mr-1" style="font-size: 14px;">error</i>Rejet
             </button>` : '';
 
-                        return `<div class="flex space-x-2">${viewBtn}${downloadBtn}${validatedBtn}${rejectionBtn}</div>`;
+                        const proformaBtn = row.proforma_path ?
+                            `<a href="../../${row.proforma_path.startsWith('uploads/proformas/') ? row.proforma_path : 'uploads/proformas/' + row.proforma_path.replace(/^\/+/, '')}"
+               class="bg-indigo-500 hover:bg-indigo-600 text-white px-3 py-1 rounded text-sm inline-block"
+               title="Voir pro-forma" target="_blank">
+               <i class="material-icons mr-1" style="font-size: 14px;">visibility</i>Pro-forma
+            </a>` : '';
+
+                        return `<div class="flex space-x-2">${viewBtn}${downloadBtn}${validatedBtn}${rejectionBtn}${proformaBtn}</div>`;
                     },
                     orderable: false
                 }
@@ -1637,6 +1644,7 @@ if ($action === 'delete' && isset($_GET['id'])) {
                     user_finance_id: result.user_finance_id,
                     finance_username: result.finance_username || null,
                     file_path: result.file_path,
+                    proforma_path: result.proforma_path,
                     // NOUVEAU : Données de rejet
                     status: result.status || 'pending',
                     rejected_at: result.rejected_at,
