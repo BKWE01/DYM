@@ -861,6 +861,16 @@ const EventHandlers = {
                     ModalManager.openImageViewer(target.getAttribute('src'), target.getAttribute('alt') || 'Aper\u00e7u');
                 }
             });
+
+        const canceledTable = document.getElementById("canceledOrdersTable");
+        if (canceledTable) {
+            canceledTable.addEventListener("click", (e) => {
+                const target = e.target;
+                if (target.classList.contains("product-image")) {
+                    ModalManager.openImageViewer(target.getAttribute("src"), target.getAttribute("alt") || "Aperçu");
+                }
+            });
+        }
         }
     },
     setupModalEvents() {
