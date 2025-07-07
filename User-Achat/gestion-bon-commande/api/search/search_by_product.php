@@ -108,6 +108,11 @@ try {
             po.expression_id,
             po.related_expressions,
             po.file_path,
+            (SELECT pr.file_path
+             FROM proformas pr
+             WHERE pr.bon_commande_id = po.id
+             ORDER BY pr.upload_date DESC
+             LIMIT 1) AS proforma_path,
             po.fournisseur,
             po.montant_total,
             po.user_id,
@@ -222,6 +227,7 @@ try {
             'signature_finance' => $row['signature_finance'],
             'user_finance_id' => $row['user_finance_id'],
             'file_path' => $row['file_path'],
+            'proforma_path' => $row['proforma_path'],
             'product_found' => $row['product_found'],
             'product_quantity' => $row['product_quantity'],
             'product_unit' => $row['product_unit'],

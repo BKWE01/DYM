@@ -2104,12 +2104,23 @@ function formatNumber($number)
                                                 OR JSON_CONTAINS(po.related_expressions, CONCAT('\"', main_data.expression_id, '\"')))
                                          ORDER BY po.generated_at DESC LIMIT 1) as user_finance_id,
                                                                 
-                                        (SELECT po.file_path 
-                                         FROM purchase_orders po 
+                                        (SELECT po.file_path
+                                         FROM purchase_orders po
                                          WHERE (BINARY po.expression_id = BINARY main_data.expression_id
                                                 OR JSON_CONTAINS(po.related_expressions, CONCAT('\"', main_data.expression_id, '\"')))
-                                         ORDER BY po.generated_at DESC LIMIT 1) as bon_commande_path
-                                                                
+                                         ORDER BY po.generated_at DESC LIMIT 1) as bon_commande_path,
+
+                                        (SELECT pr.file_path
+                                         FROM proformas pr
+                                         WHERE pr.achat_materiau_id = (
+                                             SELECT am.id
+                                             FROM achats_materiaux am
+                                             WHERE BINARY am.expression_id = BINARY main_data.expression_id
+                                             AND BINARY am.designation = BINARY main_data.designation
+                                             ORDER BY am.date_achat DESC LIMIT 1
+                                         )
+                                         ORDER BY pr.upload_date DESC LIMIT 1) as proforma_path
+
                                     FROM (
                                         /* SOUS-REQUÊTE 1: Matériaux depuis expression_dym */
                                         SELECT 
@@ -2138,7 +2149,8 @@ function formatNumber($number)
                                             GREATEST(0, (COALESCE(ed.qt_acheter, 0) + COALESCE(ed.qt_restante, 0)) - COALESCE(ed.quantity_stock, 0)) as quantity_remaining,
                                             ip.code_projet,
                                             ip.nom_client,
-                                            (SELECT COUNT(*) 
+                                            p.product_image,
+                                            (SELECT COUNT(*)
                                              FROM achats_materiaux am 
                                              WHERE BINARY am.expression_id = BINARY ed.idExpression 
                                              AND BINARY am.designation = BINARY ed.designation) as command_count,
@@ -2150,6 +2162,7 @@ function formatNumber($number)
                                             'expression_dym' as source_table
                                         FROM expression_dym ed
                                         INNER JOIN identification_projet ip ON BINARY ed.idExpression = BINARY ip.idExpression
+                                        LEFT JOIN products p ON LOWER(p.product_name) = LOWER(ed.designation)
                                         WHERE (ed.valide_achat IN ('validé', 'en_cours', 'valide_en_cours'))
                                         AND ed.qt_acheter > 0
                                         " . (function_exists('getFilteredDateCondition') ? "AND " . getFilteredDateCondition('ed.created_at') : "") . "
@@ -2218,6 +2231,7 @@ function formatNumber($number)
                                                                 
                                             CONCAT('SYS-', COALESCE(d.client, 'SYSTÈME')) as code_projet,
                                             COALESCE(d.client, 'Demande interne') as nom_client,
+                                            p.product_image,
                                                                 
                                             (SELECT COUNT(*) 
                                              FROM achats_materiaux am 
@@ -2232,6 +2246,7 @@ function formatNumber($number)
                                                                 
                                         FROM besoins b
                                         LEFT JOIN demandeur d ON BINARY b.idBesoin = BINARY d.idBesoin
+                                        LEFT JOIN products p ON p.id = b.product_id
                                         WHERE (b.achat_status IN ('validé', 'en_cours', 'valide_en_cours'))
                                         AND b.qt_acheter > 0
                                         " . (function_exists('getFilteredDateCondition') ? "AND " . getFilteredDateCondition('b.created_at') : "") . "
@@ -2548,6 +2563,20 @@ function formatNumber($number)
                                                                     </a>
                                                                 <?php
                                                                 }
+                                                            }
+
+                                                            // Bouton pour voir le pro-forma associé
+                                                            if (!empty($material['proforma_path'])) {
+                                                                $proformaPath = $material['proforma_path'];
+                                                                if (strpos($proformaPath, 'uploads/proformas/') !== 0) {
+                                                                    $proformaPath = 'uploads/proformas/' . ltrim($proformaPath, '/');
+                                                                }
+                                                                $proformaUrl = '../' . $proformaPath;
+                                                            ?>
+                                                                <a href="<?= htmlspecialchars($proformaUrl) ?>" class="btn-action text-purple-600 hover:text-purple-800 mr-2" title="Voir le pro-forma" target="_blank">
+                                                                    <span class="material-icons">visibility</span>
+                                                                </a>
+                                                            <?php
                                                             }
 
                                                             // Bouton Modifier (Super Admin uniquement)
