@@ -2742,6 +2742,7 @@ function formatNumber($number)
                     <table id="supplierReturnsTable" class="display responsive nowrap w-full">
                         <thead>
                             <tr>
+                                <th>Image</th>
                                 <th>Produit</th>
                                 <th>Fournisseur</th>
                                 <th>Quantité</th>
@@ -2754,7 +2755,7 @@ function formatNumber($number)
                         <tbody>
                             <!-- Les données seront chargées dynamiquement -->
                             <tr>
-                                <td colspan="7" class="text-center py-4">Chargement des données...</td>
+                                <td colspan="8" class="text-center py-4">Chargement des données...</td>
                             </tr>
                         </tbody>
                     </table>
@@ -4347,10 +4348,10 @@ function formatNumber($number)
                     buttons: CONFIG.DATATABLES.BUTTONS,
                     columnDefs: [{
                         type: 'date-fr',
-                        targets: 4
+                        targets: 5
                     }],
                     order: [
-                        [4, 'desc']
+                        [5, 'desc']
                     ],
                     pageLength: CONFIG.DATATABLES.PAGE_LENGTH,
                     ajax: {
@@ -4371,6 +4372,16 @@ function formatNumber($number)
                         }
                     },
                     columns: [{
+                            data: 'product_image',
+                            render: (data, type, row) => {
+                                const src = data ? `../${Utils.escapeHtml(data)}` : null;
+                                const alt = Utils.escapeHtml(row.product_name || 'Produit');
+                                return src ? `<img src="${src}" alt="${alt}" class="product-image">` :
+                                    `<div class="product-image-placeholder"><span class="material-icons text-gray-400">inventory_2</span></div>`;
+                            },
+                            orderable: false
+                        },
+                        {
                             data: 'product_name'
                         },
                         {

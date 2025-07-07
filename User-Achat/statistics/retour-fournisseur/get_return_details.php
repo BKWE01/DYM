@@ -27,6 +27,7 @@ try {
     $query = "SELECT 
         sr.*,
         p.product_name,
+        p.product_image,
         COALESCE((
             SELECT MAX(ed.prix_unitaire) 
             FROM expression_dym ed 

@@ -30,6 +30,7 @@ try {
         sr.created_at,
         sr.completed_at,
         p.product_name,
+        p.product_image,
         COALESCE((
             SELECT MAX(ed.prix_unitaire) 
             FROM expression_dym ed 

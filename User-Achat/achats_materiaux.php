@@ -2937,6 +2937,7 @@ function resolveProductImagePath($path)
                     <table id="supplierReturnsTable" class="display responsive nowrap w-full">
                         <thead>
                             <tr>
+                                <th>Image</th>
                                 <th>Produit</th>
                                 <th>Fournisseur</th>
                                 <th>Quantité</th>
@@ -2949,7 +2950,7 @@ function resolveProductImagePath($path)
                         <tbody>
                             <!-- Les données seront chargées dynamiquement -->
                             <tr>
-                                <td colspan="7" class="text-center py-4">Chargement des données...</td>
+                                <td colspan="8" class="text-center py-4">Chargement des données...</td>
                             </tr>
                         </tbody>
                     </table>
