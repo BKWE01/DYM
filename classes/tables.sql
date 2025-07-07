@@ -299,6 +299,7 @@ CREATE TABLE IF NOT EXISTS `purchase_orders` (
   `related_expressions` text DEFAULT NULL COMMENT 'IDs des expressions liées (JSON)',
   `file_path` varchar(255) NOT NULL COMMENT 'Chemin du fichier PDF',
   `fournisseur` varchar(255) NOT NULL COMMENT 'Fournisseur concerné',
+  `mode_paiement_id` int(11) DEFAULT NULL COMMENT 'ID du mode de paiement utilisé (référence payment_methods.id)',
   `montant_total` decimal(15,2) NOT NULL DEFAULT 0.00 COMMENT 'Montant total du bon de commande',
   `user_id` int(11) NOT NULL COMMENT 'Utilisateur ayant généré le bon',
   `is_multi_project` tinyint(1) NOT NULL DEFAULT 0 COMMENT 'Indique si c''est un achat multi-projets',
@@ -315,6 +316,7 @@ CREATE TABLE IF NOT EXISTS `purchase_orders` (
   UNIQUE KEY `idx_download_reference` (`download_reference`),
   KEY `expression_id` (`expression_id`),
   KEY `fournisseur` (`fournisseur`),
+  KEY `idx_mode_paiement` (`mode_paiement_id`),
   KEY `user_id` (`user_id`),
   KEY `generated_at` (`generated_at`),
   KEY `idx_order_number` (`order_number`),
@@ -1004,6 +1006,7 @@ ALTER TABLE `achats_materiaux`
 -- Contraintes pour purchase_orders
 ALTER TABLE `purchase_orders`
   ADD CONSTRAINT `fk_purchase_orders_rejected_by` FOREIGN KEY (`rejected_by_user_id`) REFERENCES `users_exp` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_purchase_orders_payment_method` FOREIGN KEY (`mode_paiement_id`) REFERENCES `payment_methods` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   ADD CONSTRAINT `fk_purchase_orders_user` FOREIGN KEY (`user_id`) REFERENCES `users_exp` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- Contraintes pour canceled_orders_log
