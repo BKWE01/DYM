@@ -871,6 +871,16 @@ const EventHandlers = {
                 }
             });
         }
+
+        const returnsTable = document.getElementById('supplierReturnsTable');
+        if (returnsTable) {
+            returnsTable.addEventListener('click', (e) => {
+                const target = e.target;
+                if (target.classList.contains('product-image')) {
+                    ModalManager.openImageViewer(target.getAttribute('src'), target.getAttribute('alt') || 'Aperçu');
+                }
+            });
+        }
         }
     },
     setupModalEvents() {
@@ -1183,10 +1193,10 @@ const DataTablesManager = {
             buttons: CONFIG.DATATABLES.BUTTONS,
             columnDefs: [{
                 type: 'date-fr',
-                targets: 4
+                targets: 5
             }],
             order: [
-                [4, 'desc']
+                [5, 'desc']
             ],
             pageLength: CONFIG.DATATABLES.PAGE_LENGTH,
             ajax: {
@@ -1207,6 +1217,16 @@ const DataTablesManager = {
                 }
             },
             columns: [{
+                data: 'product_image',
+                render: (data, type, row) => {
+                    const src = data ? `../${Utils.escapeHtml(data)}` : null;
+                    const alt = Utils.escapeHtml(row.product_name || 'Produit');
+                    return src ? `<img src="${src}" alt="${alt}" class="product-image">` :
+                        `<div class="product-image-placeholder"><span class="material-icons text-gray-400">inventory_2</span></div>`;
+                },
+                orderable: false
+            },
+            {
                 data: 'product_name'
             },
             {
