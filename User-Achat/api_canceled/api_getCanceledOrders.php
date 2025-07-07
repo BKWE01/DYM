@@ -50,6 +50,8 @@ try {
         u.name AS canceled_by_name,
         ip.code_projet,
         ip.nom_client,
+        /* Image du produit selon la source */
+        COALESCE(px.product_image, pb.product_image) as product_image,
         /* Priorité aux sources de données: expression_dym > besoins > achats_materiaux */
         COALESCE(ed.quantity, b.qt_demande, CASE WHEN co.order_id = 0 THEN NULL ELSE am.quantity END) as quantity,
         COALESCE(ed.unit, b.caracteristique, CASE WHEN co.order_id = 0 THEN NULL ELSE am.unit END) as unit,
@@ -89,8 +91,10 @@ try {
     LEFT JOIN achats_materiaux am ON co.order_id = am.id
     /* Jointure avec expression_dym */
     LEFT JOIN expression_dym ed ON (co.project_id = ed.idExpression AND LOWER(co.designation) = LOWER(ed.designation))
+    LEFT JOIN products px ON LOWER(px.product_name) = LOWER(ed.designation)
     /* Jointure avec besoins (expressions système) */
     LEFT JOIN besoins b ON (co.project_id = b.idBesoin AND LOWER(co.designation) = LOWER(b.designation_article))
+    LEFT JOIN products pb ON pb.id = b.product_id
     /* Jointure avec demandeur pour les infos sur les besoins système */
     LEFT JOIN demandeur d ON b.idBesoin = d.idBesoin
     ORDER BY co.canceled_at DESC";
@@ -206,6 +210,7 @@ try {
             'project_id' => $order['project_id'],
             'code_projet' => $codeProjet ?: 'N/A',
             'nom_client' => $nomClient ?: 'N/A',
+            'product_image' => $order['product_image'],
             'designation' => $order['designation'] . $sourceLabel,
             'original_status' => $formattedStatus,
             'quantity' => $formattedQuantity,
