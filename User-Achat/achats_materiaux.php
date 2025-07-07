@@ -242,8 +242,8 @@ try {
 
         // Insérer dans la table achats_materiaux
         $insertAchatQuery = "INSERT INTO achats_materiaux 
-        (expression_id, designation, quantity, unit, prix_unitaire, fournisseur, status, user_achat, original_quantity, is_partial) 
-        VALUES (:expression_id, :designation, :quantity, :unit, :prix, :fournisseur, 'commandé', :user_achat, :original_qty, :is_partial)";
+        (expression_id, designation, quantity, unit, prix_unitaire, fournisseur_id, status, user_achat, original_quantity, is_partial)
+        VALUES (:expression_id, :designation, :quantity, :unit, :prix, :fournisseur_id, 'commandé', :user_achat, :original_qty, :is_partial)";
 
         $insertStmt = $pdo->prepare($insertAchatQuery);
         $insertStmt->bindParam(':expression_id', $expressionId);
@@ -251,7 +251,7 @@ try {
         $insertStmt->bindParam(':quantity', $quantite);
         $insertStmt->bindParam(':unit', $unite);
         $insertStmt->bindParam(':prix', $prix);
-        $insertStmt->bindParam(':fournisseur', $fournisseur);
+        $insertStmt->bindParam(':fournisseur_id', $fournisseur);
         $insertStmt->bindParam(':user_achat', $user_id);
         $insertStmt->execute();
 
@@ -308,15 +308,17 @@ try {
             p.product_image,
             ip.created_at,
             'expression_dym' AS source_table,
-            (SELECT am.fournisseur 
-             FROM achats_materiaux am 
+            (SELECT f.nom
+             FROM achats_materiaux am
+             LEFT JOIN fournisseurs f ON am.fournisseur_id = f.id
              WHERE am.designation = ed.designation
              ORDER BY am.date_achat DESC LIMIT 1) AS dernier_fournisseur,
             (SELECT fc.categorie 
              FROM fournisseur_categories fc 
              INNER JOIN fournisseurs f ON fc.fournisseur_id = f.id
-             WHERE f.nom = (SELECT am2.fournisseur 
-                           FROM achats_materiaux am2 
+             WHERE f.nom = (SELECT f2.nom
+                           FROM achats_materiaux am2
+                           LEFT JOIN fournisseurs f2 ON am2.fournisseur_id = f2.id
                            WHERE am2.designation = ed.designation
                            ORDER BY am2.date_achat DESC LIMIT 1)
              LIMIT 1) AS categorie_fournisseur
@@ -347,15 +349,17 @@ try {
             p.product_image,
             b.created_at,
             'besoins' as source_table,
-            (SELECT am.fournisseur 
-             FROM achats_materiaux am 
+            (SELECT f3.nom
+             FROM achats_materiaux am
+             LEFT JOIN fournisseurs f3 ON am.fournisseur_id = f3.id
              WHERE am.designation = b.designation_article
              ORDER BY am.date_achat DESC LIMIT 1) AS dernier_fournisseur,
             (SELECT fc.categorie 
              FROM fournisseur_categories fc 
              INNER JOIN fournisseurs f ON fc.fournisseur_id = f.id
-             WHERE f.nom = (SELECT am2.fournisseur 
-                           FROM achats_materiaux am2 
+             WHERE f.nom = (SELECT f4.nom
+                           FROM achats_materiaux am2
+                           LEFT JOIN fournisseurs f4 ON am2.fournisseur_id = f4.id
                            WHERE am2.designation = b.designation_article
                            ORDER BY am2.date_achat DESC LIMIT 1)
              LIMIT 1) AS categorie_fournisseur
@@ -445,10 +449,12 @@ try {
             AND am.designation = b.designation_article
         ) as prix_unitaire,
         (
-            SELECT MAX(am.fournisseur) 
-            FROM achats_materiaux am 
-            WHERE am.expression_id = b.idBesoin 
+            SELECT f.nom
+            FROM achats_materiaux am
+            LEFT JOIN fournisseurs f ON am.fournisseur_id = f.id
+            WHERE am.expression_id = b.idBesoin
             AND am.designation = b.designation_article
+            ORDER BY am.date_achat DESC LIMIT 1
         ) as fournisseur,
         b.achat_status as valide_achat,
         p.product_image,
@@ -2165,12 +2171,12 @@ function resolveProductImagePath($path)
                                             ed.prix_unitaire,
                                             COALESCE(
                                                 NULLIF(ed.fournisseur, ''),
-                                                NULLIF((SELECT am.fournisseur
+                                                NULLIF((SELECT f.nom
                                                         FROM achats_materiaux am
+                                                        LEFT JOIN fournisseurs f ON am.fournisseur_id = f.id
                                                         WHERE BINARY am.expression_id = BINARY ed.idExpression
                                                         AND BINARY am.designation = BINARY ed.designation
-                                                        AND am.fournisseur IS NOT NULL
-                                                        AND am.fournisseur != ''
+                                                        AND am.fournisseur_id IS NOT NULL
                                                         ORDER BY am.date_achat DESC LIMIT 1), ''),
                                                 'Non spécifié'
                                             ) as fournisseur,
@@ -2234,19 +2240,19 @@ function resolveProductImagePath($path)
                                                                 
                                             /* CORRECTION FOURNISSEUR - Priorité : achats_materiaux > besoins > fallback */
                                             COALESCE(
-                                                NULLIF((SELECT am.fournisseur 
-                                                        FROM achats_materiaux am 
-                                                        WHERE BINARY am.expression_id = BINARY b.idBesoin 
+                                                NULLIF((SELECT f.nom
+                                                        FROM achats_materiaux am
+                                                        LEFT JOIN fournisseurs f ON am.fournisseur_id = f.id
+                                                        WHERE BINARY am.expression_id = BINARY b.idBesoin
                                                         AND BINARY am.designation = BINARY b.designation_article
-                                                        AND am.fournisseur IS NOT NULL 
-                                                        AND am.fournisseur != ''
+                                                        AND am.fournisseur_id IS NOT NULL
                                                         ORDER BY am.date_achat DESC LIMIT 1), ''),
                                                 NULLIF(b.fournisseur, ''),
-                                                NULLIF((SELECT am2.fournisseur 
-                                                        FROM achats_materiaux am2 
+                                                NULLIF((SELECT f2.nom
+                                                        FROM achats_materiaux am2
+                                                        LEFT JOIN fournisseurs f2 ON am2.fournisseur_id = f2.id
                                                         WHERE BINARY am2.designation = BINARY b.designation_article
-                                                        AND am2.fournisseur IS NOT NULL 
-                                                        AND am2.fournisseur != ''
+                                                        AND am2.fournisseur_id IS NOT NULL
                                                         ORDER BY am2.date_achat DESC LIMIT 1), ''),
                                                 'Non spécifié'
                                             ) as fournisseur,
@@ -2392,10 +2398,10 @@ function resolveProductImagePath($path)
                                                     try {
                                                         $fallbackFournQuery = "
                                                     SELECT COALESCE(
-                                                        (SELECT am.fournisseur FROM achats_materiaux am 
-                                                         WHERE BINARY am.designation = BINARY ? 
-                                                         AND am.fournisseur IS NOT NULL 
-                                                         AND am.fournisseur != '' 
+                                                        (SELECT f.nom FROM achats_materiaux am
+                                                         LEFT JOIN fournisseurs f ON am.fournisseur_id = f.id
+                                                         WHERE BINARY am.designation = BINARY ?
+                                                         AND am.fournisseur_id IS NOT NULL
                                                          ORDER BY am.date_achat DESC LIMIT 1),
                                                         'Non spécifié'
                                                     ) as fallback_fournisseur";
