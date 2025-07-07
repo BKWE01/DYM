@@ -71,3 +71,9 @@
 {"timestamp":"2025-07-04 15:55:26","proforma_id":"60","achat_materiau_id":"823","filename":"proforma_20250704155526_139c7d22_facture.jpg","status":"duplicate","user_id":"80","error":null}
 {"timestamp":"2025-07-07 10:34:26","proforma_id":"61","achat_materiau_id":"824","filename":"proforma_20250707103426_b25d21da_proforma.png","status":"success","user_id":80,"error":null}
 {"timestamp":"2025-07-07 10:36:26","proforma_id":"62","achat_materiau_id":"825","filename":"proforma_20250707103626_8f4c4fc1_proforma.png","status":"success","user_id":"80","error":null}
+{"timestamp":"2025-07-07 11:41:03","proforma_id":"63","achat_materiau_id":"826","filename":"proforma_20250707114103_21c84f25_proforma.png","status":"success","user_id":85,"error":null}
+{"timestamp":"2025-07-07 11:41:03","proforma_id":"64","achat_materiau_id":"827","filename":"proforma_20250707114103_21c84f25_proforma.png","status":"duplicate","user_id":85,"error":null}
+{"timestamp":"2025-07-07 11:52:17","proforma_id":"65","achat_materiau_id":"828","filename":"proforma_20250707115217_ceff164f_proforma.png","status":"success","user_id":"85","error":null}
+{"timestamp":"2025-07-07 11:55:08","proforma_id":"66","achat_materiau_id":"829","filename":"proforma_20250707115508_c2482e80_proforma.png","status":"success","user_id":"85","error":null}
+{"timestamp":"2025-07-07 11:55:08","proforma_id":"67","achat_materiau_id":"830","filename":"proforma_20250707115508_c2482e80_proforma.png","status":"duplicate","user_id":"85","error":null}
+{"timestamp":"2025-07-07 11:58:40","proforma_id":"68","achat_materiau_id":"831","filename":"proforma_20250707115840_7de71dd4_proforma.png","status":"success","user_id":"85","error":null}
