@@ -547,6 +547,38 @@ function formatNumber($number)
     return number_format((float) $number, 0, ',', ' ');
 }
 
+/**
+ * Résout correctement le chemin d'une image produit en tenant compte
+ * des différentes structures de répertoires enregistrées en base.
+ *
+ * @param string|null $path Chemin brut depuis la base de données
+ * @return string|null Chemin relatif valide ou null si introuvable
+ */
+function resolveProductImagePath($path)
+{
+    if (empty($path)) {
+        return null;
+    }
+
+    // Nettoyer les préfixes relatifs éventuels (../../, ../)
+    $cleanPath = preg_replace('/^(\.\.\/)+/', '', $path);
+    $cleanPath = ltrim($cleanPath, '/');
+
+    // Emplacements possibles relativement à ce fichier
+    $locations = [
+        "../$cleanPath",
+        "../public/$cleanPath",
+    ];
+
+    foreach ($locations as $loc) {
+        if (file_exists($loc)) {
+            return $loc;
+        }
+    }
+
+    return null;
+}
+
 // ===============================
 // DÉBUT DU CODE HTML
 // ===============================
@@ -2480,8 +2512,9 @@ function formatNumber($number)
                                                     </td>
 
                                                     <td class="px-4 py-3">
-                                                        <?php if (!empty($material['product_image']) && file_exists('../' . ltrim($material['product_image'], '/'))): ?>
-                                                            <img src="../<?= htmlspecialchars($material['product_image']) ?>" alt="<?= htmlspecialchars($material['designation'] ?? 'Produit') ?>" class="product-image">
+                                                        <?php $imgPath = resolveProductImagePath($material['product_image'] ?? null); ?>
+                                                        <?php if ($imgPath): ?>
+                                                            <img src="<?= htmlspecialchars($imgPath) ?>" alt="<?= htmlspecialchars($material['designation'] ?? 'Produit') ?>" class="product-image">
                                                         <?php else: ?>
                                                             <div class="product-image-placeholder">
                                                                 <span class="material-icons text-gray-400">inventory_2</span>
