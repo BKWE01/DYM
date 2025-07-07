@@ -2181,7 +2181,8 @@ function resolveProductImagePath($path)
                                             GREATEST(0, (COALESCE(ed.qt_acheter, 0) + COALESCE(ed.qt_restante, 0)) - COALESCE(ed.quantity_stock, 0)) as quantity_remaining,
                                             ip.code_projet,
                                             ip.nom_client,
-                                            (SELECT COUNT(*) 
+                                            p.product_image,
+                                            (SELECT COUNT(*)
                                              FROM achats_materiaux am 
                                              WHERE BINARY am.expression_id = BINARY ed.idExpression 
                                              AND BINARY am.designation = BINARY ed.designation) as command_count,
@@ -2193,6 +2194,7 @@ function resolveProductImagePath($path)
                                             'expression_dym' as source_table
                                         FROM expression_dym ed
                                         INNER JOIN identification_projet ip ON BINARY ed.idExpression = BINARY ip.idExpression
+                                        LEFT JOIN products p ON LOWER(p.product_name) = LOWER(ed.designation)
                                         WHERE (ed.valide_achat IN ('validé', 'en_cours', 'valide_en_cours'))
                                         AND ed.qt_acheter > 0
                                         " . (function_exists('getFilteredDateCondition') ? "AND " . getFilteredDateCondition('ed.created_at') : "") . "
@@ -2261,6 +2263,7 @@ function resolveProductImagePath($path)
                                                                 
                                             CONCAT('SYS-', COALESCE(d.client, 'SYSTÈME')) as code_projet,
                                             COALESCE(d.client, 'Demande interne') as nom_client,
+                                            p.product_image,
                                                                 
                                             (SELECT COUNT(*) 
                                              FROM achats_materiaux am 
@@ -2275,6 +2278,7 @@ function resolveProductImagePath($path)
                                                                 
                                         FROM besoins b
                                         LEFT JOIN demandeur d ON BINARY b.idBesoin = BINARY d.idBesoin
+                                        LEFT JOIN products p ON p.id = b.product_id
                                         WHERE (b.achat_status IN ('validé', 'en_cours', 'valide_en_cours'))
                                         AND b.qt_acheter > 0
                                         " . (function_exists('getFilteredDateCondition') ? "AND " . getFilteredDateCondition('b.created_at') : "") . "
