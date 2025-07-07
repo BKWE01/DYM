@@ -69,3 +69,5 @@
 {"timestamp":"2025-07-04 15:45:24","proforma_id":null,"achat_materiau_id":"821","filename":"WhatsApp Image 2025-07-03 at 10.53.52.jpeg","status":"error","user_id":"80","error":"Fichier invalide ou non fourni"}
 {"timestamp":"2025-07-04 15:55:26","proforma_id":"59","achat_materiau_id":"822","filename":"proforma_20250704155526_139c7d22_facture.jpg","status":"success","user_id":"80","error":null}
 {"timestamp":"2025-07-04 15:55:26","proforma_id":"60","achat_materiau_id":"823","filename":"proforma_20250704155526_139c7d22_facture.jpg","status":"duplicate","user_id":"80","error":null}
+{"timestamp":"2025-07-07 10:34:26","proforma_id":"61","achat_materiau_id":"824","filename":"proforma_20250707103426_b25d21da_proforma.png","status":"success","user_id":80,"error":null}
+{"timestamp":"2025-07-07 10:36:26","proforma_id":"62","achat_materiau_id":"825","filename":"proforma_20250707103626_8f4c4fc1_proforma.png","status":"success","user_id":"80","error":null}
