@@ -60,6 +60,7 @@ try {
                  LIMIT 1) AS proforma_path,
                 po.fournisseur,
                 po.montant_total,
+                pm.label AS payment_method,
                 po.user_id,
                 po.is_multi_project,
                 po.generated_at,
@@ -80,6 +81,7 @@ try {
               LEFT JOIN users_exp u ON po.user_id = u.id
               LEFT JOIN users_exp uf ON po.user_finance_id = uf.id
               LEFT JOIN users_exp ur ON po.rejected_by_user_id = ur.id
+              LEFT JOIN payment_methods pm ON po.mode_paiement_id = pm.id
               ORDER BY po.generated_at DESC";
 
     $stmt = $pdo->prepare($query);
@@ -174,6 +176,7 @@ try {
                 'fournisseur' => $order['fournisseur'] ?? 'N/A',
                 'montant_total' => $amountData['formatted'],
                 'montant_total_raw' => $amountData['raw'],
+                'payment_method' => $order['payment_method'] ?? 'Non spécifié',
                 'user_id' => (int)$order['user_id'],
                 'username' => $order['username'] ?? 'Utilisateur inconnu',
                 'signature_finance' => $order['signature_finance'],
@@ -210,6 +213,7 @@ try {
                 'fournisseur' => 'Erreur',
                 'montant_total' => '0 FCFA',
                 'montant_total_raw' => 0,
+                'payment_method' => 'Non spécifié',
                 'user_id' => 0,
                 'username' => 'Erreur',
                 'signature_finance' => null,

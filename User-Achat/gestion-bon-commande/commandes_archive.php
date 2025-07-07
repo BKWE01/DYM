@@ -979,6 +979,7 @@ if ($action === 'delete' && isset($_GET['id'])) {
                                 <th>Date</th>
                                 <th>Projet(s)</th>
                                 <th>Fournisseur</th>
+                                <th>Mode de paiement</th>
                                 <th>Montant</th>
                                 <th>Type</th>
                                 <th>Créé par</th>
@@ -989,7 +990,7 @@ if ($action === 'delete' && isset($_GET['id'])) {
                         <tbody>
                             <!-- Les données seront chargées via DataTables/AJAX -->
                             <tr>
-                                <td colspan="10" class="text-center">Chargement des données...</td>
+                                <td colspan="11" class="text-center">Chargement des données...</td>
                             </tr>
                         </tbody>
                     </table>
@@ -1194,8 +1195,8 @@ if ($action === 'delete' && isset($_GET['id'])) {
                 columns: this.getColumns(),
                 columnDefs: [{
                         orderable: false,
-                        targets: [9]
-                    }, // Actions (maintenant colonne 9)
+                        targets: [10]
+                    }, // Actions (maintenant colonne 10)
                     {
                         type: 'date-fr',
                         targets: 2
@@ -1274,6 +1275,11 @@ if ($action === 'delete' && isset($_GET['id'])) {
                 {
                     data: 'fournisseur',
                     title: 'Fournisseur'
+                },
+                {
+                    data: 'payment_method',
+                    title: 'Mode de paiement',
+                    render: (data) => data || '<span class="italic text-gray-400">Non spécifié</span>'
                 },
                 {
                     data: 'montant_total',

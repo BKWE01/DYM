@@ -547,7 +547,7 @@ CustomFilters.OrdersFilters = {
         if (createdBySelect) {
             // Charger les créateurs uniques depuis le tableau
             const users = new Set();
-            this.table.column(7).data().each(function (value) {
+            this.table.column(8).data().each(function (value) {
                 if (value) {
                     users.add(value.trim());
                 }
@@ -1254,9 +1254,9 @@ CustomFilters.OrdersFilters = {
 
         // Filtre par créateur
         if (filters.createdBy) {
-            this.table.column(7).search(filters.createdBy);
+            this.table.column(8).search(filters.createdBy);
         } else {
-            this.table.column(7).search('');
+            this.table.column(8).search('');
         }
 
         // Filtre par projet
@@ -1297,12 +1297,12 @@ CustomFilters.OrdersFilters = {
                 }
 
                 // Vérifier que la ligne a toutes les colonnes
-                if (!data || data.length < 9) {
+                if (!data || data.length < 10) {
                     return false;
                 }
 
                 // Montant (colonne 5)
-                const amountStr = data[5];
+                const amountStr = data[6];
                 if (minAmount || maxAmount) {
                     if (!amountStr) {
                         return false;
@@ -1329,7 +1329,7 @@ CustomFilters.OrdersFilters = {
                 // Statut (colonne 8) - MISE À JOUR AVEC REJETS
                 const statusFilter = filters.status;
                 if (statusFilter) {
-                    const status = data[8];
+                const status = data[9];
                     if (!status) {
                         return false;
                     }
@@ -1348,7 +1348,7 @@ CustomFilters.OrdersFilters = {
                 // Type (colonne 6)
                 const typeFilter = filters.type;
                 if (typeFilter) {
-                    const type = data[6];
+                const type = data[7];
                     if (!type) {
                         return false;
                     }
@@ -1464,7 +1464,7 @@ CustomFilters.OrdersFilters = {
             }
 
             // Vérifier que la ligne a toutes les colonnes
-            if (!data || data.length < 9) {
+            if (!data || data.length < 10) {
                 return false;
             }
 
@@ -1578,13 +1578,13 @@ CustomFilters.OrdersFilters = {
 
         data.each(function (row) {
             // Vérifier que la ligne a bien toutes les colonnes nécessaires
-            if (!row || row.length < 9) {
+            if (!row || row.length < 10) {
                 console.warn('Ligne incomplète:', row);
                 return;
             }
 
-            // Montant (colonne 5)
-            const amountStr = row[5];
+            // Montant (colonne 6)
+            const amountStr = row[6];
             if (amountStr) {
                 const amount = parseFloat(amountStr.replace(/[^\d,-]/g, '').replace(',', '.'));
                 if (!isNaN(amount)) {
@@ -1593,7 +1593,7 @@ CustomFilters.OrdersFilters = {
             }
 
             // Statut (colonne 8) - MISE À JOUR AVEC REJETS
-            const status = row[8];
+            const status = row[9];
             if (status) {
                 if (status.includes('Rejeté')) {
                     rejectedCount++;
@@ -1605,7 +1605,7 @@ CustomFilters.OrdersFilters = {
             }
 
             // Multi-projets (colonne 6)
-            const type = row[6];
+            const type = row[7];
             if (type && type.includes('Multi')) {
                 multiProjectCount++;
             }
@@ -1697,7 +1697,7 @@ CustomFilters.OrdersFilters = {
      */
     exportCSV: function (data) {
         // En-têtes du CSV - MISE À JOUR
-        let csv = 'N° Bon;Référence;Date;Projet(s);Fournisseur;Montant;Type;Créé par;État\n';
+        let csv = 'N° Bon;Référence;Date;Projet(s);Fournisseur;Mode de paiement;Montant;Type;Créé par;État\n';
 
         // Données
         data.each(function (row) {
@@ -1718,7 +1718,7 @@ CustomFilters.OrdersFilters = {
             });
 
             // Ajouter la ligne au CSV
-            csv += cleanRow.slice(0, 9).join(';') + '\n';
+            csv += cleanRow.slice(0, 10).join(';') + '\n';
         });
 
         // Télécharger le fichier CSV
@@ -1774,7 +1774,7 @@ CustomFilters.OrdersFilters = {
 
         data.each(function (row) {
             // Vérifier que la ligne a toutes les colonnes nécessaires
-            if (!row || row.length < 9) {
+            if (!row || row.length < 10) {
                 console.warn('Ligne incomplète:', row);
                 return;
             }
@@ -1782,8 +1782,8 @@ CustomFilters.OrdersFilters = {
             // Fournisseur (colonne 4)
             const supplier = row[4] || 'Non spécifié';
 
-            // Montant (colonne 5)
-            const amountStr = row[5];
+            // Montant (colonne 6)
+            const amountStr = row[6];
             let amount = 0;
             if (amountStr) {
                 try {
@@ -1819,8 +1819,8 @@ CustomFilters.OrdersFilters = {
                 }
             }
 
-            // Type (colonne 6)
-            const type = row[6];
+            // Type (colonne 7)
+            const type = row[7];
             if (type) {
                 if (type.includes('Multi')) {
                     projectStats.multi++;
@@ -1829,8 +1829,8 @@ CustomFilters.OrdersFilters = {
                 }
             }
 
-            // Statut (colonne 8) - MISE À JOUR AVEC REJETS
-            const status = row[8];
+            // Statut (colonne 9) - MISE À JOUR AVEC REJETS
+            const status = row[9];
             if (status) {
                 if (status.includes('Rejeté')) {
                     statusStats.rejected++;
@@ -1841,8 +1841,8 @@ CustomFilters.OrdersFilters = {
                 }
             }
 
-            // Utilisateur (colonne 7)
-            const user = row[7] || 'Non spécifié';
+            // Utilisateur (colonne 8)
+            const user = row[8] || 'Non spécifié';
             if (!userStats[user]) {
                 userStats[user] = {
                     count: 0,
