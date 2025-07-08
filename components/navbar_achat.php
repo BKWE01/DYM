@@ -223,6 +223,11 @@ function timeAgo($date)
             animation: pulse 2s infinite;
         }
 
+        .fade-out {
+            opacity: 0;
+            transition: opacity 0.5s ease-out;
+        }
+
         @keyframes pulse {
 
             0%,
@@ -404,7 +409,7 @@ function timeAgo($date)
                                 <div id="tab-urgent" class="notification-content">
                                     <?php if (!empty($notifications['materials']['urgent'])): ?>
                                         <?php foreach ($notifications['materials']['urgent'] as $material): ?>
-                                            <div class="p-3 border-l-4 border-red-500 hover:bg-red-50 transition-colors duration-200">
+                                            <div class="notification-item p-3 border-l-4 border-red-500 hover:bg-red-50 transition-colors duration-200" data-notification-id="<?php echo $material['id']; ?>">
                                                 <div class="flex justify-between items-start">
                                                     <div class="flex-1">
                                                         <p class="text-sm font-medium text-gray-900 truncate">
@@ -448,7 +453,7 @@ function timeAgo($date)
                                 <div id="tab-recent" class="notification-content hidden">
                                     <?php if (!empty($notifications['materials']['recent'])): ?>
                                         <?php foreach ($notifications['materials']['recent'] as $material): ?>
-                                            <div class="p-3 border-l-4 border-blue-500 hover:bg-blue-50 transition-colors duration-200">
+                                            <div class="notification-item p-3 border-l-4 border-blue-500 hover:bg-blue-50 transition-colors duration-200" data-notification-id="<?php echo $material['id']; ?>">
                                                 <div class="flex justify-between items-start">
                                                     <div class="flex-1">
                                                         <p class="text-sm font-medium text-gray-900 truncate">
@@ -486,7 +491,7 @@ function timeAgo($date)
                                 <div id="tab-partials" class="notification-content hidden">
                                     <?php if (!empty($notifications['materials']['remaining'])): ?>
                                         <?php foreach ($notifications['materials']['remaining'] as $material): ?>
-                                            <div class="p-3 border-l-4 border-yellow-500 hover:bg-yellow-50 transition-colors duration-200">
+                                            <div class="notification-item p-3 border-l-4 border-yellow-500 hover:bg-yellow-50 transition-colors duration-200" data-notification-id="<?php echo $material['id']; ?>">
                                                 <div class="flex justify-between items-start">
                                                     <div class="flex-1">
                                                         <p class="text-sm font-medium text-gray-900 truncate">
@@ -523,7 +528,7 @@ function timeAgo($date)
                                     <?php if (!empty($notifications['materials']['pending'])): ?>
                                         <div class="bg-gray-100 px-3 py-2 text-xs font-medium text-gray-700">Matériaux en attente</div>
                                         <?php foreach (array_slice($notifications['materials']['pending'], 0, 3) as $material): ?>
-                                            <div class="p-3 hover:bg-gray-50 transition-colors duration-200">
+                                            <div class="notification-item p-3 hover:bg-gray-50 transition-colors duration-200" data-notification-id="<?php echo $material['id']; ?>">
                                                 <div class="flex justify-between items-start">
                                                     <div class="flex-1">
                                                         <p class="text-sm font-medium text-gray-900 truncate">
@@ -855,6 +860,14 @@ function timeAgo($date)
                     if (profileDropdown) profileDropdown.classList.add('hidden');
                     closeMobileMenu();
                 }
+            });
+
+            // === MARQUAGE DES NOTIFICATIONS LUES ===
+            document.querySelectorAll('.notification-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    item.classList.add('fade-out');
+                    setTimeout(() => item.classList.add('hidden'), 800);
+                });
             });
         });
     </script>
