@@ -95,7 +95,7 @@ CREATE TABLE IF NOT EXISTS `besoins` (
   `designation_article` varchar(255) NOT NULL,
   `caracteristique` text NOT NULL,
   `type` varchar(255) DEFAULT NULL,
-  `fournisseur` varchar(255) DEFAULT NULL,
+  `fournisseur_id` int(11) DEFAULT NULL,
   `qt_demande` float NOT NULL,
   `qt_stock` varchar(225) DEFAULT NULL,
   `quantity_dispatch_stock` float DEFAULT NULL,
@@ -1294,7 +1294,7 @@ ORDER BY sm.date DESC;
 
 -- Index composés pour les requêtes fréquentes
 CREATE INDEX IF NOT EXISTS `idx_expression_dym_composite` ON `expression_dym` (`idExpression`, `valide_achat`, `designation`);
-CREATE INDEX IF NOT EXISTS `idx_achats_materiaux_composite` ON `achats_materiaux` (`expression_id`, `status`, `fournisseur`);
+CREATE INDEX IF NOT EXISTS `idx_achats_materiaux_composite` ON `achats_materiaux` (`expression_id`, `status`, `fournisseur_id`);
 CREATE INDEX IF NOT EXISTS `idx_stock_movement_composite` ON `stock_movement` (`product_id`, `movement_type`, `date`);
 CREATE INDEX IF NOT EXISTS `idx_products_composite` ON `products` (`category`, `product_name`);
 

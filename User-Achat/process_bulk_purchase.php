@@ -64,7 +64,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_POST['bulk_purchase'])) {
 // ========================================
 
 $materialIds = $_POST['material_ids'] ?? [];
-$fournisseur = $_POST['fournisseur'] ?? '';
+$fournisseurId = $_POST['fournisseur'] ?? '';
+$fournisseur = '';
 $paymentMethod = $_POST['payment_method'] ?? '';
 $priceType = $_POST['price_type'] ?? 'individual';
 $commonPrice = $_POST['common_price'] ?? 0;
@@ -130,7 +131,7 @@ if (isset($_FILES['proforma_file']) && $_FILES['proforma_file']['error'] !== UPL
 // VALIDATION DES DONNÉES OBLIGATOIRES
 // ========================================
 
-if (empty($materialIds) || empty($fournisseur) || empty($paymentMethod)) {
+if (empty($materialIds) || empty($fournisseurId) || empty($paymentMethod)) {
     $errorResponse = [
         'success' => false,
         'message' => 'Données incomplètes. Veuillez remplir tous les champs obligatoires (fournisseur et mode de paiement).'
@@ -288,6 +289,15 @@ try {
     // ID de l'utilisateur connecté
     $user_id = $_SESSION['user_id'];
 
+    if (!empty($fournisseurId)) {
+        $nameQuery = "SELECT nom FROM fournisseurs WHERE id = :id";
+        $nameStmt = $pdo->prepare($nameQuery);
+        $nameStmt->bindParam(':id', $fournisseurId, PDO::PARAM_INT);
+        $nameStmt->execute();
+        $nameData = $nameStmt->fetch(PDO::FETCH_ASSOC);
+        $fournisseur = $nameData['nom'] ?? '';
+    }
+
     // ========================================
     // GESTION DU FOURNISSEUR
     // ========================================
@@ -384,9 +394,9 @@ try {
                 }
 
                 // CORRECTION PRINCIPALE : Insérer dans la table achats_materiaux avec l'ID du mode de paiement
-                $insertAchatQuery = "INSERT INTO achats_materiaux 
-                    (expression_id, designation, quantity, unit, prix_unitaire, fournisseur, mode_paiement_id, status, user_achat, original_quantity, is_partial) 
-                    VALUES (:expression_id, :designation, :quantity, :unit, :prix, :fournisseur, :mode_paiement_id, 'commandé', :user_achat, :original_qty, :is_partial)";
+                $insertAchatQuery = "INSERT INTO achats_materiaux
+                    (expression_id, designation, quantity, unit, prix_unitaire, fournisseur_id, mode_paiement_id, status, user_achat, original_quantity, is_partial)
+                    VALUES (:expression_id, :designation, :quantity, :unit, :prix, :fournisseur_id, :mode_paiement_id, 'commandé', :user_achat, :original_qty, :is_partial)";
 
                 $insertStmt = $pdo->prepare($insertAchatQuery);
                 $insertStmt->bindParam(':expression_id', $material['idExpression']);
@@ -394,7 +404,7 @@ try {
                 $insertStmt->bindParam(':quantity', $quantity);
                 $insertStmt->bindParam(':unit', $material['unit']);
                 $insertStmt->bindParam(':prix', $price);
-                $insertStmt->bindParam(':fournisseur', $fournisseur);
+                $insertStmt->bindParam(':fournisseur_id', $fournisseurId);
                 // CORRECTION : Utiliser l'ID du mode de paiement validé
                 $insertStmt->bindParam(':mode_paiement_id', $paymentMethodInfo['id'], PDO::PARAM_INT);
                 $insertStmt->bindParam(':user_achat', $user_id);
@@ -535,9 +545,9 @@ try {
                 }
 
                 // CORRECTION PRINCIPALE : Insérer dans la table achats_materiaux avec l'ID du mode de paiement
-                $insertAchatQuery = "INSERT INTO achats_materiaux 
-                    (expression_id, designation, quantity, unit, prix_unitaire, fournisseur, mode_paiement_id, status, user_achat, original_quantity, is_partial) 
-                    VALUES (:expression_id, :designation, :quantity, :unit, :prix, :fournisseur, :mode_paiement_id, 'commandé', :user_achat, :original_qty, :is_partial)";
+                $insertAchatQuery = "INSERT INTO achats_materiaux
+                    (expression_id, designation, quantity, unit, prix_unitaire, fournisseur_id, mode_paiement_id, status, user_achat, original_quantity, is_partial)
+                    VALUES (:expression_id, :designation, :quantity, :unit, :prix, :fournisseur_id, :mode_paiement_id, 'commandé', :user_achat, :original_qty, :is_partial)";
 
                 $insertStmt = $pdo->prepare($insertAchatQuery);
                 $insertStmt->bindParam(':expression_id', $material['idBesoin']);
@@ -545,7 +555,7 @@ try {
                 $insertStmt->bindParam(':quantity', $quantity);
                 $insertStmt->bindParam(':unit', $material['caracteristique']);
                 $insertStmt->bindParam(':prix', $price);
-                $insertStmt->bindParam(':fournisseur', $fournisseur);
+                $insertStmt->bindParam(':fournisseur_id', $fournisseurId);
                 // CORRECTION : Utiliser l'ID du mode de paiement validé
                 $insertStmt->bindParam(':mode_paiement_id', $paymentMethodInfo['id'], PDO::PARAM_INT);
                 $insertStmt->bindParam(':user_achat', $user_id);

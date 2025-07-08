@@ -16,12 +16,12 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_POST['bulk_purchase'])) {
 // Récupérer les données du formulaire
 $projectId = $_POST['project_id'] ?? '';
 $materialIds = $_POST['materials'] ?? [];
-$fournisseur = $_POST['fournisseur'] ?? '';
+$fournisseurId = $_POST['fournisseur'] ?? '';
 $prixType = $_POST['prix_type'] ?? 'individual';
 $commonPrix = $_POST['common_prix'] ?? 0;
 
 // Vérifier les données obligatoires
-if (empty($materialIds) || empty($fournisseur)) {
+if (empty($materialIds) || empty($fournisseurId)) {
     $_SESSION['error_message'] = "Données incomplètes. Veuillez remplir tous les champs obligatoires.";
     header("Location: achats_materiaux.php");
     exit();
@@ -51,9 +51,9 @@ try {
 
             if ($material) {
                 // Insérer dans la table achats_materiaux
-                $insertAchatQuery = "INSERT INTO achats_materiaux 
-                                   (expression_id, designation, quantity, unit, prix_unitaire, fournisseur, status, user_achat) 
-                                   VALUES (:expression_id, :designation, :quantity, :unit, :prix, :fournisseur, 'commandé', :user_achat)";
+                $insertAchatQuery = "INSERT INTO achats_materiaux
+                                   (expression_id, designation, quantity, unit, prix_unitaire, fournisseur_id, status, user_achat)
+                                   VALUES (:expression_id, :designation, :quantity, :unit, :prix, :fournisseur_id, 'commandé', :user_achat)";
 
                 $insertStmt = $pdo->prepare($insertAchatQuery);
                 $insertStmt->bindParam(':expression_id', $material['idExpression']);
@@ -61,7 +61,7 @@ try {
                 $insertStmt->bindParam(':quantity', $material['qt_acheter']);
                 $insertStmt->bindParam(':unit', $material['unit']);
                 $insertStmt->bindParam(':prix', $commonPrix);
-                $insertStmt->bindParam(':fournisseur', $fournisseur);
+                $insertStmt->bindParam(':fournisseur_id', $fournisseurId);
                 $insertStmt->bindParam(':user_achat', $user_id);
                 $insertStmt->execute();
 
@@ -75,7 +75,7 @@ try {
 
                 $updateStmt = $pdo->prepare($updateExpressionQuery);
                 $updateStmt->bindParam(':prix', $commonPrix);
-                $updateStmt->bindParam(':fournisseur', $fournisseur);
+                $updateStmt->bindParam(':fournisseur', $fournisseurId);
                 $updateStmt->bindParam(':user_achat', $user_id);
                 $updateStmt->bindParam(':id', $materialId);
                 $updateStmt->execute();
@@ -106,7 +106,7 @@ try {
         $_SESSION['bulk_purchase'] = [
             'project_id' => $projectId,
             'material_ids' => $materialIds,
-            'fournisseur' => $fournisseur
+            'fournisseur' => $fournisseurId
         ];
 
         header("Location: individual_prices.php");
