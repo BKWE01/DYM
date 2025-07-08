@@ -938,6 +938,50 @@ main {
 }
 
 /* ================================================================
+   FILTRES AVANCÉS PENDING
+   ================================================================ */
+#pending-filters {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+}
+
+#pending-filters label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+#pending-filters input,
+#pending-filters select {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    font-size: 0.875rem;
+}
+
+#pending-filters button {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 0.5rem 1rem;
+    border-radius: var(--border-radius);
+    font-weight: 600;
+    font-size: 0.875rem;
+    background: var(--finance-primary);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+#pending-filters button:hover {
+    background: #2563eb;
+}
+
+/* ================================================================
    STYLES BOUTON RÉVOCATION - CORRECTION COULEURS
    ================================================================ */
 

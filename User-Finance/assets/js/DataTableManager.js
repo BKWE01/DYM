@@ -13,6 +13,9 @@ class DataTableManager {
             signed: null
         };
 
+        // Fonction personnalisée DataTables pour le filtrage des bons en attente
+        this.pendingFilterFn = null;
+
         this.config = {
             language: {
                 url: "https://cdn.datatables.net/plug-ins/1.11.5/i18n/fr-FR.json"
@@ -179,6 +182,9 @@ class DataTableManager {
                     { type: 'date-fr', targets: [1] }   // Type de date française
                 ]
             });
+
+            // Appliquer et configurer les filtres personnalisés
+            this.setupPendingFilters(cleanedData);
 
             console.log(`✅ Tableau pending initialisé avec ${cleanedData.length} éléments`);
             return true;
@@ -647,6 +653,79 @@ class DataTableManager {
     }
 
     /**
+     * Configure les filtres avancés pour le tableau des bons en attente
+     */
+    setupPendingFilters(data) {
+        const table = this.tables.pending;
+        if (!table) return;
+
+        // Nettoyer tout filtre existant
+        if (this.pendingFilterFn) {
+            const idx = $.fn.dataTable.ext.search.indexOf(this.pendingFilterFn);
+            if (idx !== -1) {
+                $.fn.dataTable.ext.search.splice(idx, 1);
+            }
+            this.pendingFilterFn = null;
+        }
+
+        // Renseigner dynamiquement les modes de paiement
+        const paymentSet = new Set();
+        (data || []).forEach(item => {
+            if (item.mode_paiement) {
+                paymentSet.add(item.mode_paiement);
+            }
+        });
+        const paymentSelect = $('#filter-payment');
+        if (paymentSelect.length) {
+            paymentSelect.empty().append('<option value="">Tous</option>');
+            Array.from(paymentSet).forEach(label => {
+                paymentSelect.append(`<option value="${label}">${label}</option>`);
+            });
+        }
+
+        // Fonction de filtre personnalisée
+        this.pendingFilterFn = (settings, searchData, index, rowData) => {
+            if (settings.nTable.id !== 'pending-table') return true;
+
+            const from = $('#filter-date-from').val();
+            const to = $('#filter-date-to').val();
+            const fournisseur = $('#filter-fournisseur').val().toLowerCase();
+            const mode = $('#filter-payment').val();
+            const minAmount = parseFloat($('#filter-min-amount').val()) || null;
+            const maxAmount = parseFloat($('#filter-max-amount').val()) || null;
+
+            const created = rowData.generated_at ? new Date(rowData.generated_at) : null;
+            if (from && created && created < new Date(from)) return false;
+            if (to && created && created > new Date(to + 'T23:59:59')) return false;
+
+            if (fournisseur && rowData.fournisseur && !rowData.fournisseur.toLowerCase().includes(fournisseur)) {
+                return false;
+            }
+
+            if (mode && rowData.mode_paiement !== mode) return false;
+
+            const amount = parseFloat(rowData.montant_total || 0);
+            if (minAmount !== null && amount < minAmount) return false;
+            if (maxAmount !== null && amount > maxAmount) return false;
+
+            return true;
+        };
+        $.fn.dataTable.ext.search.push(this.pendingFilterFn);
+
+        // Bouton appliquer
+        $('#apply-pending-filters').off('click').on('click', () => {
+            table.draw();
+        });
+
+        // Bouton réinitialiser
+        $('#reset-pending-filters').off('click').on('click', () => {
+            $('#pending-filters input').val('');
+            $('#pending-filters select').val('');
+            table.draw();
+        });
+    }
+
+    /**
          * Téléchargement d'un bon signé - VERSION CORRIGÉE ALTERNATIVE
          */
     downloadSignedOrder(bonId) {
@@ -766,6 +845,14 @@ class DataTableManager {
                 this.tables[key] = null;
             }
         });
+
+        if (this.pendingFilterFn) {
+            const idx = $.fn.dataTable.ext.search.indexOf(this.pendingFilterFn);
+            if (idx !== -1) {
+                $.fn.dataTable.ext.search.splice(idx, 1);
+            }
+            this.pendingFilterFn = null;
+        }
 
         // Nettoyer les événements
         $(document).off('.dataTableManager');
