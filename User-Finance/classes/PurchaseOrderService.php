@@ -34,10 +34,12 @@ class PurchaseOrderService
                 po.is_multi_project,
                 po.status,
                 u.name as username,
+                pm.label AS mode_paiement,
                 DATE_FORMAT(po.generated_at, '%d/%m/%Y %H:%i') as formatted_date
               FROM purchase_orders po
               LEFT JOIN users_exp u ON po.user_id = u.id
-              WHERE po.signature_finance IS NULL 
+              LEFT JOIN payment_methods pm ON po.mode_paiement_id = pm.id
+              WHERE po.signature_finance IS NULL
                 AND po.user_finance_id IS NULL
                 AND po.rejected_at IS NULL
                 AND po.rejected_by_user_id IS NULL
@@ -60,7 +62,7 @@ class PurchaseOrderService
      */
     public function getSignedFinanceOrders(): array
     {
-        $query = "SELECT 
+        $query = "SELECT
                 po.id,
                 po.order_number as bon_number,
                 po.fournisseur,
@@ -69,13 +71,15 @@ class PurchaseOrderService
                 po.signature_finance as signed_at,
                 uf.name as finance_username,
                 u.name as creator_username,
+                pm.label AS mode_paiement,
                 DATE_FORMAT(po.generated_at, '%d/%m/%Y %H:%i') as formatted_created_at,
                 DATE_FORMAT(po.signature_finance, '%d/%m/%Y %H:%i') as formatted_signed_at,
                 UNIX_TIMESTAMP(po.signature_finance) as signed_at_timestamp
               FROM purchase_orders po
               LEFT JOIN users_exp u ON po.user_id = u.id
               LEFT JOIN users_exp uf ON po.user_finance_id = uf.id
-              WHERE po.signature_finance IS NOT NULL 
+              LEFT JOIN payment_methods pm ON po.mode_paiement_id = pm.id
+              WHERE po.signature_finance IS NOT NULL
                 AND po.user_finance_id IS NOT NULL
                 AND po.status = 'signed'
                 AND po.generated_at >= '2025-04-15'
@@ -467,24 +471,26 @@ class PurchaseOrderService
             $file = fopen($filepath, 'w');
 
             if ($type === 'pending') {
-                fputcsv($file, ['Numéro', 'Date', 'Fournisseur', 'Montant', 'Créé par']);
+                fputcsv($file, ['Numéro', 'Date', 'Fournisseur', 'Montant', 'Mode de paiement', 'Créé par']);
                 foreach ($data as $row) {
                     fputcsv($file, [
                         $row['order_number'],
                         $row['formatted_date'],
                         $row['fournisseur'],
                         $row['montant_total'],
+                        $row['mode_paiement'],
                         $row['username']
                     ]);
                 }
             } else {
-                fputcsv($file, ['Numéro', 'Date création', 'Fournisseur', 'Montant', 'Date signature']);
+                fputcsv($file, ['Numéro', 'Date création', 'Fournisseur', 'Montant', 'Mode de paiement', 'Date signature']);
                 foreach ($data as $row) {
                     fputcsv($file, [
                         $row['bon_number'],
                         $row['formatted_created_at'],
                         $row['fournisseur'],
                         $row['montant'],
+                        $row['mode_paiement'],
                         $row['formatted_signed_at']
                     ]);
                 }
