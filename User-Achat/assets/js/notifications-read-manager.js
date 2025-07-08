@@ -7,7 +7,8 @@
 
 class NotificationsReadManager {
     constructor() {
-        this.apiUrl = 'api/notifications/mark_notifications_read.php';
+        const baseUrl = window.DYM_BASE_URL || '';
+        this.apiUrl = `${baseUrl}/User-Achat/api/notifications/mark_notifications_read.php`;
         this.debounceTimeout = null;
         this.init();
     }

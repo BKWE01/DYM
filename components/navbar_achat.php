@@ -932,6 +932,7 @@ function timeAgo($date)
     <!-- Overlay pour mobile -->
     <div id="mobile-overlay" class="hidden fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"></div>
 
+    <script>window.DYM_BASE_URL = "<?= $base_url ?>";</script>
     <script src="<?= $base_url ?>/User-Achat/assets/js/notifications-read-manager.js"></script>
 
     <!-- SCRIPTS -->
