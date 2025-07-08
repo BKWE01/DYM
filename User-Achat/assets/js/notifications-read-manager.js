@@ -1,519 +1,620 @@
 /**
- * Gestionnaire des notifications lues - Service Achat
+ * Gestionnaire avancé des notifications lues
+ * Gère la lecture des notifications et la mise à jour en temps réel de l'interface
  * 
- * DYM MANUFACTURE
+ * Service Achat - DYM MANUFACTURE
  * Fichier: /User-Achat/assets/js/notifications-read-manager.js
  */
 
 class NotificationsReadManager {
     constructor() {
-        const baseUrl = window.DYM_BASE_URL || '';
-        this.apiUrl = `${baseUrl}/User-Achat/api/notifications/mark_notifications_read.php`;
-        this.debounceTimeout = null;
-        this.init();
+        this.apiUrl = 'api/notifications/mark_notifications_read.php';
+        this.readNotifications = new Set();
+        this.isInitialized = false;
+        this.observers = [];
+        
+        // Configuration
+        this.config = {
+            fadeOutDuration: 300,
+            updateInterval: 30000, // 30 secondes
+            maxRetries: 3,
+            retryDelay: 1000
+        };
+
+        // Initialiser dès que possible
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => this.init());
+        } else {
+            this.init();
+        }
     }
 
     /**
-     * Initialisation du gestionnaire
+     * Initialise le gestionnaire
      */
     init() {
-        this.bindEvents();
-        this.addNotificationMarkingControls();
-        console.log('NotificationsReadManager initialisé');
+        if (this.isInitialized) return;
+        
+        console.log('Initialisation du gestionnaire de notifications lues');
+        
+        this.setupEventListeners();
+        this.loadReadNotifications();
+        this.setupPeriodicUpdate();
+        this.attachToNotificationItems();
+        
+        this.isInitialized = true;
     }
 
     /**
-     * Liaison des événements
+     * Configure les écouteurs d'événements
      */
-    bindEvents() {
-        // Intercepter les clics sur les notifications individuelles
-        this.bindNotificationClicks();
+    setupEventListeners() {
+        // Boutons de marquage en masse
+        this.setupBulkMarkingButtons();
         
-        // Gérer la fermeture du dropdown
-        this.bindDropdownClose();
+        // Observer les changements d'onglets pour réattacher les événements
+        this.observeTabChanges();
         
-        // Boutons de marquage global
-        this.bindGlobalMarkingButtons();
-        
-        // Auto-refresh périodique des compteurs
-        this.startPeriodicRefresh();
+        // Gérer la fermeture des notifications individuelles
+        this.attachToCloseButtons();
     }
 
     /**
-     * Intercepter les clics sur les notifications
+     * Configure les boutons de marquage en masse
      */
-    bindNotificationClicks() {
-        const notificationsDropdown = document.getElementById('notifications-dropdown');
+    setupBulkMarkingButtons() {
+        // Créer et injecter les boutons de contrôle dans le footer des notifications
+        const notificationsFooter = document.querySelector('#notifications-dropdown .bg-gray-50:last-child');
         
-        if (notificationsDropdown) {
-            // Délégation d'événements pour les éléments de notification
-            notificationsDropdown.addEventListener('click', (event) => {
-                const notificationItem = event.target.closest('[data-notification-item]');
-                
-                if (notificationItem) {
-                    this.handleNotificationClick(notificationItem, event);
-                }
+        if (notificationsFooter && !notificationsFooter.querySelector('.bulk-notification-controls')) {
+            const controlsContainer = document.createElement('div');
+            controlsContainer.className = 'bulk-notification-controls flex justify-between items-center mb-3';
+            controlsContainer.innerHTML = `
+                <div class="flex space-x-2">
+                    <button id="mark-all-notifications-btn" 
+                            class="text-xs bg-blue-100 text-blue-700 hover:bg-blue-200 px-2 py-1 rounded transition-colors">
+                        <span class="material-icons text-xs mr-1">done_all</span>Tout marquer
+                    </button>
+                    <button id="mark-urgent-notifications-btn" 
+                            class="text-xs bg-red-100 text-red-700 hover:bg-red-200 px-2 py-1 rounded transition-colors">
+                        <span class="material-icons text-xs mr-1">priority_high</span>Urgents
+                    </button>
+                    <button id="mark-recent-notifications-btn" 
+                            class="text-xs bg-green-100 text-green-700 hover:bg-green-200 px-2 py-1 rounded transition-colors">
+                        <span class="material-icons text-xs mr-1">schedule</span>Récents
+                    </button>
+                </div>
+                <button id="refresh-notifications-btn" 
+                        class="text-xs bg-gray-100 text-gray-700 hover:bg-gray-200 px-2 py-1 rounded transition-colors">
+                    <span class="material-icons text-xs mr-1">refresh</span>Actualiser
+                </button>
+            `;
+            
+            // Insérer avant le lien "Voir tous les matériaux"
+            const existingLink = notificationsFooter.querySelector('a');
+            notificationsFooter.insertBefore(controlsContainer, existingLink);
+            
+            // Attacher les événements
+            this.attachBulkButtonEvents();
+        }
+    }
+
+    /**
+     * Attache les événements aux boutons de marquage en masse
+     */
+    attachBulkButtonEvents() {
+        // Marquer toutes les notifications
+        const markAllBtn = document.getElementById('mark-all-notifications-btn');
+        if (markAllBtn) {
+            markAllBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.markAllNotifications();
+            });
+        }
+
+        // Marquer les notifications urgentes
+        const markUrgentBtn = document.getElementById('mark-urgent-notifications-btn');
+        if (markUrgentBtn) {
+            markUrgentBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.markNotificationsByType('urgent');
+            });
+        }
+
+        // Marquer les notifications récentes
+        const markRecentBtn = document.getElementById('mark-recent-notifications-btn');
+        if (markRecentBtn) {
+            markRecentBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.markNotificationsByType('recent');
+            });
+        }
+
+        // Actualiser les notifications
+        const refreshBtn = document.getElementById('refresh-notifications-btn');
+        if (refreshBtn) {
+            refreshBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.refreshNotifications();
             });
         }
     }
 
     /**
-     * Gérer le clic sur une notification individuelle
+     * Attache les événements aux éléments de notification
      */
-    handleNotificationClick(notificationElement, event) {
-        // Empêcher la propagation pour éviter de fermer le dropdown
-        event.stopPropagation();
+    attachToNotificationItems() {
+        const notificationItems = document.querySelectorAll('[data-notification-item]');
         
-        const notificationData = this.extractNotificationData(notificationElement);
-        
-        if (notificationData) {
-            // Marquer visuellement comme lu immédiatement
-            this.markNotificationAsReadVisually(notificationElement);
-            
-            // Envoyer la requête API
-            this.markSingleNotificationRead(notificationData)
-                .then(() => {
-                    // Mettre à jour les compteurs
-                    this.updateNotificationCounters();
-                })
-                .catch((error) => {
-                    console.error('Erreur lors du marquage de la notification:', error);
-                    // Restaurer l'état visuel en cas d'erreur
-                    this.unmarkNotificationVisually(notificationElement);
+        notificationItems.forEach(item => {
+            if (!item.dataset.listenerAttached) {
+                item.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.markNotificationAsRead(item);
                 });
-        }
+                
+                item.dataset.listenerAttached = 'true';
+            }
+        });
     }
 
     /**
-     * Extraire les données d'une notification depuis le DOM
+     * Attache les événements aux boutons de fermeture
      */
-    extractNotificationData(element) {
-        const materialId = element.getAttribute('data-material-id');
-        const expressionId = element.getAttribute('data-expression-id');
-        const sourceTable = element.getAttribute('data-source-table') || 'expression_dym';
-        const notificationType = element.getAttribute('data-notification-type');
-        const designation = element.getAttribute('data-designation') || 
-                          element.querySelector('.notification-title')?.textContent.trim() || '';
+    attachToCloseButtons() {
+        const closeButtons = document.querySelectorAll('.notification-close-btn');
+        
+        closeButtons.forEach(button => {
+            if (!button.dataset.listenerAttached) {
+                button.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const notificationItem = button.closest('[data-notification-item]');
+                    if (notificationItem) {
+                        this.markNotificationAsRead(notificationItem, true);
+                    }
+                });
+                
+                button.dataset.listenerAttached = 'true';
+            }
+        });
+    }
+
+    /**
+     * Marque une notification individuelle comme lue
+     */
+    async markNotificationAsRead(notificationElement, shouldHide = false) {
+        const materialId = notificationElement.dataset.materialId;
+        const expressionId = notificationElement.dataset.expressionId;
+        const sourceTable = notificationElement.dataset.sourceTable || 'expression_dym';
+        const notificationType = notificationElement.dataset.notificationType;
+        const designation = notificationElement.dataset.designation;
 
         if (!materialId || !expressionId || !notificationType) {
-            console.warn('Données de notification incomplètes:', {
-                materialId, expressionId, sourceTable, notificationType
-            });
-            return null;
+            console.warn('Données de notification incomplètes', notificationElement.dataset);
+            return;
         }
 
-        return {
-            material_id: parseInt(materialId),
-            expression_id: expressionId,
-            source_table: sourceTable,
-            notification_type: notificationType,
-            designation: designation
-        };
+        try {
+            // Marquer comme lu dans l'interface immédiatement
+            this.markAsReadVisually(notificationElement, shouldHide);
+            
+            // Envoyer la requête à l'API
+            const response = await this.sendMarkReadRequest({
+                action: 'mark_single',
+                material_id: materialId,
+                expression_id: expressionId,
+                source_table: sourceTable,
+                notification_type: notificationType,
+                designation: designation
+            });
+
+            if (response.success) {
+                // Ajouter à notre set local
+                const notificationKey = `${sourceTable}_${materialId}_${notificationType}`;
+                this.readNotifications.add(notificationKey);
+                
+                // Mettre à jour les compteurs
+                this.updateNotificationCounters();
+                
+                console.log('Notification marquée comme lue:', designation);
+                
+                // Afficher un toast de confirmation
+                this.showToast('Notification marquée comme lue', 'success');
+            }
+        } catch (error) {
+            console.error('Erreur lors du marquage de la notification:', error);
+            
+            // Restaurer l'état visuel en cas d'erreur
+            this.unmarkAsReadVisually(notificationElement);
+            
+            this.showToast('Erreur lors du marquage de la notification', 'error');
+        }
     }
 
     /**
-     * Marquer visuellement une notification comme lue
+     * Marque toutes les notifications comme lues
      */
-    markNotificationAsReadVisually(element) {
-        element.classList.add('notification-read');
-        element.style.opacity = '0.6';
+    async markAllNotifications() {
+        try {
+            const button = document.getElementById('mark-all-notifications-btn');
+            const originalText = button ? button.innerHTML : '';
+            
+            if (button) {
+                button.innerHTML = '<span class="material-icons text-xs animate-spin mr-1">refresh</span>Traitement...';
+                button.disabled = true;
+            }
+
+            const response = await this.sendMarkReadRequest({
+                action: 'mark_all'
+            });
+
+            if (response.success) {
+                // Marquer tous les éléments visuellement
+                const allNotifications = document.querySelectorAll('[data-notification-item]');
+                allNotifications.forEach(item => this.markAsReadVisually(item, false));
+                
+                // Mettre à jour les compteurs
+                this.updateNotificationCounters();
+                
+                this.showToast(`${response.data.marked_count} notifications marquées comme lues`, 'success');
+            }
+        } catch (error) {
+            console.error('Erreur lors du marquage de toutes les notifications:', error);
+            this.showToast('Erreur lors du marquage des notifications', 'error');
+        } finally {
+            const button = document.getElementById('mark-all-notifications-btn');
+            if (button) {
+                button.innerHTML = '<span class="material-icons text-xs mr-1">done_all</span>Tout marquer';
+                button.disabled = false;
+            }
+        }
+    }
+
+    /**
+     * Marque toutes les notifications d'un type spécifique comme lues
+     */
+    async markNotificationsByType(notificationType) {
+        try {
+            const buttonId = `mark-${notificationType}-notifications-btn`;
+            const button = document.getElementById(buttonId);
+            const originalText = button ? button.innerHTML : '';
+            
+            if (button) {
+                button.innerHTML = '<span class="material-icons text-xs animate-spin mr-1">refresh</span>Traitement...';
+                button.disabled = true;
+            }
+
+            const response = await this.sendMarkReadRequest({
+                action: 'mark_type',
+                notification_type: notificationType
+            });
+
+            if (response.success) {
+                // Marquer les éléments du type spécifique visuellement
+                const typeNotifications = document.querySelectorAll(`[data-notification-type="${notificationType}"]`);
+                typeNotifications.forEach(item => this.markAsReadVisually(item, false));
+                
+                // Mettre à jour les compteurs
+                this.updateNotificationCounters();
+                
+                this.showToast(`${response.data.marked_count} notifications "${notificationType}" marquées comme lues`, 'success');
+            }
+        } catch (error) {
+            console.error(`Erreur lors du marquage des notifications ${notificationType}:`, error);
+            this.showToast(`Erreur lors du marquage des notifications ${notificationType}`, 'error');
+        } finally {
+            const buttonId = `mark-${notificationType}-notifications-btn`;
+            const button = document.getElementById(buttonId);
+            const originalText = notificationType === 'urgent' ? 'Urgents' : 'Récents';
+            if (button) {
+                const icon = notificationType === 'urgent' ? 'priority_high' : 'schedule';
+                button.innerHTML = `<span class="material-icons text-xs mr-1">${icon}</span>${originalText}`;
+                button.disabled = false;
+            }
+        }
+    }
+
+    /**
+     * Marque visuellement une notification comme lue
+     */
+    markAsReadVisually(notificationElement, shouldHide = false) {
+        if (!notificationElement) return;
+
+        // Ajouter les classes de notification lue
+        notificationElement.classList.add('notification-read');
+        
+        // Modifier le style pour indiquer la lecture
+        notificationElement.style.opacity = '0.6';
+        notificationElement.style.backgroundColor = '#f9fafb';
+        notificationElement.style.borderLeftColor = '#d1d5db';
         
         // Ajouter un indicateur visuel
-        const readIndicator = document.createElement('span');
-        readIndicator.className = 'notification-read-indicator';
-        readIndicator.innerHTML = '<span class="material-icons text-xs text-green-600">check_circle</span>';
-        
-        const titleElement = element.querySelector('.notification-title');
-        if (titleElement && !element.querySelector('.notification-read-indicator')) {
-            titleElement.appendChild(readIndicator);
+        const title = notificationElement.querySelector('.notification-title');
+        if (title && !title.querySelector('.notification-read-indicator')) {
+            const indicator = document.createElement('span');
+            indicator.className = 'notification-read-indicator material-icons text-xs text-gray-400 ml-2';
+            indicator.textContent = 'check_circle';
+            indicator.title = 'Notification lue';
+            title.appendChild(indicator);
+        }
+
+        // Cacher la notification si demandé
+        if (shouldHide) {
+            notificationElement.style.transition = `opacity ${this.config.fadeOutDuration}ms ease-out`;
+            notificationElement.style.opacity = '0';
+            
+            setTimeout(() => {
+                notificationElement.style.display = 'none';
+            }, this.config.fadeOutDuration);
         }
     }
 
     /**
-     * Restaurer l'état visuel non-lu (en cas d'erreur)
+     * Restaure l'état visuel d'une notification (en cas d'erreur)
      */
-    unmarkNotificationVisually(element) {
-        element.classList.remove('notification-read');
-        element.style.opacity = '1';
+    unmarkAsReadVisually(notificationElement) {
+        if (!notificationElement) return;
+
+        notificationElement.classList.remove('notification-read');
+        notificationElement.style.opacity = '';
+        notificationElement.style.backgroundColor = '';
+        notificationElement.style.borderLeftColor = '';
+        notificationElement.style.display = '';
         
-        const readIndicator = element.querySelector('.notification-read-indicator');
-        if (readIndicator) {
-            readIndicator.remove();
+        // Supprimer l'indicateur de lecture
+        const indicator = notificationElement.querySelector('.notification-read-indicator');
+        if (indicator) {
+            indicator.remove();
         }
     }
 
     /**
-     * Marquer une notification comme lue via l'API
+     * Met à jour les compteurs de notifications
      */
-    async markSingleNotificationRead(notificationData) {
+    updateNotificationCounters() {
+        // Compter les notifications visibles non lues par type
+        const urgentCount = document.querySelectorAll('[data-notification-type="urgent"]:not(.notification-read)').length;
+        const recentCount = document.querySelectorAll('[data-notification-type="recent"]:not(.notification-read)').length;
+        const partialCount = document.querySelectorAll('[data-notification-type="remaining"]:not(.notification-read)').length;
+        
+        // Mettre à jour le compteur total
+        const totalCount = urgentCount + recentCount + partialCount;
+        
+        // Mettre à jour l'affichage des compteurs
+        this.updateCounterDisplay('.notification-badge', totalCount);
+        
+        // Mettre à jour les compteurs dans les onglets
+        this.updateTabCounters(urgentCount, recentCount, partialCount);
+        
+        // Déclencher l'événement de mise à jour des compteurs
+        if (window.NotificationCounters && typeof window.NotificationCounters.refresh === 'function') {
+            window.NotificationCounters.refresh();
+        }
+    }
+
+    /**
+     * Met à jour l'affichage d'un compteur
+     */
+    updateCounterDisplay(selector, count) {
+        const counter = document.querySelector(selector);
+        if (counter) {
+            if (count > 0) {
+                counter.textContent = Math.min(count, 99);
+                counter.style.display = '';
+            } else {
+                counter.style.display = 'none';
+            }
+        }
+    }
+
+    /**
+     * Met à jour les compteurs dans les onglets
+     */
+    updateTabCounters(urgentCount, recentCount, partialCount) {
+        // Mettre à jour l'onglet urgents
+        const urgentTab = document.querySelector('[data-tab="urgent"] .bg-red-500');
+        if (urgentTab) {
+            if (urgentCount > 0) {
+                urgentTab.textContent = urgentCount;
+                urgentTab.style.display = '';
+            } else {
+                urgentTab.style.display = 'none';
+            }
+        }
+
+        // Mettre à jour l'onglet récents
+        const recentTab = document.querySelector('[data-tab="recent"] .bg-blue-500');
+        if (recentTab) {
+            if (recentCount > 0) {
+                recentTab.textContent = recentCount;
+                recentTab.style.display = '';
+            } else {
+                recentTab.style.display = 'none';
+            }
+        }
+
+        // Mettre à jour l'onglet partiels
+        const partialTab = document.querySelector('[data-tab="partials"] .bg-yellow-500');
+        if (partialTab) {
+            if (partialCount > 0) {
+                partialTab.textContent = partialCount;
+                partialTab.style.display = '';
+            } else {
+                partialTab.style.display = 'none';
+            }
+        }
+    }
+
+    /**
+     * Actualise les notifications
+     */
+    async refreshNotifications() {
+        try {
+            const button = document.getElementById('refresh-notifications-btn');
+            if (button) {
+                button.innerHTML = '<span class="material-icons text-xs animate-spin mr-1">refresh</span>Actualisation...';
+                button.disabled = true;
+            }
+
+            // Recharger la page pour obtenir les nouvelles notifications
+            window.location.reload();
+            
+        } catch (error) {
+            console.error('Erreur lors de l\'actualisation:', error);
+            this.showToast('Erreur lors de l\'actualisation', 'error');
+        } finally {
+            const button = document.getElementById('refresh-notifications-btn');
+            if (button) {
+                button.innerHTML = '<span class="material-icons text-xs mr-1">refresh</span>Actualiser';
+                button.disabled = false;
+            }
+        }
+    }
+
+    /**
+     * Charge les notifications déjà lues
+     */
+    async loadReadNotifications() {
+        try {
+            const response = await this.sendMarkReadRequest({
+                action: 'get_unread_count'
+            });
+
+            if (response.success) {
+                // Marquer visuellement les notifications déjà lues
+                this.applyReadStateToExistingNotifications();
+            }
+        } catch (error) {
+            console.error('Erreur lors du chargement des notifications lues:', error);
+        }
+    }
+
+    /**
+     * Applique l'état lu aux notifications existantes
+     */
+    applyReadStateToExistingNotifications() {
+        // Cette fonction sera appelée pour marquer visuellement 
+        // les notifications qui sont déjà dans la base comme lues
+        // Pour l'instant, on se base sur la présence des éléments dans le DOM
+    }
+
+    /**
+     * Observe les changements d'onglets pour réattacher les événements
+     */
+    observeTabChanges() {
+        // Observer les clics sur les onglets de notification
+        const notificationTabs = document.querySelectorAll('.notification-tab');
+        
+        notificationTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Réattacher les événements après un délai pour laisser le temps au contenu de se charger
+                setTimeout(() => {
+                    this.attachToNotificationItems();
+                    this.attachToCloseButtons();
+                }, 100);
+            });
+        });
+    }
+
+    /**
+     * Configure la mise à jour périodique
+     */
+    setupPeriodicUpdate() {
+        setInterval(() => {
+            this.updateNotificationCounters();
+        }, this.config.updateInterval);
+    }
+
+    /**
+     * Envoie une requête à l'API de marquage
+     */
+    async sendMarkReadRequest(data, retryCount = 0) {
         try {
             const response = await fetch(this.apiUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
                 },
-                body: JSON.stringify({
-                    action: 'mark_single',
-                    ...notificationData
-                })
+                body: JSON.stringify(data)
             });
 
-            const result = await response.json();
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
 
+            const result = await response.json();
+            
             if (!result.success) {
-                throw new Error(result.message || 'Erreur inconnue');
+                throw new Error(result.message || 'Erreur API');
             }
 
             return result;
+            
         } catch (error) {
-            console.error('Erreur API markSingleNotificationRead:', error);
+            if (retryCount < this.config.maxRetries) {
+                console.warn(`Tentative ${retryCount + 1} échouée, retry...`, error.message);
+                await new Promise(resolve => setTimeout(resolve, this.config.retryDelay * (retryCount + 1)));
+                return this.sendMarkReadRequest(data, retryCount + 1);
+            }
             throw error;
         }
     }
 
     /**
-     * Ajouter les contrôles de marquage global
+     * Affiche un toast de notification
      */
-    addNotificationMarkingControls() {
-        const notificationsDropdown = document.getElementById('notifications-dropdown');
-        
-        if (notificationsDropdown) {
-            // Chercher le footer existant ou le créer
-            let footer = notificationsDropdown.querySelector('.notifications-footer');
-            
-            if (!footer) {
-                footer = notificationsDropdown.querySelector('.bg-gray-50.px-4.py-3.border-t');
-            }
-            
-            if (footer) {
-                // Ajouter les boutons de contrôle avant le bouton "Voir tous les matériaux"
-                const controlsHtml = `
-                    <div class="flex justify-between items-center mb-3 gap-2">
-                        <div class="flex gap-1">
-                            <button id="mark-all-notifications-btn" 
-                                    class="text-xs bg-blue-100 hover:bg-blue-200 text-blue-700 px-2 py-1 rounded transition-colors"
-                                    title="Marquer toutes les notifications comme lues">
-                                <span class="material-icons text-xs mr-1">done_all</span>
-                                Tout marquer
-                            </button>
-                            <button id="mark-urgent-notifications-btn" 
-                                    class="text-xs bg-red-100 hover:bg-red-200 text-red-700 px-2 py-1 rounded transition-colors"
-                                    title="Marquer les urgents comme lus">
-                                Urgents
-                            </button>
-                            <button id="mark-recent-notifications-btn" 
-                                    class="text-xs bg-green-100 hover:bg-green-200 text-green-700 px-2 py-1 rounded transition-colors"
-                                    title="Marquer les récents comme lus">
-                                Récents
-                            </button>
-                        </div>
-                        <button id="refresh-notifications-btn" 
-                                class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 px-2 py-1 rounded transition-colors"
-                                title="Actualiser les notifications">
-                            <span class="material-icons text-xs">refresh</span>
-                        </button>
-                    </div>
-                `;
-                
-                footer.insertAdjacentHTML('afterbegin', controlsHtml);
-            }
-        }
-    }
+    showToast(message, type = 'info') {
+        // Supprimer les anciens toasts
+        const existingToasts = document.querySelectorAll('.toast-notification');
+        existingToasts.forEach(toast => toast.remove());
 
-    /**
-     * Gérer les boutons de marquage global
-     */
-    bindGlobalMarkingButtons() {
-        // Marquer toutes les notifications
-        document.addEventListener('click', (event) => {
-            if (event.target.id === 'mark-all-notifications-btn' || 
-                event.target.closest('#mark-all-notifications-btn')) {
-                this.markAllNotifications();
-            }
-        });
-
-        // Marquer les notifications urgentes
-        document.addEventListener('click', (event) => {
-            if (event.target.id === 'mark-urgent-notifications-btn' || 
-                event.target.closest('#mark-urgent-notifications-btn')) {
-                this.markNotificationsByType('urgent');
-            }
-        });
-
-        // Marquer les notifications récentes
-        document.addEventListener('click', (event) => {
-            if (event.target.id === 'mark-recent-notifications-btn' || 
-                event.target.closest('#mark-recent-notifications-btn')) {
-                this.markNotificationsByType('recent');
-            }
-        });
-
-        // Actualiser les notifications
-        document.addEventListener('click', (event) => {
-            if (event.target.id === 'refresh-notifications-btn' || 
-                event.target.closest('#refresh-notifications-btn')) {
-                this.refreshNotifications();
-            }
-        });
-    }
-
-    /**
-     * Marquer toutes les notifications comme lues
-     */
-    async markAllNotifications() {
-        try {
-            const button = document.getElementById('mark-all-notifications-btn');
-            this.setButtonLoading(button, true);
-
-            const response = await fetch(this.apiUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    action: 'mark_all'
-                })
-            });
-
-            const result = await response.json();
-
-            if (result.success) {
-                // Marquer visuellement toutes les notifications
-                this.markAllNotificationsVisually();
-                
-                // Mettre à jour les compteurs
-                this.updateNotificationCounters();
-                
-                this.showNotificationFeedback('Toutes les notifications marquées comme lues', 'success');
-            } else {
-                throw new Error(result.message);
-            }
-        } catch (error) {
-            console.error('Erreur lors du marquage global:', error);
-            this.showNotificationFeedback('Erreur lors du marquage des notifications', 'error');
-        } finally {
-            const button = document.getElementById('mark-all-notifications-btn');
-            this.setButtonLoading(button, false);
-        }
-    }
-
-    /**
-     * Marquer les notifications d'un type spécifique
-     */
-    async markNotificationsByType(notificationType) {
-        try {
-            const button = document.getElementById(`mark-${notificationType}-notifications-btn`);
-            this.setButtonLoading(button, true);
-
-            const response = await fetch(this.apiUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    action: 'mark_type',
-                    notification_type: notificationType
-                })
-            });
-
-            const result = await response.json();
-
-            if (result.success) {
-                // Marquer visuellement les notifications du type
-                this.markNotificationsByTypeVisually(notificationType);
-                
-                // Mettre à jour les compteurs
-                this.updateNotificationCounters();
-                
-                const typeLabel = notificationType === 'urgent' ? 'urgentes' : 'récentes';
-                this.showNotificationFeedback(`Notifications ${typeLabel} marquées comme lues`, 'success');
-            } else {
-                throw new Error(result.message);
-            }
-        } catch (error) {
-            console.error(`Erreur lors du marquage ${notificationType}:`, error);
-            this.showNotificationFeedback('Erreur lors du marquage des notifications', 'error');
-        } finally {
-            const button = document.getElementById(`mark-${notificationType}-notifications-btn`);
-            this.setButtonLoading(button, false);
-        }
-    }
-
-    /**
-     * Marquer visuellement toutes les notifications
-     */
-    markAllNotificationsVisually() {
-        const notifications = document.querySelectorAll('[data-notification-item]');
-        notifications.forEach(notification => {
-            this.markNotificationAsReadVisually(notification);
-        });
-    }
-
-    /**
-     * Marquer visuellement les notifications d'un type
-     */
-    markNotificationsByTypeVisually(type) {
-        const notifications = document.querySelectorAll(`[data-notification-type="${type}"]`);
-        notifications.forEach(notification => {
-            this.markNotificationAsReadVisually(notification);
-        });
-    }
-
-    /**
-     * Mettre à jour les compteurs de notifications
-     */
-    async updateNotificationCounters() {
-        try {
-            const response = await fetch(this.apiUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    action: 'get_unread_count'
-                })
-            });
-
-            const result = await response.json();
-
-            if (result.success) {
-                const unreadCount = result.data.unread_count;
-                
-                // Mettre à jour le badge principal
-                const mainBadge = document.querySelector('#notifications-btn .notification-badge');
-                if (mainBadge) {
-                    if (unreadCount > 0) {
-                        mainBadge.textContent = Math.min(unreadCount, 99);
-                        mainBadge.style.display = 'flex';
-                    } else {
-                        mainBadge.style.display = 'none';
-                    }
-                }
-
-                // Mettre à jour le compteur dans l'en-tête du dropdown
-                const dropdownCounter = document.querySelector('#notifications-dropdown .bg-blue-100');
-                if (dropdownCounter) {
-                    dropdownCounter.textContent = unreadCount;
-                }
-            }
-        } catch (error) {
-            console.error('Erreur lors de la mise à jour des compteurs:', error);
-        }
-    }
-
-    /**
-     * Actualiser les notifications (recharger la page)
-     */
-    refreshNotifications() {
-        const button = document.getElementById('refresh-notifications-btn');
-        this.setButtonLoading(button, true);
-        
-        // Délay pour montrer le loading
-        setTimeout(() => {
-            window.location.reload();
-        }, 500);
-    }
-
-    /**
-     * Définir l'état de chargement d'un bouton
-     */
-    setButtonLoading(button, loading) {
-        if (!button) return;
-
-        if (loading) {
-            button.disabled = true;
-            button.classList.add('opacity-50', 'cursor-not-allowed');
-            
-            const icon = button.querySelector('.material-icons');
-            if (icon) {
-                icon.classList.add('animate-spin');
-            }
-        } else {
-            button.disabled = false;
-            button.classList.remove('opacity-50', 'cursor-not-allowed');
-            
-            const icon = button.querySelector('.material-icons');
-            if (icon) {
-                icon.classList.remove('animate-spin');
-            }
-        }
-    }
-
-    /**
-     * Afficher un feedback à l'utilisateur
-     */
-    showNotificationFeedback(message, type = 'info') {
-        // Créer un toast/notification temporaire
         const toast = document.createElement('div');
-        toast.className = `fixed top-4 right-4 z-50 px-4 py-2 rounded-lg shadow-lg text-white text-sm transform transition-all duration-300 translate-x-full`;
-        
-        if (type === 'success') {
-            toast.classList.add('bg-green-500');
-        } else if (type === 'error') {
-            toast.classList.add('bg-red-500');
-        } else {
-            toast.classList.add('bg-blue-500');
-        }
-        
-        toast.innerHTML = `
-            <div class="flex items-center">
-                <span class="material-icons text-sm mr-2">${type === 'success' ? 'check_circle' : type === 'error' ? 'error' : 'info'}</span>
-                ${message}
-            </div>
-        `;
-        
+        toast.className = `toast-notification fixed top-4 right-4 px-4 py-3 rounded-lg shadow-lg z-50 text-white transition-all duration-300 ${this.getToastClass(type)}`;
+        toast.textContent = message;
+
         document.body.appendChild(toast);
-        
-        // Animation d'apparition
+
+        // Animation d'entrée
         setTimeout(() => {
-            toast.classList.remove('translate-x-full');
-        }, 100);
-        
-        // Disparition automatique
+            toast.style.transform = 'translateX(0)';
+            toast.style.opacity = '1';
+        }, 10);
+
+        // Suppression automatique
         setTimeout(() => {
-            toast.classList.add('translate-x-full');
-            setTimeout(() => {
-                document.body.removeChild(toast);
-            }, 300);
+            toast.style.transform = 'translateX(100%)';
+            toast.style.opacity = '0';
+            setTimeout(() => toast.remove(), 300);
         }, 3000);
     }
 
     /**
-     * Gérer la fermeture du dropdown
+     * Retourne la classe CSS pour le type de toast
      */
-    bindDropdownClose() {
-        document.addEventListener('click', (event) => {
-            const dropdown = document.getElementById('notifications-dropdown');
-            const button = document.getElementById('notifications-btn');
-            
-            if (dropdown && !dropdown.contains(event.target) && !button.contains(event.target)) {
-                dropdown.classList.add('hidden');
-            }
-        });
+    getToastClass(type) {
+        const classes = {
+            success: 'bg-green-500',
+            error: 'bg-red-500',
+            warning: 'bg-yellow-500',
+            info: 'bg-blue-500'
+        };
+        return classes[type] || classes.info;
     }
 
     /**
-     * Rafraîchissement périodique des compteurs
+     * Nettoie les ressources
      */
-    startPeriodicRefresh() {
-        // Actualiser les compteurs toutes les 2 minutes
-        setInterval(() => {
-            this.updateNotificationCounters();
-        }, 120000); // 2 minutes
+    destroy() {
+        this.observers.forEach(observer => observer.disconnect());
+        this.isInitialized = false;
     }
 }
 
-// Initialisation automatique quand le DOM est prêt
-document.addEventListener('DOMContentLoaded', function() {
-    // Attendre un peu pour s'assurer que la navbar est complètement chargée
-    setTimeout(() => {
-        if (typeof window.notificationsManager === 'undefined') {
-            window.notificationsManager = new NotificationsReadManager();
-        }
-    }, 500);
-});
-
-// Export pour utilisation modulaire si nécessaire
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = NotificationsReadManager;
+// Initialisation automatique
+if (typeof window !== 'undefined') {
+    window.NotificationsReadManager = NotificationsReadManager;
+    
+    // Créer une instance globale
+    window.notificationsReadManager = new NotificationsReadManager();
 }
