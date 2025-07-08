@@ -942,15 +942,27 @@ main {
    ================================================================ */
 #pending-filters {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: var(--spacing-sm);
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: var(--spacing-md);
     margin-bottom: var(--spacing-md);
+    padding: var(--spacing-md);
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-sm);
+}
+
+#pending-filters > div,
+.filter-field {
+    display: flex;
+    flex-direction: column;
 }
 
 #pending-filters label {
     font-size: 0.75rem;
-    font-weight: 500;
+    font-weight: 600;
     color: var(--text-secondary);
+    margin-bottom: 0.25rem;
 }
 
 #pending-filters input,
@@ -959,7 +971,16 @@ main {
     padding: 0.5rem 0.75rem;
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius);
+    background: var(--bg-secondary);
     font-size: 0.875rem;
+    transition: var(--transition-fast);
+}
+
+#pending-filters input:focus,
+#pending-filters select:focus {
+    outline: none;
+    border-color: var(--finance-primary);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25);
 }
 
 #pending-filters button {
