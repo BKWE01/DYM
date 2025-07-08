@@ -327,6 +327,33 @@ CREATE TABLE IF NOT EXISTS `purchase_orders` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
+-- Structure de la table `user_notifications_read`
+--
+
+CREATE TABLE `user_notifications_read` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL COMMENT 'ID de l''utilisateur',
+  `notification_type` varchar(50) NOT NULL COMMENT 'Type de notification (urgent, recent, partial, other)',
+  `material_id` int(11) NOT NULL COMMENT 'ID du matériau (expression_dym.id ou besoins.id)',
+  `expression_id` varchar(255) NOT NULL COMMENT 'ID de l''expression (idExpression ou idBesoin)',
+  `source_table` varchar(50) NOT NULL DEFAULT 'expression_dym' COMMENT 'Table source (expression_dym ou besoins)',
+  `designation` varchar(255) NOT NULL COMMENT 'Désignation du matériau pour identification',
+  `read_at` timestamp NOT NULL DEFAULT current_timestamp() COMMENT 'Date de lecture',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `idx_user_material_unique` (`user_id`,`material_id`,`source_table`,`notification_type`),
+  KEY `idx_user_id` (`user_id`),
+  KEY `idx_material_id` (`material_id`),
+  KEY `idx_expression_id` (`expression_id`),
+  KEY `idx_source_table` (`source_table`),
+  KEY `idx_notification_type` (`notification_type`),
+  KEY `idx_read_at` (`read_at`),
+  KEY `idx_user_type_read` (`user_id`,`notification_type`,`read_at`),
+  KEY `idx_cleanup_old_notifications` (`read_at`,`notification_type`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Table pour tracker les notifications lues par les utilisateurs du service achat';
+
+--
 -- Table `canceled_orders_log`
 -- Log des commandes annulées
 --
@@ -985,6 +1012,11 @@ DELIMITER ;
 -- ========================================
 -- CONTRAINTES DE CLÉS ÉTRANGÈRES
 -- ========================================
+--
+-- Contraintes pour la table `user_notifications_read`
+--
+ALTER TABLE `user_notifications_read`
+  ADD CONSTRAINT `fk_user_notifications_read_user` FOREIGN KEY (`user_id`) REFERENCES `users_exp` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- Contraintes pour identification_projet
 ALTER TABLE `identification_projet`

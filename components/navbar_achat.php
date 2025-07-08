@@ -17,12 +17,15 @@ $current_page = basename($_SERVER['PHP_SELF']);
 require_once 'config.php';
 $base_url = PROJECT_ROOT;
 
-// ========== SYSTÈME DE NOTIFICATIONS ==========
+// ========== SYSTÈME DE NOTIFICATIONS AMÉLIORÉ AVEC SUIVI DES LECTURES ==========
 include_once dirname(__DIR__) . '/include/date_helper.php';
 
 // Configuration système
 $systemConfig = require dirname(__DIR__) . '/config/system_config.php';
 $systemStartDate = $systemConfig['system_start_date'];
+
+// Récupérer l'ID de l'utilisateur connecté pour le suivi des notifications lues
+$current_user_id = $_SESSION['user_id'] ?? 0;
 
 // Initialisation des notifications
 $notifications = [
@@ -49,10 +52,34 @@ $notifications = [
 ];
 
 try {
-    // 1. Matériaux urgents
+    // ========== FONCTION POUR CRÉER LA CLAUSE D'EXCLUSION DES NOTIFICATIONS LUES ==========
+    function getNotificationReadExclusion($userId, $notificationType, $tableAlias = 'ed')
+    {
+        return "AND NOT EXISTS (
+            SELECT 1 FROM user_notifications_read unr 
+            WHERE unr.user_id = {$userId} 
+            AND unr.notification_type = '{$notificationType}'
+            AND unr.material_id = {$tableAlias}.id
+            AND unr.source_table = 'expression_dym'
+        )";
+    }
+
+    function getNotificationReadExclusionBesoins($userId, $notificationType, $tableAlias = 'b')
+    {
+        return "AND NOT EXISTS (
+            SELECT 1 FROM user_notifications_read unr 
+            WHERE unr.user_id = {$userId} 
+            AND unr.notification_type = '{$notificationType}'
+            AND unr.material_id = {$tableAlias}.id
+            AND unr.source_table = 'besoins'
+        )";
+    }
+
+    // ========== 1. MATÉRIAUX URGENTS (NON LUS) ==========
     $urgentQuery = "SELECT ed.id, ed.designation, ed.qt_acheter, ed.unit, ed.created_at,
                          ip.code_projet, ip.nom_client, 
-                         DATEDIFF(NOW(), ed.created_at) as days_pending
+                         DATEDIFF(NOW(), ed.created_at) as days_pending,
+                         'expression_dym' as source_table
                   FROM expression_dym ed
                   JOIN identification_projet ip ON ed.idExpression = ip.idExpression
                   WHERE ed.qt_acheter IS NOT NULL 
@@ -60,18 +87,37 @@ try {
                   AND (ed.valide_achat = 'pas validé' OR ed.valide_achat IS NULL)
                   AND ed.created_at >= :system_start_date
                   AND (ed.qt_acheter > 100 OR DATEDIFF(NOW(), ed.created_at) > 7)
-                  ORDER BY DATEDIFF(NOW(), ed.created_at) DESC, ed.qt_acheter DESC
+                  " . getNotificationReadExclusion($current_user_id, 'urgent') . "
+                  
+                  UNION ALL
+                  
+                  SELECT b.id, b.designation_article as designation, b.qt_acheter, b.caracteristique as unit, b.created_at,
+                         CONCAT('SYS-', COALESCE(d.client, 'SYSTÈME')) as code_projet, 
+                         COALESCE(d.client, 'Demande interne') as nom_client,
+                         DATEDIFF(NOW(), b.created_at) as days_pending,
+                         'besoins' as source_table
+                  FROM besoins b
+                  LEFT JOIN demandeur d ON b.idBesoin = d.idBesoin
+                  WHERE b.qt_acheter IS NOT NULL 
+                  AND b.qt_acheter > 0 
+                  AND (b.achat_status = 'pas validé' OR b.achat_status IS NULL)
+                  AND b.created_at >= :system_start_date2
+                  AND (b.qt_acheter > 100 OR DATEDIFF(NOW(), b.created_at) > 7)
+                  " . getNotificationReadExclusionBesoins($current_user_id, 'urgent') . "
+                  
+                  ORDER BY days_pending DESC, qt_acheter DESC
                   LIMIT 3";
 
     $urgentStmt = $pdo->prepare($urgentQuery);
     $urgentStmt->bindParam(':system_start_date', $systemStartDate);
+    $urgentStmt->bindParam(':system_start_date2', $systemStartDate);
     $urgentStmt->execute();
     $notifications['materials']['urgent'] = $urgentStmt->fetchAll(PDO::FETCH_ASSOC);
     $notifications['counts']['urgent'] = count($notifications['materials']['urgent']);
 
-    // 2. Matériaux récents (24h)
+    // ========== 2. MATÉRIAUX RÉCENTS (24H - NON LUS) ==========
     $recentQuery = "SELECT ed.id, ed.designation, ed.qt_acheter, ed.unit, ed.created_at,
-                       ip.code_projet, ip.nom_client
+                       ip.code_projet, ip.nom_client, 'expression_dym' as source_table
                 FROM expression_dym ed
                 JOIN identification_projet ip ON ed.idExpression = ip.idExpression
                 WHERE ed.qt_acheter IS NOT NULL 
@@ -80,16 +126,33 @@ try {
                 AND ed.created_at >= DATE_SUB(NOW(), INTERVAL 24 HOUR)
                 AND ed.id NOT IN (SELECT id FROM expression_dym 
                                  WHERE qt_acheter > 100 OR DATEDIFF(NOW(), created_at) > 7)
-                ORDER BY ed.created_at DESC LIMIT 5";
+                " . getNotificationReadExclusion($current_user_id, 'recent') . "
+                
+                UNION ALL
+                
+                SELECT b.id, b.designation_article as designation, b.qt_acheter, b.caracteristique as unit, b.created_at,
+                       CONCAT('SYS-', COALESCE(d.client, 'SYSTÈME')) as code_projet, 
+                       COALESCE(d.client, 'Demande interne') as nom_client, 'besoins' as source_table
+                FROM besoins b
+                LEFT JOIN demandeur d ON b.idBesoin = d.idBesoin
+                WHERE b.qt_acheter IS NOT NULL 
+                AND b.qt_acheter > 0 
+                AND (b.achat_status = 'pas validé' OR b.achat_status IS NULL)
+                AND b.created_at >= DATE_SUB(NOW(), INTERVAL 24 HOUR)
+                AND b.id NOT IN (SELECT id FROM besoins 
+                                WHERE qt_acheter > 100 OR DATEDIFF(NOW(), created_at) > 7)
+                " . getNotificationReadExclusionBesoins($current_user_id, 'recent') . "
+                
+                ORDER BY created_at DESC LIMIT 5";
 
     $recentStmt = $pdo->prepare($recentQuery);
     $recentStmt->execute();
     $notifications['materials']['recent'] = $recentStmt->fetchAll(PDO::FETCH_ASSOC);
     $notifications['counts']['recent'] = count($notifications['materials']['recent']);
 
-    // 3. Matériaux en attente
+    // ========== 3. MATÉRIAUX EN ATTENTE (NON LUS) ==========
     $pendingQuery = "SELECT ed.id, ed.designation, ed.qt_acheter, ed.unit, ed.created_at,
-                        ip.code_projet, ip.nom_client
+                        ip.code_projet, ip.nom_client, 'expression_dym' as source_table
                  FROM expression_dym ed
                  JOIN identification_projet ip ON ed.idExpression = ip.idExpression
                  WHERE ed.qt_acheter IS NOT NULL 
@@ -99,44 +162,104 @@ try {
                  AND ed.id NOT IN (SELECT id FROM expression_dym 
                                   WHERE (qt_acheter > 100 OR DATEDIFF(NOW(), created_at) > 7)
                                   OR created_at >= DATE_SUB(NOW(), INTERVAL 24 HOUR))
-                 ORDER BY ed.created_at DESC LIMIT 5";
+                 " . getNotificationReadExclusion($current_user_id, 'pending') . "
+                 
+                 UNION ALL
+                 
+                 SELECT b.id, b.designation_article as designation, b.qt_acheter, b.caracteristique as unit, b.created_at,
+                        CONCAT('SYS-', COALESCE(d.client, 'SYSTÈME')) as code_projet, 
+                        COALESCE(d.client, 'Demande interne') as nom_client, 'besoins' as source_table
+                 FROM besoins b
+                 LEFT JOIN demandeur d ON b.idBesoin = d.idBesoin
+                 WHERE b.qt_acheter IS NOT NULL 
+                 AND b.qt_acheter > 0 
+                 AND (b.achat_status = 'pas validé' OR b.achat_status IS NULL)
+                 AND b.created_at >= :system_start_date2
+                 AND b.id NOT IN (SELECT id FROM besoins 
+                                 WHERE (qt_acheter > 100 OR DATEDIFF(NOW(), created_at) > 7)
+                                 OR created_at >= DATE_SUB(NOW(), INTERVAL 24 HOUR))
+                 " . getNotificationReadExclusionBesoins($current_user_id, 'pending') . "
+                 
+                 ORDER BY created_at DESC LIMIT 5";
 
     $pendingStmt = $pdo->prepare($pendingQuery);
     $pendingStmt->bindParam(':system_start_date', $systemStartDate);
+    $pendingStmt->bindParam(':system_start_date2', $systemStartDate);
     $pendingStmt->execute();
     $notifications['materials']['pending'] = $pendingStmt->fetchAll(PDO::FETCH_ASSOC);
     $notifications['counts']['pending'] = count($notifications['materials']['pending']);
 
-    // 4. Matériaux avec quantités restantes
+    // ========== 4. MATÉRIAUX AVEC QUANTITÉS RESTANTES (NON LUS) ==========
     $remainingQuery = "SELECT ed.id, ed.designation, ed.qt_acheter, ed.qt_restante, ed.unit, ed.created_at,
                               ip.code_projet, ip.nom_client,
                               (SELECT SUM(am.quantity) FROM achats_materiaux am 
                                WHERE am.designation = ed.designation 
                                AND am.expression_id = ed.idExpression 
-                               AND am.is_partial = 1) as quantite_commandee
+                               AND am.is_partial = 1) as quantite_commandee,
+                              'expression_dym' as source_table
                        FROM expression_dym ed
                        JOIN identification_projet ip ON ed.idExpression = ip.idExpression
                        WHERE ed.qt_restante > 0 AND ed.valide_achat = 'en_cours'
-                       ORDER BY ed.created_at DESC LIMIT 5";
+                       " . getNotificationReadExclusion($current_user_id, 'remaining') . "
+                       
+                       UNION ALL
+                       
+                       SELECT b.id, b.designation_article as designation, b.qt_acheter, b.qt_restante, 
+                              b.caracteristique as unit, b.created_at,
+                              CONCAT('SYS-', COALESCE(d.client, 'SYSTÈME')) as code_projet, 
+                              COALESCE(d.client, 'Demande interne') as nom_client,
+                              (SELECT SUM(am.quantity) FROM achats_materiaux am 
+                               WHERE am.designation = b.designation_article 
+                               AND am.expression_id = b.idBesoin 
+                               AND am.is_partial = 1) as quantite_commandee,
+                              'besoins' as source_table
+                       FROM besoins b
+                       LEFT JOIN demandeur d ON b.idBesoin = d.idBesoin
+                       WHERE b.qt_restante > 0 AND b.achat_status = 'en_cours'
+                       " . getNotificationReadExclusionBesoins($current_user_id, 'remaining') . "
+                       
+                       ORDER BY created_at DESC LIMIT 5";
 
     $remainingStmt = $pdo->prepare($remainingQuery);
     $remainingStmt->execute();
     $notifications['materials']['remaining'] = $remainingStmt->fetchAll(PDO::FETCH_ASSOC);
     $notifications['counts']['remaining'] = count($notifications['materials']['remaining']);
 
-    // 5. Total général
-    $totalQuery = "SELECT COUNT(*) as total FROM expression_dym
-                 WHERE qt_acheter IS NOT NULL AND qt_acheter > 0 
-                 AND (valide_achat = 'pas validé' OR valide_achat IS NULL)
-                 AND created_at >= :system_start_date";
+    // ========== 5. TOTAL GÉNÉRAL (EXCLUANT LES NOTIFICATIONS LUES) ==========
+    $totalQuery = "SELECT (
+        (SELECT COUNT(*) FROM expression_dym ed
+         WHERE qt_acheter IS NOT NULL AND qt_acheter > 0 
+         AND (valide_achat = 'pas validé' OR valide_achat IS NULL)
+         AND created_at >= :system_start_date
+         AND NOT EXISTS (
+             SELECT 1 FROM user_notifications_read unr 
+             WHERE unr.user_id = :user_id 
+             AND unr.material_id = ed.id
+             AND unr.source_table = 'expression_dym'
+         ))
+        +
+        (SELECT COUNT(*) FROM besoins b
+         WHERE qt_acheter IS NOT NULL AND qt_acheter > 0 
+         AND (achat_status = 'pas validé' OR achat_status IS NULL)
+         AND created_at >= :system_start_date2
+         AND NOT EXISTS (
+             SELECT 1 FROM user_notifications_read unr 
+             WHERE unr.user_id = :user_id2 
+             AND unr.material_id = b.id
+             AND unr.source_table = 'besoins'
+         ))
+    ) as total";
 
     $totalStmt = $pdo->prepare($totalQuery);
     $totalStmt->bindParam(':system_start_date', $systemStartDate);
+    $totalStmt->bindParam(':system_start_date2', $systemStartDate);
+    $totalStmt->bindParam(':user_id', $current_user_id, PDO::PARAM_INT);
+    $totalStmt->bindParam(':user_id2', $current_user_id, PDO::PARAM_INT);
     $totalStmt->execute();
     $totalResult = $totalStmt->fetch(PDO::FETCH_ASSOC);
     $notifications['counts']['total'] = $totalResult['total'] + $notifications['counts']['remaining'];
 
-    // 6. Retours fournisseurs
+    // ========== 6. RETOURS FOURNISSEURS (INCHANGÉ) ==========
     $retoursFournisseursQuery = "SELECT COUNT(*) as total_retours,
                                       COUNT(CASE WHEN sr.status = 'pending' THEN 1 END) as retours_attente
                                FROM supplier_returns sr
@@ -147,7 +270,7 @@ try {
     $retoursFournisseursResult = $retoursFournisseursStmt->fetch(PDO::FETCH_ASSOC);
     $notifications['counts']['retours_attente'] = $retoursFournisseursResult['retours_attente'] ?? 0;
 
-    // 7. Commandes annulées récentes
+    // ========== 7. COMMANDES ANNULÉES RÉCENTES (INCHANGÉ) ==========
     $canceledOrdersQuery = "SELECT COUNT(CASE WHEN DATEDIFF(NOW(), canceled_at) < 7 THEN 1 END) as recent_canceled
                           FROM canceled_orders_log co
                           WHERE " . getFilteredDateCondition('co.canceled_at');
@@ -167,7 +290,7 @@ try {
     }
 }
 
-// Fonction pour afficher le temps écoulé
+// Fonction pour afficher le temps écoulé (inchangée)
 function timeAgo($date)
 {
     $timestamp = strtotime($date);
@@ -223,11 +346,6 @@ function timeAgo($date)
             animation: pulse 2s infinite;
         }
 
-        .fade-out {
-            opacity: 0;
-            transition: opacity 0.5s ease-out;
-        }
-
         @keyframes pulse {
 
             0%,
@@ -270,6 +388,55 @@ function timeAgo($date)
             .navbar-mobile-menu {
                 display: none;
             }
+        }
+
+        .notification-read {
+            background-color: #f9fafb !important;
+            border-left-color: #d1d5db !important;
+        }
+
+        .notification-read .notification-title {
+            color: #6b7280 !important;
+        }
+
+        .notification-read-indicator {
+            margin-left: 0.5rem;
+        }
+
+        .notification-content {
+            position: relative;
+        }
+
+        /* Animation pour les éléments marqués comme lus */
+        .notification-read {
+            transition: all 0.3s ease;
+        }
+
+        /* Styles pour les boutons de contrôle */
+        #mark-all-notifications-btn,
+        #mark-urgent-notifications-btn,
+        #mark-recent-notifications-btn,
+        #refresh-notifications-btn {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            white-space: nowrap;
+        }
+
+        #mark-all-notifications-btn:hover,
+        #mark-urgent-notifications-btn:hover,
+        #mark-recent-notifications-btn:hover,
+        #refresh-notifications-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Toast notifications */
+        .toast-notification {
+            z-index: 9999;
         }
     </style>
 </head>
@@ -409,11 +576,20 @@ function timeAgo($date)
                                 <div id="tab-urgent" class="notification-content">
                                     <?php if (!empty($notifications['materials']['urgent'])): ?>
                                         <?php foreach ($notifications['materials']['urgent'] as $material): ?>
-                                            <div class="notification-item p-3 border-l-4 border-red-500 hover:bg-red-50 transition-colors duration-200" data-notification-id="<?php echo $material['id']; ?>">
+                                            <div class="p-3 border-l-4 border-red-500 hover:bg-red-50 transition-colors duration-200 cursor-pointer"
+                                                data-notification-item
+                                                data-material-id="<?php echo htmlspecialchars($material['id']); ?>"
+                                                data-expression-id="<?php echo htmlspecialchars($material['source_table'] === 'besoins' ? $material['code_projet'] : $material['code_projet']); ?>"
+                                                data-source-table="<?php echo htmlspecialchars($material['source_table'] ?? 'expression_dym'); ?>"
+                                                data-notification-type="urgent"
+                                                data-designation="<?php echo htmlspecialchars($material['designation']); ?>">
                                                 <div class="flex justify-between items-start">
                                                     <div class="flex-1">
-                                                        <p class="text-sm font-medium text-gray-900 truncate">
+                                                        <p class="text-sm font-medium text-gray-900 truncate notification-title">
                                                             <?php echo htmlspecialchars($material['designation']); ?>
+                                                            <?php if ($material['source_table'] === 'besoins'): ?>
+                                                                <span class="ml-1 inline-flex items-center px-1 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">SYS</span>
+                                                            <?php endif; ?>
                                                         </p>
                                                         <p class="text-xs text-gray-600 mt-1">
                                                             <?php echo htmlspecialchars($material['code_projet']); ?> -
@@ -435,7 +611,8 @@ function timeAgo($date)
                                                         </div>
                                                     </div>
                                                     <a href="<?= $base_url ?>/User-Achat/achats_materiaux.php"
-                                                        class="ml-2 text-red-600 hover:text-red-800 text-xs font-medium">
+                                                        class="ml-2 text-red-600 hover:text-red-800 text-xs font-medium"
+                                                        onclick="event.stopPropagation();">
                                                         Commander
                                                     </a>
                                                 </div>
@@ -449,15 +626,24 @@ function timeAgo($date)
                                     <?php endif; ?>
                                 </div>
 
-                                <!-- Autres onglets (récents, partiels, autres) -->
+                                <!-- Onglet Récents -->
                                 <div id="tab-recent" class="notification-content hidden">
                                     <?php if (!empty($notifications['materials']['recent'])): ?>
                                         <?php foreach ($notifications['materials']['recent'] as $material): ?>
-                                            <div class="notification-item p-3 border-l-4 border-blue-500 hover:bg-blue-50 transition-colors duration-200" data-notification-id="<?php echo $material['id']; ?>">
+                                            <div class="p-3 border-l-4 border-blue-500 hover:bg-blue-50 transition-colors duration-200 cursor-pointer"
+                                                data-notification-item
+                                                data-material-id="<?php echo htmlspecialchars($material['id']); ?>"
+                                                data-expression-id="<?php echo htmlspecialchars($material['source_table'] === 'besoins' ? $material['code_projet'] : $material['code_projet']); ?>"
+                                                data-source-table="<?php echo htmlspecialchars($material['source_table'] ?? 'expression_dym'); ?>"
+                                                data-notification-type="recent"
+                                                data-designation="<?php echo htmlspecialchars($material['designation']); ?>">
                                                 <div class="flex justify-between items-start">
                                                     <div class="flex-1">
-                                                        <p class="text-sm font-medium text-gray-900 truncate">
+                                                        <p class="text-sm font-medium text-gray-900 truncate notification-title">
                                                             <?php echo htmlspecialchars($material['designation']); ?>
+                                                            <?php if ($material['source_table'] === 'besoins'): ?>
+                                                                <span class="ml-1 inline-flex items-center px-1 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">SYS</span>
+                                                            <?php endif; ?>
                                                         </p>
                                                         <p class="text-xs text-gray-600 mt-1">
                                                             <?php echo htmlspecialchars($material['code_projet']); ?> -
@@ -473,7 +659,8 @@ function timeAgo($date)
                                                         </div>
                                                     </div>
                                                     <a href="<?= $base_url ?>/User-Achat/achats_materiaux.php"
-                                                        class="ml-2 text-blue-600 hover:text-blue-800 text-xs font-medium">
+                                                        class="ml-2 text-blue-600 hover:text-blue-800 text-xs font-medium"
+                                                        onclick="event.stopPropagation();">
                                                         Commander
                                                     </a>
                                                 </div>
@@ -491,11 +678,20 @@ function timeAgo($date)
                                 <div id="tab-partials" class="notification-content hidden">
                                     <?php if (!empty($notifications['materials']['remaining'])): ?>
                                         <?php foreach ($notifications['materials']['remaining'] as $material): ?>
-                                            <div class="notification-item p-3 border-l-4 border-yellow-500 hover:bg-yellow-50 transition-colors duration-200" data-notification-id="<?php echo $material['id']; ?>">
+                                            <div class="p-3 border-l-4 border-yellow-500 hover:bg-yellow-50 transition-colors duration-200 cursor-pointer"
+                                                data-notification-item
+                                                data-material-id="<?php echo htmlspecialchars($material['id']); ?>"
+                                                data-expression-id="<?php echo htmlspecialchars($material['source_table'] === 'besoins' ? $material['code_projet'] : $material['code_projet']); ?>"
+                                                data-source-table="<?php echo htmlspecialchars($material['source_table'] ?? 'expression_dym'); ?>"
+                                                data-notification-type="remaining"
+                                                data-designation="<?php echo htmlspecialchars($material['designation']); ?>">
                                                 <div class="flex justify-between items-start">
                                                     <div class="flex-1">
-                                                        <p class="text-sm font-medium text-gray-900 truncate">
+                                                        <p class="text-sm font-medium text-gray-900 truncate notification-title">
                                                             <?php echo htmlspecialchars($material['designation']); ?>
+                                                            <?php if ($material['source_table'] === 'besoins'): ?>
+                                                                <span class="ml-1 inline-flex items-center px-1 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">SYS</span>
+                                                            <?php endif; ?>
                                                         </p>
                                                         <p class="text-xs text-gray-600 mt-1">
                                                             <?php echo htmlspecialchars($material['code_projet']); ?> -
@@ -508,7 +704,8 @@ function timeAgo($date)
                                                         </div>
                                                     </div>
                                                     <a href="<?= $base_url ?>/User-Achat/achats_materiaux.php?tab=partial"
-                                                        class="ml-2 text-yellow-600 hover:text-yellow-800 text-xs font-medium">
+                                                        class="ml-2 text-yellow-600 hover:text-yellow-800 text-xs font-medium"
+                                                        onclick="event.stopPropagation();">
                                                         Commander
                                                     </a>
                                                 </div>
@@ -528,18 +725,28 @@ function timeAgo($date)
                                     <?php if (!empty($notifications['materials']['pending'])): ?>
                                         <div class="bg-gray-100 px-3 py-2 text-xs font-medium text-gray-700">Matériaux en attente</div>
                                         <?php foreach (array_slice($notifications['materials']['pending'], 0, 3) as $material): ?>
-                                            <div class="notification-item p-3 hover:bg-gray-50 transition-colors duration-200" data-notification-id="<?php echo $material['id']; ?>">
+                                            <div class="p-3 hover:bg-gray-50 transition-colors duration-200 cursor-pointer"
+                                                data-notification-item
+                                                data-material-id="<?php echo htmlspecialchars($material['id']); ?>"
+                                                data-expression-id="<?php echo htmlspecialchars($material['source_table'] === 'besoins' ? $material['code_projet'] : $material['code_projet']); ?>"
+                                                data-source-table="<?php echo htmlspecialchars($material['source_table'] ?? 'expression_dym'); ?>"
+                                                data-notification-type="pending"
+                                                data-designation="<?php echo htmlspecialchars($material['designation']); ?>">
                                                 <div class="flex justify-between items-start">
                                                     <div class="flex-1">
-                                                        <p class="text-sm font-medium text-gray-900 truncate">
+                                                        <p class="text-sm font-medium text-gray-900 truncate notification-title">
                                                             <?php echo htmlspecialchars($material['designation']); ?>
+                                                            <?php if ($material['source_table'] === 'besoins'): ?>
+                                                                <span class="ml-1 inline-flex items-center px-1 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">SYS</span>
+                                                            <?php endif; ?>
                                                         </p>
                                                         <p class="text-xs text-gray-600 mt-1">
                                                             <?php echo htmlspecialchars($material['code_projet']); ?>
                                                         </p>
                                                     </div>
                                                     <a href="<?= $base_url ?>/User-Achat/achats_materiaux.php"
-                                                        class="ml-2 text-gray-600 hover:text-gray-800 text-xs font-medium">
+                                                        class="ml-2 text-gray-600 hover:text-gray-800 text-xs font-medium"
+                                                        onclick="event.stopPropagation();">
                                                         Voir
                                                     </a>
                                                 </div>
@@ -556,8 +763,9 @@ function timeAgo($date)
                                 </div>
                             </div>
 
-                            <!-- Footer -->
+                            <!-- Footer avec contrôles de marquage -->
                             <div class="bg-gray-50 px-4 py-3 border-t border-gray-200">
+                                <!-- Les contrôles de marquage seront ajoutés ici par JavaScript -->
                                 <a href="<?= $base_url ?>/User-Achat/achats_materiaux.php"
                                     class="block w-full bg-blue-600 hover:bg-blue-700 text-white text-center py-2 px-4 rounded-md text-sm font-medium transition-colors duration-200">
                                     Voir tous les matériaux
@@ -724,6 +932,8 @@ function timeAgo($date)
     <!-- Overlay pour mobile -->
     <div id="mobile-overlay" class="hidden fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"></div>
 
+    <script src="<?= $base_url ?>/User-Achat/assets/js/notifications-read-manager.js"></script>
+
     <!-- SCRIPTS -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -736,6 +946,19 @@ function timeAgo($date)
             const notificationsDropdown = document.getElementById('notifications-dropdown');
             const profileBtn = document.getElementById('profile-btn');
             const profileDropdown = document.getElementById('profile-dropdown');
+
+            // S'assurer que le gestionnaire de notifications est initialisé
+            if (typeof NotificationsReadManager !== 'undefined') {
+                console.log('NotificationsReadManager disponible');
+
+                // Vérifier si une instance n'existe pas déjà
+                if (!window.notificationsManager) {
+                    window.notificationsManager = new NotificationsReadManager();
+                    console.log('Gestionnaire de notifications initialisé depuis la navbar');
+                }
+            } else {
+                console.warn('NotificationsReadManager non disponible - script non chargé?');
+            }
 
             // === MENU MOBILE ===
             function openMobileMenu() {
@@ -860,14 +1083,6 @@ function timeAgo($date)
                     if (profileDropdown) profileDropdown.classList.add('hidden');
                     closeMobileMenu();
                 }
-            });
-
-            // === MARQUAGE DES NOTIFICATIONS LUES ===
-            document.querySelectorAll('.notification-item').forEach(item => {
-                item.addEventListener('click', () => {
-                    item.classList.add('fade-out');
-                    setTimeout(() => item.classList.add('hidden'), 800);
-                });
             });
         });
     </script>
