@@ -377,16 +377,26 @@ if (!isset($_SESSION['user_id'])) {
                             // Vérifier si un chemin de fichier est disponible
                             if (invoice.file_path) {
                                 cell.innerHTML = `
-                            <a href="javascript:void(0);" onclick="previewInvoice(${invoice.id}, '${invoice.file_path}')" class="text-blue-600 hover:text-blue-800 flex items-center">
-                                <span class="material-icons text-sm mr-1">description</span>
-                                ${invoice.invoice_number || invoice.original_filename || `Facture #${invoice.id}`}
-                            </a>
+                            <span class="flex items-center space-x-1">
+                                <a href="javascript:void(0);" onclick="previewInvoice(${invoice.id}, '${invoice.file_path}')" class="text-blue-600 hover:text-blue-800 flex items-center">
+                                    <span class="material-icons text-sm mr-1">description</span>
+                                    ${invoice.invoice_number || invoice.original_filename || `Facture #${invoice.id}`}
+                                </a>
+                                <button title="Remplacer la facture" class="text-yellow-600 hover:text-yellow-800" onclick="openInvoiceUpload(${movement.id}, true)">
+                                    <span class="material-icons text-sm">edit</span>
+                                </button>
+                            </span>
                         `;
                             } else {
                                 cell.innerHTML = `
-                            <span class="text-gray-600 flex items-center">
-                                <span class="material-icons text-sm mr-1">receipt</span>
-                                ${invoice.invoice_number || `Facture #${invoice.id}`}
+                            <span class="flex items-center space-x-1">
+                                <span class="text-gray-600 flex items-center">
+                                    <span class="material-icons text-sm mr-1">receipt</span>
+                                    ${invoice.invoice_number || `Facture #${invoice.id}`}
+                                </span>
+                                <button title="Remplacer la facture" class="text-yellow-600 hover:text-yellow-800" onclick="openInvoiceUpload(${movement.id}, true)">
+                                    <span class="material-icons text-sm">edit</span>
+                                </button>
                             </span>
                         `;
                             }
@@ -1357,9 +1367,10 @@ if (!isset($_SESSION['user_id'])) {
                 loadMovements(page);
             };
 
-            function openInvoiceUpload(movementId) {
+            function openInvoiceUpload(movementId, replaceExisting = false) {
+                const title = replaceExisting ? 'Remplacer la facture' : 'Associer une facture';
                 Swal.fire({
-                    title: 'Associer une facture',
+                    title: title,
                     html: '<input type="file" id="swal-invoice-file" class="swal2-file">',
                     showCancelButton: true,
                     confirmButtonText: 'Envoyer',
@@ -1408,7 +1419,8 @@ if (!isset($_SESSION['user_id'])) {
                     }
                 }).then(result => {
                     if (result.isConfirmed && result.value && result.value.success) {
-                        Swal.fire('Succès', 'Facture associée avec succès', 'success').then(() => {
+                        const msg = replaceExisting ? 'Facture remplacée avec succès' : 'Facture associée avec succès';
+                        Swal.fire('Succès', msg, 'success').then(() => {
                             loadMovements(currentPage);
                         });
                     } else if (result.isConfirmed && result.value && !result.value.success) {
