@@ -175,7 +175,7 @@ class DataTableManager {
                 data: cleanedData,
                 columns: this.getPendingColumns(),
                 columnDefs: [
-                    { orderable: false, targets: [5] }, // Actions non triables
+                    { orderable: false, targets: [6] }, // Actions non triables
                     { type: 'date-fr', targets: [1] }   // Type de date française
                 ]
             });
@@ -228,11 +228,11 @@ class DataTableManager {
                 data: cleanedData,
                 columns: this.getSignedColumns(),
                 columnDefs: [
-                    { orderable: false, targets: [5] }, // Actions non triables
-                    { type: 'date-fr', targets: [1, 4] }, // Dates françaises
+                    { orderable: false, targets: [6] }, // Actions non triables
+                    { type: 'date-fr', targets: [1, 5] }, // Dates françaises
                     { type: 'num', targets: [3] } // Montant numérique
                 ],
-                order: [[4, 'desc']] // TRI PAR DATE DE SIGNATURE DÉCROISSANTE (colonne 4)
+                order: [[5, 'desc']] // TRI PAR DATE DE SIGNATURE DÉCROISSANTE (colonne 5)
             });
 
             console.log(`✅ Tableau signed initialisé avec ${cleanedData.length} éléments - Tri par date de signature`);
@@ -424,6 +424,11 @@ class DataTableManager {
                 }
             },
             {
+                data: 'mode_paiement',
+                title: 'Mode de paiement',
+                render: (data) => `<span class="text-gray-700">${data || 'N/A'}</span>`
+            },
+            {
                 data: 'username',
                 title: 'Créé par',
                 render: (data) => `<span class="text-gray-700">${data || 'N/A'}</span>`
@@ -472,6 +477,11 @@ class DataTableManager {
                 }
             },
             {
+                data: 'mode_paiement',
+                title: 'Mode de paiement',
+                render: (data) => `<span class="text-gray-700">${data || 'N/A'}</span>`
+            },
+            {
                 data: 'formatted_signed_at',
                 title: 'Date de signature',
                 render: (data, type, row) => {
@@ -498,11 +508,11 @@ class DataTableManager {
         return {
             ...this.config,
             columnDefs: [
-                { orderable: false, targets: [5] }, // Actions non triables
-                { type: 'date-fr', targets: [1, 4] }, // Dates françaises
+                { orderable: false, targets: [6] }, // Actions non triables
+                { type: 'date-fr', targets: [1, 5] }, // Dates françaises
                 { type: 'num', targets: [3] }, // Montant numérique
                 {
-                    targets: [4], // Colonne date de signature
+                    targets: [5], // Colonne date de signature
                     type: 'date',
                     render: function (data, type, row) {
                         if (type === 'display') {
@@ -513,7 +523,7 @@ class DataTableManager {
                     }
                 }
             ],
-            order: [[4, 'desc']], // Tri par date de signature décroissante
+            order: [[5, 'desc']], // Tri par date de signature décroissante
             language: {
                 ...this.config.language,
                 info: "Affichage de _START_ à _END_ sur _TOTAL_ bons signés (triés par date de signature)",
