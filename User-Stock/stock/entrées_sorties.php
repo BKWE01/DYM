@@ -1396,6 +1396,7 @@ if (!isset($_SESSION['user_id'])) {
 
                                 const req = {
                                     movement_id: movementId,
+                                    replace_existing: replaceExisting,
                                     invoice: {
                                         file_path: data.file_path,
                                         original_filename: data.original_filename,

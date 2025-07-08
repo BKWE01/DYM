@@ -8,6 +8,8 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 include_once '../../../database/connection.php';
+include_once __DIR__ . '/../trace/include_logger.php';
+$logger = getLogger();
 
 $input = json_decode(file_get_contents('php://input'), true);
 
@@ -18,6 +20,7 @@ if (!$input || !isset($input['movement_id']) || !isset($input['invoice'])) {
 
 $movementId = intval($input['movement_id']);
 $invoice = $input['invoice'];
+$replaceExisting = isset($input['replace_existing']) ? (bool)$input['replace_existing'] : false;
 
 if ($movementId <= 0 || empty($invoice['file_path']) || empty($invoice['original_filename'])) {
     echo json_encode(['success' => false, 'message' => 'Paramètres invalides']);
@@ -26,6 +29,11 @@ if ($movementId <= 0 || empty($invoice['file_path']) || empty($invoice['original
 
 try {
     $pdo->beginTransaction();
+
+    // Vérifier si une facture était déjà associée
+    $existingStmt = $pdo->prepare("SELECT invoice_id FROM stock_movement WHERE id = :id");
+    $existingStmt->execute([':id' => $movementId]);
+    $existingInvoiceId = $existingStmt->fetchColumn();
 
     $stmt = $pdo->prepare(
         "INSERT INTO invoices (invoice_number, file_path, original_filename, file_type, file_size, upload_date, upload_user_id, entry_date, supplier, notes) VALUES (:invoice_number, :file_path, :original_filename, :file_type, :file_size, NOW(), :upload_user_id, CURDATE(), :supplier, :notes)"
@@ -47,6 +55,15 @@ try {
     $update->execute([':invoice_id' => $invoiceId, ':movement_id' => $movementId]);
 
     $pdo->commit();
+
+    // Journalisation de l'action
+    if ($logger) {
+        if ($replaceExisting || $existingInvoiceId) {
+            $logger->logInvoiceReplace($invoiceId, $movementId, $existingInvoiceId, $invoice['original_filename'] ?? null);
+        } else {
+            $logger->logInvoiceAssociate($invoiceId, $movementId, $invoice['original_filename'] ?? null);
+        }
+    }
 
     echo json_encode(['success' => true, 'invoice_id' => $invoiceId]);
 } catch (Exception $e) {

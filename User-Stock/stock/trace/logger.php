@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Classe Logger pour enregistrer les actions des utilisateurs
  * Cette classe fournit une interface centralisée pour la journalisation des actions
@@ -223,6 +224,56 @@ class Logger
             $invoiceData['id'] ?? null,
             $invoiceData['original_filename'] ?? null,
             $invoiceData
+        );
+    }
+
+    /**
+     * Enregistre l'association d'une facture à un mouvement
+     *
+     * @param int $invoiceId ID de la facture associée
+     * @param int $movementId ID du mouvement concerné
+     * @param string|null $fileName Nom du fichier de la facture
+     * @return bool Succès ou échec de l'enregistrement
+     */
+    public function logInvoiceAssociate($invoiceId, $movementId, $fileName = null)
+    {
+        $details = [
+            'movement_id' => $movementId,
+            'invoice_id' => $invoiceId
+        ];
+
+        return $this->log(
+            'invoice_associate',
+            'invoice',
+            $invoiceId,
+            $fileName,
+            $details
+        );
+    }
+
+    /**
+     * Enregistre le remplacement d'une facture pour un mouvement
+     *
+     * @param int $invoiceId        Nouvel ID de facture
+     * @param int $movementId       ID du mouvement concerné
+     * @param int $oldInvoiceId     Ancien ID de facture remplacé
+     * @param string|null $fileName Nom du fichier de la nouvelle facture
+     * @return bool Succès ou échec de l'enregistrement
+     */
+    public function logInvoiceReplace($invoiceId, $movementId, $oldInvoiceId, $fileName = null)
+    {
+        $details = [
+            'movement_id' => $movementId,
+            'invoice_id' => $invoiceId,
+            'replaced_invoice_id' => $oldInvoiceId
+        ];
+
+        return $this->log(
+            'invoice_replace',
+            'invoice',
+            $invoiceId,
+            $fileName,
+            $details
         );
     }
 
