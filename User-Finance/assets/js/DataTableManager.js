@@ -283,11 +283,11 @@ class DataTableManager {
                 data: cleanedData,
                 columns: this.getRejectedColumns(),
                 columnDefs: [
-                    { orderable: false, targets: [6] }, // Actions non triables
-                    { type: 'date-fr', targets: [1, 4] }, // Dates françaises
+                    { orderable: false, targets: [7] }, // Actions non triables
+                    { type: 'date-fr', targets: [1, 5] }, // Dates françaises
                     { type: 'num', targets: [3] } // Montant numérique
                 ],
-                order: [[4, 'desc']] // TRI PAR DATE DE REJET DÉCROISSANTE
+                order: [[5, 'desc']] // TRI PAR DATE DE REJET DÉCROISSANTE
             });
 
             console.log(`✅ Tableau rejected initialisé avec ${cleanedData.length} éléments - Tri par date de rejet`);
@@ -327,6 +327,11 @@ class DataTableManager {
                     const amount = FinanceManager.formatAmount(data || 0);
                     return `<span class="font-semibold text-red-600">${amount}</span>`;
                 }
+            },
+            {
+                data: 'mode_paiement',
+                title: 'Mode de paiement',
+                render: (data) => `<span class="text-gray-700">${data || 'N/A'}</span>`
             },
             {
                 data: 'formatted_rejected_at',

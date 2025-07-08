@@ -429,6 +429,7 @@ class FinanceController
                         po.generated_at as created_at,
                         po.rejected_at,
                         po.rejection_reason,
+                        pm.label as mode_paiement,
                         uf.name as finance_username,
                         u.name as creator_username,
                         DATE_FORMAT(po.generated_at, '%d/%m/%Y %H:%i') as formatted_created_at,
@@ -437,6 +438,7 @@ class FinanceController
                       FROM purchase_orders po
                       LEFT JOIN users_exp u ON po.user_id = u.id
                       LEFT JOIN users_exp uf ON po.rejected_by_user_id = uf.id
+                      LEFT JOIN payment_methods pm ON po.mode_paiement_id = pm.id
                       WHERE po.status = 'rejected'
                         AND po.rejected_at IS NOT NULL
                         AND po.generated_at >= '2025-04-15'
