@@ -1379,6 +1379,15 @@ function resolveProductImagePath($path)
                 grid-column: 1/2 span;
             }
         }
+
+        .w-500{
+            width: 500px;
+        }
+
+        .h-500{
+            max-height: 500px;
+            height: 100%;
+        }
     </style>
 
 </head>
@@ -2609,7 +2618,7 @@ function resolveProductImagePath($path)
                                                                 $proformaUrl = '../' . $proformaPath;
                                                             ?>
                                                                 <a href="<?= htmlspecialchars($proformaUrl) ?>" class="btn-action text-purple-600 hover:text-purple-800 mr-2" title="Voir le pro-forma" target="_blank">
-                                                                    <span class="material-icons">visibility</span>
+                                                                    <span class="material-icons">note</span>
                                                                 </a>
                                                             <?php
                                                             }
@@ -3534,14 +3543,14 @@ function resolveProductImagePath($path)
     </div>
     <!-- Modal: Visualisation d'image en grand -->
     <div id="imageViewerModal" class="fixed inset-0 flex items-center justify-center z-50 hidden bg-black bg-opacity-75">
-        <div class="modal-content bg-white rounded-lg shadow-xl max-w-6xl mx-4 overflow-hidden">
+        <div class="modal-content bg-white rounded-lg shadow-xl max-w-6xl mx-4 overflow-hidden w-500">
             <div class="image-viewer-header flex items-center justify-between">
                 <h3 class="text-lg font-semibold" id="imageViewerTitle">Aperçu de l'image</h3>
                 <button type="button" id="closeImageViewerBtn" class="text-white hover:text-gray-200 focus:outline-none">
                     <span class="material-icons text-2xl">close</span>
                 </button>
             </div>
-            <div class="image-viewer-container bg-gray-50 flex items-center justify-center p-4">
+            <div class="image-viewer-container bg-gray-50 flex items-center justify-center p-4 h-500">
                 <img id="imageViewerImg" class="image-viewer-img" alt="Aperçu du produit" />
             </div>
             <div class="image-viewer-actions flex justify-between items-center">
