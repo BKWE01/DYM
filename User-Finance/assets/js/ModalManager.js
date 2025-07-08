@@ -883,7 +883,7 @@ class ModalManager {
                         </div>
                         <div class="space-y-2">
                             <p><strong class="text-gray-700">Montant:</strong> <span class="text-red-600 font-bold text-lg">${this.formatAmount(order.montant_total)} FCFA</span></p>
-                            <p><strong class="text-gray-700">Mode de paiement:</strong> <span class="text-gray-900">${validationDetails.modePaiement || 'Non spécifié'}</span></p>
+                            <p><strong class="text-gray-700">Mode de paiement:</strong> <span class="text-gray-900">${order.mode_paiement || validationDetails.modePaiement || 'Non spécifié'}</span></p>
                             <p><strong class="text-gray-700">Créé par:</strong> <span class="text-gray-900">${order.username_creation || validationDetails.validated_by_name || 'Non renseigné'}</span></p>
                         </div>
                     </div>
@@ -991,7 +991,7 @@ class ModalManager {
                         </div>
                         <div class="space-y-2">
                             <p><strong class="text-gray-700">Montant:</strong> <span class="text-green-600 font-bold text-lg">${this.formatAmount(order.montant_total)} FCFA</span></p>
-                            <p><strong class="text-gray-700">Mode de paiement:</strong> <span class="text-gray-900">${validationDetails.modePaiement || 'Non spécifié'}</span></p>
+                            <p><strong class="text-gray-700">Mode de paiement:</strong> <span class="text-gray-900">${order.mode_paiement || validationDetails.modePaiement || 'Non spécifié'}</span></p>
                             <p><strong class="text-gray-700">Validé par:</strong> <span class="text-gray-900">${order.username_creation || validationDetails.validated_by_name || 'Non renseigné'}</span></p>
                         </div>
                     </div>
@@ -1289,7 +1289,7 @@ class ModalManager {
                     <span class="material-icons mr-2">credit_card</span>
                     MODE DE PAIEMENT
                 </h3>
-                <p class="font-medium text-lg ${isRejected ? 'text-red-600' : ''}">${validationDetails.modePaiement || 'Non spécifié'}</p>
+                <p class="font-medium text-lg ${isRejected ? 'text-red-600' : ''}">${order.mode_paiement || validationDetails.modePaiement || 'Non spécifié'}</p>
                 ${isRejected ? `<p class="text-sm text-red-600 mt-1">Mode de paiement annulé suite au rejet</p>` : ''}
             </div>
             
