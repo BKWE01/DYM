@@ -199,27 +199,27 @@ $pageConfig = [
 
                         <!-- Filtres avancés -->
                         <div id="pending-filters" class="mb-4">
-                            <div>
+                            <div class="filter-field">
                                 <label for="filter-date-from">Date début</label>
                                 <input type="date" id="filter-date-from">
                             </div>
-                            <div>
+                            <div class="filter-field">
                                 <label for="filter-date-to">Date fin</label>
                                 <input type="date" id="filter-date-to">
                             </div>
-                            <div>
+                            <div class="filter-field">
                                 <label for="filter-fournisseur">Fournisseur</label>
                                 <input type="text" id="filter-fournisseur" placeholder="Nom fournisseur">
                             </div>
-                            <div>
+                            <div class="filter-field">
                                 <label for="filter-payment">Mode de paiement</label>
                                 <select id="filter-payment"></select>
                             </div>
-                            <div>
+                            <div class="filter-field">
                                 <label for="filter-min-amount">Montant min</label>
                                 <input type="number" id="filter-min-amount" placeholder="0">
                             </div>
-                            <div>
+                            <div class="filter-field">
                                 <label for="filter-max-amount">Montant max</label>
                                 <input type="number" id="filter-max-amount" placeholder="0">
                             </div>
