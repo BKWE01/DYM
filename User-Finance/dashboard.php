@@ -197,7 +197,7 @@ $pageConfig = [
                             <p class="table-subtitle">Cliquez sur "Signer" pour valider un bon de commande</p>
                         </div>
 
-                                                <!-- Bouton pour afficher/masquer les filtres -->
+                        <!-- Bouton pour afficher/masquer les filtres -->
                         <div class="mb-2 text-right">
                             <button id="toggle-pending-filters" type="button" class="action-btn btn-toggle-filters">
                                 <span class="material-icons text-sm">filter_alt</span>
@@ -518,7 +518,6 @@ $pageConfig = [
     <script src="assets/js/DataTableManager.js"></script>
     <script src="assets/js/StatsManager.js"></script>
     <script src="assets/js/FinanceManager.js"></script>
-    <script src="assets/js/ModernFiltersManager.js"></script>
 
     <!-- Script d'initialisation -->
     <script>
