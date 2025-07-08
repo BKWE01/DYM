@@ -197,6 +197,44 @@ $pageConfig = [
                             <p class="table-subtitle">Cliquez sur "Signer" pour valider un bon de commande</p>
                         </div>
 
+                        <!-- Filtres avancés -->
+                        <div id="pending-filters" class="mb-4">
+                            <div>
+                                <label for="filter-date-from">Date début</label>
+                                <input type="date" id="filter-date-from">
+                            </div>
+                            <div>
+                                <label for="filter-date-to">Date fin</label>
+                                <input type="date" id="filter-date-to">
+                            </div>
+                            <div>
+                                <label for="filter-fournisseur">Fournisseur</label>
+                                <input type="text" id="filter-fournisseur" placeholder="Nom fournisseur">
+                            </div>
+                            <div>
+                                <label for="filter-payment">Mode de paiement</label>
+                                <select id="filter-payment"></select>
+                            </div>
+                            <div>
+                                <label for="filter-min-amount">Montant min</label>
+                                <input type="number" id="filter-min-amount" placeholder="0">
+                            </div>
+                            <div>
+                                <label for="filter-max-amount">Montant max</label>
+                                <input type="number" id="filter-max-amount" placeholder="0">
+                            </div>
+                            <div class="flex items-end space-x-2">
+                                <button id="apply-pending-filters" type="button">
+                                    <span class="material-icons text-sm">filter_alt</span>
+                                    Filtrer
+                                </button>
+                                <button id="reset-pending-filters" type="button">
+                                    <span class="material-icons text-sm">refresh</span>
+                                    Réinitialiser
+                                </button>
+                            </div>
+                        </div>
+
                         <div class="table-responsive">
                             <table id="pending-table" class="finance-table">
                                 <thead>
