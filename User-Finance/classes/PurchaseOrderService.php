@@ -107,15 +107,17 @@ class PurchaseOrderService
     public function getOrderFullDetails(int $orderId): ?array
     {
         // Récupérer les informations principales du bon avec les données de rejet
-        $orderQuery = "SELECT 
+        $orderQuery = "SELECT
                     po.*,
                     u.name as username_creation,
                     uf.name as finance_username,
-                    ur.name as rejected_by_username
+                    ur.name as rejected_by_username,
+                    pm.label AS mode_paiement
                   FROM purchase_orders po
                   LEFT JOIN users_exp u ON po.user_id = u.id
                   LEFT JOIN users_exp uf ON po.user_finance_id = uf.id
                   LEFT JOIN users_exp ur ON po.rejected_by_user_id = ur.id
+                  LEFT JOIN payment_methods pm ON po.mode_paiement_id = pm.id
                   WHERE po.id = ?";
 
         try {
