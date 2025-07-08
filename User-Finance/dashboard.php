@@ -299,6 +299,7 @@ $pageConfig = [
                                         <th>Date de création</th>
                                         <th>Fournisseur</th>
                                         <th>Montant</th>
+                                        <th>Mode de paiement</th>
                                         <th>Date de rejet</th>
                                         <th>Motif</th>
                                         <th>Actions</th>
