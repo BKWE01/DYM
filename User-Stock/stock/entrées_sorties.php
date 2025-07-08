@@ -187,6 +187,7 @@ if (!isset($_SESSION['user_id'])) {
             color: #eb2f96;
             margin-top: 0.25rem;
         }
+        
     </style>
 </head>
 
@@ -349,21 +350,24 @@ if (!isset($_SESSION['user_id'])) {
                 });
         }
 
-        // Fonction pour générer le HTML de la cellule de facture
+        // Fonction modernisée pour générer le HTML de la cellule de facture
         function createInvoiceCell(movement) {
             // Par défaut, la cellule est vide
             let invoiceCell = '<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">-</td>';
 
             // Si c'est une entrée, récupérer les informations de facture
             if (movement.movement_type === 'entry') {
-                // Créer la cellule avec un loader
+                // Créer la cellule avec un loader modernisé
                 invoiceCell = `
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" id="invoice-cell-${movement.id}" data-movement-id="${movement.id}">
-                <div class="animate-pulse flex space-x-2">
-                    <div class="h-2 w-10 bg-gray-200 rounded"></div>
+                <div class="flex items-center space-x-2">
+                    <div class="animate-pulse flex items-center space-x-2">
+                        <div class="h-3 w-3 bg-blue-200 rounded-full"></div>
+                        <div class="h-2 w-16 bg-gray-200 rounded"></div>
+                    </div>
                 </div>
             </td>
-        `;
+            `;
 
                 // Récupérer les informations de facture de manière asynchrone
                 setTimeout(() => {
@@ -377,34 +381,42 @@ if (!isset($_SESSION['user_id'])) {
                             // Vérifier si un chemin de fichier est disponible
                             if (invoice.file_path) {
                                 cell.innerHTML = `
-                            <span class="flex items-center space-x-1">
-                                <a href="javascript:void(0);" onclick="previewInvoice(${invoice.id}, '${invoice.file_path}')" class="text-blue-600 hover:text-blue-800 flex items-center">
-                                    <span class="material-icons text-sm mr-1">description</span>
-                                    ${invoice.invoice_number || invoice.original_filename || `Facture #${invoice.id}`}
-                                </a>
-                                <button title="Remplacer la facture" class="text-yellow-600 hover:text-yellow-800" onclick="openInvoiceUpload(${movement.id}, true)">
-                                    <span class="material-icons text-sm">edit</span>
+                            <div class="flex items-center space-x-2">
+                                <button onclick="previewInvoice(${invoice.id}, '${invoice.file_path}')" 
+                                        class="inline-flex items-center px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 hover:text-blue-800 font-medium text-xs rounded-lg border border-blue-200 hover:border-blue-300 transition-all duration-200 ease-in-out group">
+                                    <span class="material-icons text-sm mr-1.5 group-hover:scale-110 transition-transform duration-200">description</span>
+                                    <span class="truncate max-w-24">${invoice.invoice_number || invoice.original_filename || `#${invoice.id}`}</span>
                                 </button>
-                            </span>
+                                <button title="Remplacer la facture" 
+                                        onclick="openInvoiceUpload(${movement.id}, true)"
+                                        class="inline-flex items-center justify-center w-7 h-7 bg-orange-50 hover:bg-orange-100 text-orange-600 hover:text-orange-700 rounded-md border border-orange-200 hover:border-orange-300 transition-all duration-200 ease-in-out group">
+                                    <span class="material-icons text-sm group-hover:rotate-12 transition-transform duration-200">edit</span>
+                                </button>
+                            </div>
                         `;
                             } else {
                                 cell.innerHTML = `
-                            <span class="flex items-center space-x-1">
-                                <span class="text-gray-600 flex items-center">
-                                    <span class="material-icons text-sm mr-1">receipt</span>
-                                    ${invoice.invoice_number || `Facture #${invoice.id}`}
-                                </span>
-                                <button title="Remplacer la facture" class="text-yellow-600 hover:text-yellow-800" onclick="openInvoiceUpload(${movement.id}, true)">
-                                    <span class="material-icons text-sm">edit</span>
+                            <div class="flex items-center space-x-2">
+                                <div class="inline-flex items-center px-3 py-1.5 bg-gray-50 text-gray-600 font-medium text-xs rounded-lg border border-gray-200">
+                                    <span class="material-icons text-sm mr-1.5">receipt</span>
+                                    <span class="truncate max-w-24">${invoice.invoice_number || `#${invoice.id}`}</span>
+                                </div>
+                                <button title="Remplacer la facture" 
+                                        onclick="openInvoiceUpload(${movement.id}, true)"
+                                        class="inline-flex items-center justify-center w-7 h-7 bg-orange-50 hover:bg-orange-100 text-orange-600 hover:text-orange-700 rounded-md border border-orange-200 hover:border-orange-300 transition-all duration-200 ease-in-out group">
+                                    <span class="material-icons text-sm group-hover:rotate-12 transition-transform duration-200">edit</span>
                                 </button>
-                            </span>
+                            </div>
                         `;
                             }
                         } else {
                             cell.innerHTML = `
-                        <button class="text-blue-600 hover:text-blue-800" onclick="openInvoiceUpload(${movement.id})">
+                        <button onclick="openInvoiceUpload(${movement.id})"
+                                class="inline-flex items-center px-3 py-1.5 bg-green-50 hover:bg-green-100 text-green-700 hover:text-green-800 font-medium text-xs rounded-lg border border-green-200 hover:border-green-300 transition-all duration-200 ease-in-out group">
+                            <span class="material-icons text-sm mr-1.5 group-hover:scale-110 transition-transform duration-200">add_circle_outline</span>
                             Associer
-                        </button>`;
+                        </button>
+                    `;
                         }
                     });
                 }, 100);
