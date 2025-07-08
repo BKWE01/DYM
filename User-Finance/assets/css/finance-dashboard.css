@@ -353,6 +353,18 @@ body.modal-open {
     transform: translateY(-1px);
 }
 
+/* Bouton affichage filtres */
+.btn-toggle-filters {
+    background: linear-gradient(135deg, #f8fafc, #eef2f7);
+    color: var(--finance-primary);
+    border-color: var(--finance-primary);
+}
+
+.btn-toggle-filters:hover {
+    background: linear-gradient(135deg, #eef2f7, #e2e8f0);
+    transform: translateY(-1px);
+}
+
 /* ================================================================
    CONTAINER PRINCIPAL
    ================================================================ */
