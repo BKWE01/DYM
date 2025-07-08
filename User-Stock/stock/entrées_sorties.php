@@ -52,7 +52,7 @@ if (!isset($_SESSION['user_id'])) {
             background-color: #e8f5e9;
             color: #388e3c;
         }
-        
+
         .badge-return {
             background-color: #fff0f6;
             color: #eb2f96;
@@ -180,7 +180,7 @@ if (!isset($_SESSION['user_id'])) {
             max-width: 100%;
             height: auto;
         }
-        
+
         /* Style pour afficher les infos du retour fournisseur */
         .return-info {
             font-size: 0.75rem;
@@ -342,7 +342,10 @@ if (!isset($_SESSION['user_id'])) {
                 .then(response => response.json())
                 .catch(error => {
                     console.error('Erreur lors de la récupération des informations de facture:', error);
-                    return { success: false, invoice: null };
+                    return {
+                        success: false,
+                        invoice: null
+                    };
                 });
         }
 
@@ -388,7 +391,10 @@ if (!isset($_SESSION['user_id'])) {
                         `;
                             }
                         } else {
-                            cell.textContent = '-';
+                            cell.innerHTML = `
+                        <button class="text-blue-600 hover:text-blue-800" onclick="openInvoiceUpload(${movement.id})">
+                            Associer
+                        </button>`;
                         }
                     });
                 }, 100);
@@ -403,16 +409,16 @@ if (!isset($_SESSION['user_id'])) {
             const row = document.querySelector(`tr[data-movement-id="${movementId}"]`);
             const destination = row.getAttribute('data-destination');
             const notes = row.getAttribute('data-notes');
-            
+
             let supplierName = '';
             let returnReason = '';
             let returnComment = '';
-            
+
             // Extraire le nom du fournisseur de la destination
             if (destination && destination.startsWith('Retour fournisseur: ')) {
                 supplierName = destination.substring('Retour fournisseur: '.length);
             }
-            
+
             // Extraire le motif et le commentaire des notes
             if (notes) {
                 if (notes.startsWith('Motif: ')) {
@@ -423,16 +429,16 @@ if (!isset($_SESSION['user_id'])) {
                     }
                 }
             }
-            
+
             // Récupérer d'autres informations spécifiques depuis la base de données si la table supplier_returns existe
             fetch(`retour-fournisseur/get_supplier_return_details.php?movement_id=${movementId}`)
                 .then(response => response.json())
                 .then(data => {
                     let modalContent = '';
-                    
+
                     if (data.success && data.return) {
                         const returnData = data.return;
-                        
+
                         // Utiliser les données plus détaillées de la table supplier_returns
                         modalContent = `
                             <div class="bg-pink-50 p-4 rounded mb-4">
@@ -466,7 +472,7 @@ if (!isset($_SESSION['user_id'])) {
                             </div>
                         `;
                     }
-                    
+
                     // Afficher le modal avec les détails
                     document.getElementById('returnModalTitle').textContent = 'Détails du retour fournisseur';
                     document.getElementById('returnModalContent').innerHTML = modalContent;
@@ -474,7 +480,7 @@ if (!isset($_SESSION['user_id'])) {
                 })
                 .catch(error => {
                     console.error('Erreur:', error);
-                    
+
                     // En cas d'erreur, afficher quand même les infos basiques
                     const modalContent = `
                         <div class="bg-pink-50 p-4 rounded mb-4">
@@ -490,21 +496,25 @@ if (!isset($_SESSION['user_id'])) {
                             <p class="mb-2"><strong>Date:</strong> ${row.querySelector('td:nth-child(9)').textContent}</p>
                         </div>
                     `;
-                    
+
                     // Afficher le modal avec les détails
                     document.getElementById('returnModalTitle').textContent = 'Détails du retour fournisseur';
                     document.getElementById('returnModalContent').innerHTML = modalContent;
                     document.getElementById('supplierReturnDetailsModal').style.display = 'block';
                 });
         }
-        
+
         // Fonction auxiliaire pour afficher le statut du retour
         function getStatusText(status) {
-            switch(status) {
-                case 'pending': return 'En attente';
-                case 'completed': return 'Complété';
-                case 'cancelled': return 'Annulé';
-                default: return 'Inconnu';
+            switch (status) {
+                case 'pending':
+                    return 'En attente';
+                case 'completed':
+                    return 'Complété';
+                case 'cancelled':
+                    return 'Annulé';
+                default:
+                    return 'Inconnu';
             }
         }
 
@@ -570,7 +580,7 @@ if (!isset($_SESSION['user_id'])) {
                 }
 
                 // Configurer le bouton de téléchargement
-                downloadBtn.onclick = function () {
+                downloadBtn.onclick = function() {
                     // Créer un élément anchor temporaire
                     const downloadLink = document.createElement('a');
                     downloadLink.href = path;
@@ -616,7 +626,7 @@ if (!isset($_SESSION['user_id'])) {
                 setTimeout(() => {
                     const tryAlternativesBtn = document.getElementById('tryAlternativesBtn');
                     if (tryAlternativesBtn) {
-                        tryAlternativesBtn.addEventListener('click', function () {
+                        tryAlternativesBtn.addEventListener('click', function() {
                             // Afficher un message de diagnostic
                             Swal.fire({
                                 title: 'Diagnostic du fichier',
@@ -685,11 +695,11 @@ if (!isset($_SESSION['user_id'])) {
             // Les codes projet ont généralement un format comme "ABC-12345" ou "ABC12345"
             return typeof str === 'string' && (
                 /^[A-Z]+-\d+$/i.test(str) || // Format avec tiret ABC-12345
-                /^[A-Z]{2,}\d+$/i.test(str)   // Format sans tiret ABC12345
+                /^[A-Z]{2,}\d+$/i.test(str) // Format sans tiret ABC12345
             );
         }
 
-        $(document).ready(function () {
+        $(document).ready(function() {
             let currentPage = 1;
             const movementsPerPage = 10;
 
@@ -701,7 +711,7 @@ if (!isset($_SESSION['user_id'])) {
                     url: 'api_getProjects.php',
                     type: 'GET',
                     dataType: 'json',
-                    success: function (response) {
+                    success: function(response) {
                         console.log('Réponse du serveur pour les projets :', response);
 
                         if (response.success) {
@@ -713,7 +723,7 @@ if (!isset($_SESSION['user_id'])) {
                                 // Trier les projets par code_projet
                                 response.projects.sort((a, b) => a.code_projet.localeCompare(b.code_projet));
 
-                                response.projects.forEach(function (project) {
+                                response.projects.forEach(function(project) {
                                     // Vérifier et formater les données
                                     const projectCode = project.code_projet || 'N/A';
                                     const clientName = project.nom_client || 'Client non spécifié';
@@ -733,7 +743,7 @@ if (!isset($_SESSION['user_id'])) {
                             $('#projectFilter').append(`<option value="">Erreur: ${response.message}</option>`);
                         }
                     },
-                    error: function (xhr, status, error) {
+                    error: function(xhr, status, error) {
                         console.error('Erreur AJAX complète :', {
                             status: status,
                             error: error,
@@ -746,6 +756,7 @@ if (!isset($_SESSION['user_id'])) {
                     }
                 });
             }
+
             function loadMovements(page) {
                 const search = $('#searchInput').val();
                 const movementType = $('#movementTypeFilter').val();
@@ -762,7 +773,7 @@ if (!isset($_SESSION['user_id'])) {
                         project_code: projectCode
                     },
                     dataType: 'json',
-                    success: function (response) {
+                    success: function(response) {
                         if (response.success) {
                             let tableBody = $('#movementTableBody');
                             tableBody.empty();
@@ -773,7 +784,7 @@ if (!isset($_SESSION['user_id'])) {
                                 type: 'GET',
                                 dataType: 'json',
                                 async: false,
-                                success: function (tableResponse) {
+                                success: function(tableResponse) {
                                     const dispatchTableExists = tableResponse.exists;
 
                                     // Traiter les mouvements
@@ -788,19 +799,21 @@ if (!isset($_SESSION['user_id'])) {
                                         let entriesWithDispatching = [];
 
                                         if (dispatchTableExists && (movementType === '' || movementType === 'entry')) {
-                                            response.movements.forEach(function (movement) {
+                                            response.movements.forEach(function(movement) {
                                                 if (movement.movement_type === 'entry') {
                                                     // Récupérer les détails de dispatching pour cette entrée
                                                     $.ajax({
                                                         url: 'get_dispatch_for_entry.php',
                                                         type: 'GET',
-                                                        data: { movement_id: movement.id },
+                                                        data: {
+                                                            movement_id: movement.id
+                                                        },
                                                         dataType: 'json',
                                                         async: false,
-                                                        success: function (dispatchResponse) {
+                                                        success: function(dispatchResponse) {
                                                             if (dispatchResponse.success && dispatchResponse.dispatches.length > 0) {
                                                                 // Cette entrée a des dispatching, les ajouter individuellement
-                                                                dispatchResponse.dispatches.forEach(function (dispatch) {
+                                                                dispatchResponse.dispatches.forEach(function(dispatch) {
                                                                     entriesWithDispatching.push({
                                                                         id: movement.id,
                                                                         product_id: movement.product_id,
@@ -809,7 +822,7 @@ if (!isset($_SESSION['user_id'])) {
                                                                         movement_type: 'entry',
                                                                         provenance: movement.provenance,
                                                                         nom_projet: dispatch.project,
-                                                                        nom_client: dispatch.client || '',  // Stockage du nom du client
+                                                                        nom_client: dispatch.client || '', // Stockage du nom du client
                                                                         project_display_name: dispatch.client || '', // Utiliser directement le champ client comme nom à afficher
                                                                         destination: dispatch.client || movement.destination,
                                                                         demandeur: movement.demandeur,
@@ -822,7 +835,7 @@ if (!isset($_SESSION['user_id'])) {
                                                                 entriesWithDispatching.push(movement);
                                                             }
                                                         },
-                                                        error: function () {
+                                                        error: function() {
                                                             // En cas d'erreur, afficher l'entrée normalement
                                                             entriesWithDispatching.push(movement);
                                                         }
@@ -836,17 +849,19 @@ if (!isset($_SESSION['user_id'])) {
 
                                             // Pour chaque mouvement, récupérer le nom du projet si seulement le code est disponible
                                             // Pour les entrées standards (non-dispatching) qui n'ont pas de project_display_name
-                                            entriesWithDispatching.forEach(function (movement, index) {
+                                            entriesWithDispatching.forEach(function(movement, index) {
                                                 // Si c'est une entrée standard (pas de dispatching) et que nous n'avons pas encore de project_display_name
                                                 if (!movement.project_display_name && movement.nom_projet && looksLikeProjectCode(movement.nom_projet)) {
                                                     // Récupérer le nom du projet depuis la table identification_projet
                                                     $.ajax({
                                                         url: 'get_project_name.php',
                                                         type: 'GET',
-                                                        data: { project_code: movement.nom_projet },
+                                                        data: {
+                                                            project_code: movement.nom_projet
+                                                        },
                                                         dataType: 'json',
                                                         async: false,
-                                                        success: function (projectResponse) {
+                                                        success: function(projectResponse) {
                                                             if (projectResponse.success) {
                                                                 entriesWithDispatching[index].project_display_name = projectResponse.nom_client;
                                                             }
@@ -859,7 +874,7 @@ if (!isset($_SESSION['user_id'])) {
                                             });
 
                                             // Utiliser les entrées avec dispatching pour l'affichage
-                                            entriesWithDispatching.forEach(function (movement) {
+                                            entriesWithDispatching.forEach(function(movement) {
                                                 let badgeClass, movementTypeDisplay;
 
                                                 if (movement.movement_type === 'entry') {
@@ -937,17 +952,19 @@ if (!isset($_SESSION['user_id'])) {
                                         } else {
                                             // Table dispatch_details n'existe pas ou filtre sur les sorties, afficher normalement
                                             // Pour chaque mouvement, vérifier si nom_projet est un code ou un nom de client
-                                            response.movements.forEach(function (movement, index) {
+                                            response.movements.forEach(function(movement, index) {
                                                 // Pour la rétrocompatibilité - vérifier si nom_projet contient un code de projet ou déjà un nom de client
                                                 if (movement.nom_projet && looksLikeProjectCode(movement.nom_projet)) {
                                                     // Ancien format: nom_projet contient le code du projet, faire la requête pour obtenir le nom du client
                                                     $.ajax({
                                                         url: 'get_project_name.php',
                                                         type: 'GET',
-                                                        data: { project_code: movement.nom_projet },
+                                                        data: {
+                                                            project_code: movement.nom_projet
+                                                        },
                                                         dataType: 'json',
                                                         async: false,
-                                                        success: function (projectResponse) {
+                                                        success: function(projectResponse) {
                                                             if (projectResponse.success) {
                                                                 // Stocker le résultat dans une nouvelle propriété pour l'affichage
                                                                 response.movements[index].project_display_name = projectResponse.nom_client;
@@ -960,7 +977,7 @@ if (!isset($_SESSION['user_id'])) {
                                                 }
                                             });
 
-                                            response.movements.forEach(function (movement) {
+                                            response.movements.forEach(function(movement) {
                                                 // Ignorer les mouvements de type 'dispatch'
                                                 if (movement.movement_type === 'dispatch') {
                                                     return;
@@ -1043,20 +1060,22 @@ if (!isset($_SESSION['user_id'])) {
                                         }
                                     }
                                 },
-                                error: function () {
+                                error: function() {
                                     // Si on ne peut pas vérifier la table, afficher normalement
                                     // Pour chaque mouvement, vérifier si nom_projet est un code ou un nom de client
-                                    response.movements.forEach(function (movement, index) {
+                                    response.movements.forEach(function(movement, index) {
                                         // Pour la rétrocompatibilité - vérifier si nom_projet contient un code de projet ou déjà un nom de client
                                         if (movement.nom_projet && looksLikeProjectCode(movement.nom_projet)) {
                                             // Ancien format: nom_projet contient le code du projet, faire la requête pour obtenir le nom du client
                                             $.ajax({
                                                 url: 'get_project_name.php',
                                                 type: 'GET',
-                                                data: { project_code: movement.nom_projet },
+                                                data: {
+                                                    project_code: movement.nom_projet
+                                                },
                                                 dataType: 'json',
                                                 async: false,
-                                                success: function (projectResponse) {
+                                                success: function(projectResponse) {
                                                     if (projectResponse.success) {
                                                         // Stocker le résultat dans une nouvelle propriété pour l'affichage
                                                         response.movements[index].project_display_name = projectResponse.nom_client;
@@ -1069,7 +1088,7 @@ if (!isset($_SESSION['user_id'])) {
                                         }
                                     });
 
-                                    response.movements.forEach(function (movement) {
+                                    response.movements.forEach(function(movement) {
                                         // Ignorer les mouvements de type 'dispatch'
                                         if (movement.movement_type === 'dispatch') {
                                             return;
@@ -1159,7 +1178,7 @@ if (!isset($_SESSION['user_id'])) {
                             $('#movementTableBody').html('<tr><td colspan="11" class="text-center py-4">Erreur lors de la récupération des mouvements. Veuillez réessayer.</td></tr>');
                         }
                     },
-                    error: function (xhr, status, error) {
+                    error: function(xhr, status, error) {
                         console.error('Erreur AJAX:', error);
                         showNotification('Erreur de connexion au serveur', 'error');
                         $('#movementTableBody').html('<tr><td colspan="11" class="text-center py-4">Erreur de connexion au serveur. Veuillez réessayer plus tard.</td></tr>');
@@ -1171,9 +1190,11 @@ if (!isset($_SESSION['user_id'])) {
                 $.ajax({
                     url: 'api_getDispatchDetails.php',
                     type: 'GET',
-                    data: { movement_id: movementId },
+                    data: {
+                        movement_id: movementId
+                    },
                     dataType: 'json',
-                    success: function (response) {
+                    success: function(response) {
                         if (response.success) {
                             const details = response.details;
                             const completedOrders = details.filter(d => d.status === 'completed');
@@ -1269,7 +1290,7 @@ if (!isset($_SESSION['user_id'])) {
                             showNotification('Erreur: ' + response.message, 'error');
                         }
                     },
-                    error: function (xhr, status, error) {
+                    error: function(xhr, status, error) {
                         console.error('Erreur AJAX:', error);
                         showNotification('Erreur de connexion au serveur', 'error');
                     }
@@ -1331,19 +1352,81 @@ if (!isset($_SESSION['user_id'])) {
                 $('#pagination').html(paginationHtml);
             }
 
-            window.changePage = function (page) {
+            window.changePage = function(page) {
                 currentPage = page;
                 loadMovements(page);
             };
 
+            function openInvoiceUpload(movementId) {
+                Swal.fire({
+                    title: 'Associer une facture',
+                    html: '<input type="file" id="swal-invoice-file" class="swal2-file">',
+                    showCancelButton: true,
+                    confirmButtonText: 'Envoyer',
+                    preConfirm: () => {
+                        const fileInput = document.getElementById('swal-invoice-file');
+                        if (!fileInput || fileInput.files.length === 0) {
+                            Swal.showValidationMessage('Veuillez sélectionner un fichier');
+                            return false;
+                        }
+
+                        const formData = new FormData();
+                        formData.append('invoice_file', fileInput.files[0]);
+
+                        return fetch('upload_invoice.php', {
+                                method: 'POST',
+                                body: formData
+                            })
+                            .then(res => res.json())
+                            .then(data => {
+                                if (!data.success) {
+                                    throw new Error(data.message || 'Erreur lors de l\'upload');
+                                }
+
+                                const req = {
+                                    movement_id: movementId,
+                                    invoice: {
+                                        file_path: data.file_path,
+                                        original_filename: data.original_filename,
+                                        file_type: data.file_type,
+                                        file_size: data.file_size,
+                                        upload_user_id: data.upload_user_id
+                                    }
+                                };
+
+                                return fetch('api/associate_invoice.php', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json'
+                                    },
+                                    body: JSON.stringify(req)
+                                }).then(r => r.json());
+                            })
+                            .catch(err => {
+                                Swal.showValidationMessage(err.message);
+                            });
+                    }
+                }).then(result => {
+                    if (result.isConfirmed && result.value && result.value.success) {
+                        Swal.fire('Succès', 'Facture associée avec succès', 'success').then(() => {
+                            loadMovements(currentPage);
+                        });
+                    } else if (result.isConfirmed && result.value && !result.value.success) {
+                        Swal.fire('Erreur', result.value.message || 'Une erreur est survenue', 'error');
+                    }
+                });
+            }
+
+            window.openInvoiceUpload = openInvoiceUpload;
+
             // Gestionnaire d'événements pour la recherche
-            $('#searchInput').on('input', debounce(function () {
+            $('#searchInput').on('input', debounce(function() {
                 currentPage = 1;
                 loadMovements(currentPage);
             }, 300));
 
             // Gestionnaire d'événements pour les filtres
-            $('#movementTypeFilter, #projectFilter').on('change', function () {
+            $('#movementTypeFilter, #projectFilter').on('change', function() {
                 currentPage = 1;
                 loadMovements(currentPage);
             });
@@ -1380,14 +1463,14 @@ if (!isset($_SESSION['user_id'])) {
             }
 
             // Gestionnaire pour fermer les modals
-            $('.close').on('click', function () {
+            $('.close').on('click', function() {
                 $('#dispatchDetailsModal').css('display', 'none');
                 $('#invoicePreviewModal').css('display', 'none');
                 $('#supplierReturnDetailsModal').css('display', 'none');
             });
 
             // Fermer les modals si on clique en dehors
-            $(window).on('click', function (event) {
+            $(window).on('click', function(event) {
                 if (event.target == document.getElementById('dispatchDetailsModal')) {
                     $('#dispatchDetailsModal').css('display', 'none');
                 }
