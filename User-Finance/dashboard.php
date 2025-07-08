@@ -200,13 +200,13 @@ $pageConfig = [
                         <!-- Bouton pour afficher/masquer les filtres -->
                         <div class="mb-2 text-right">
                             <button id="toggle-pending-filters" type="button" class="action-btn btn-toggle-filters">
-                                <span class="material-icons text-sm">filter_alt_off</span>
-                                Masquer les filtres
+                                <span class="material-icons text-sm">filter_alt</span>
+                                Afficher les filtres
                             </button>
                         </div>
 
                         <!-- Filtres avancés -->
-                        <div id="pending-filters" class="mb-4">
+                        <div id="pending-filters" class="mb-4 hidden">
                             <div class="filter-field">
                                 <label for="filter-date-from">Date début</label>
                                 <input type="date" id="filter-date-from">
@@ -486,8 +486,8 @@ $pageConfig = [
                 // Afficher ou masquer les filtres avancés
                 $('#toggle-pending-filters').on('click', function() {
                     const filters = $('#pending-filters');
-                    filters.toggleClass('hidden');
-                    const hidden = filters.hasClass('hidden');
+                    filters.toggle();
+                    const hidden = !filters.is(':visible');
                     const icon = hidden ? 'filter_alt' : 'filter_alt_off';
                     $(this).html(`<span class="material-icons text-sm">${icon}</span> ${hidden ? 'Afficher les filtres' : 'Masquer les filtres'}`);
                 });
