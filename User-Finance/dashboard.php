@@ -197,7 +197,7 @@ $pageConfig = [
                             <p class="table-subtitle">Cliquez sur "Signer" pour valider un bon de commande</p>
                         </div>
 
-                        <!-- Bouton pour afficher/masquer les filtres -->
+                                                <!-- Bouton pour afficher/masquer les filtres -->
                         <div class="mb-2 text-right">
                             <button id="toggle-pending-filters" type="button" class="action-btn btn-toggle-filters">
                                 <span class="material-icons text-sm">filter_alt</span>
@@ -205,41 +205,139 @@ $pageConfig = [
                             </button>
                         </div>
 
-                        <!-- Filtres avancés -->
+                        <!-- Filtres avancés modernisés -->
                         <div id="pending-filters" class="mb-4 hidden">
-                            <div class="filter-field">
-                                <label for="filter-date-from">Date début</label>
-                                <input type="date" id="filter-date-from">
+                            <!-- En-tête des filtres -->
+                            <div class="filters-header">
+                                <div class="filters-title">
+                                    <span class="material-icons">tune</span>
+                                    <h4>Filtres avancés</h4>
+                                </div>
+                                <div class="filters-subtitle">
+                                    Affinez votre recherche avec les critères ci-dessous
+                                </div>
                             </div>
-                            <div class="filter-field">
-                                <label for="filter-date-to">Date fin</label>
-                                <input type="date" id="filter-date-to">
+
+                            <!-- Grille des filtres -->
+                            <div class="filters-grid">
+                                <!-- Section Période -->
+                                <div class="filter-section">
+                                    <div class="filter-section-title">
+                                        <span class="material-icons">date_range</span>
+                                        <span>Période</span>
+                                    </div>
+                                    <div class="filter-row">
+                                        <div class="filter-field">
+                                            <label for="filter-date-from">
+                                                <span class="material-icons">today</span>
+                                                Date début
+                                            </label>
+                                            <input type="date" id="filter-date-from" class="modern-input">
+                                        </div>
+                                        <div class="filter-field">
+                                            <label for="filter-date-to">
+                                                <span class="material-icons">event</span>
+                                                Date fin
+                                            </label>
+                                            <input type="date" id="filter-date-to" class="modern-input">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Section Fournisseur -->
+                                <div class="filter-section">
+                                    <div class="filter-section-title">
+                                        <span class="material-icons">business</span>
+                                        <span>Fournisseur</span>
+                                    </div>
+                                    <div class="filter-row">
+                                        <div class="filter-field full-width">
+                                            <label for="filter-fournisseur">
+                                                <span class="material-icons">search</span>
+                                                Nom du fournisseur
+                                            </label>
+                                            <input type="text"
+                                                id="filter-fournisseur"
+                                                class="modern-input"
+                                                placeholder="Rechercher un fournisseur...">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Section Paiement -->
+                                <div class="filter-section">
+                                    <div class="filter-section-title">
+                                        <span class="material-icons">payment</span>
+                                        <span>Mode de paiement</span>
+                                    </div>
+                                    <div class="filter-row">
+                                        <div class="filter-field full-width">
+                                            <label for="filter-payment">
+                                                <span class="material-icons">credit_card</span>
+                                                Type de paiement
+                                            </label>
+                                            <select id="filter-payment" class="modern-select">
+                                                <option value="">Tous les modes de paiement</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Section Montant -->
+                                <div class="filter-section">
+                                    <div class="filter-section-title">
+                                        <span class="material-icons">payments</span>
+                                        <span>Montant</span>
+                                    </div>
+                                    <div class="filter-row">
+                                        <div class="filter-field">
+                                            <label for="filter-min-amount">
+                                                <span class="material-icons">keyboard_arrow_up</span>
+                                                Montant minimum
+                                            </label>
+                                            <div class="input-with-currency">
+                                                <input type="number"
+                                                    id="filter-min-amount"
+                                                    class="modern-input"
+                                                    placeholder="0">
+                                                <span class="currency-suffix">FCFA</span>
+                                            </div>
+                                        </div>
+                                        <div class="filter-field">
+                                            <label for="filter-max-amount">
+                                                <span class="material-icons">keyboard_arrow_down</span>
+                                                Montant maximum
+                                            </label>
+                                            <div class="input-with-currency">
+                                                <input type="number"
+                                                    id="filter-max-amount"
+                                                    class="modern-input"
+                                                    placeholder="∞">
+                                                <span class="currency-suffix">FCFA</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="filter-field">
-                                <label for="filter-fournisseur">Fournisseur</label>
-                                <input type="text" id="filter-fournisseur" placeholder="Nom fournisseur">
-                            </div>
-                            <div class="filter-field">
-                                <label for="filter-payment">Mode de paiement</label>
-                                <select id="filter-payment"></select>
-                            </div>
-                            <div class="filter-field">
-                                <label for="filter-min-amount">Montant min</label>
-                                <input type="number" id="filter-min-amount" placeholder="0">
-                            </div>
-                            <div class="filter-field">
-                                <label for="filter-max-amount">Montant max</label>
-                                <input type="number" id="filter-max-amount" placeholder="0">
-                            </div>
-                            <div class="flex items-end space-x-2">
-                                <button id="apply-pending-filters" type="button" class="m-2">
-                                    <span class="material-icons text-sm">filter_alt</span>
-                                    Filtrer
-                                </button>
-                                <button id="reset-pending-filters" type="button" class="m-2">
-                                    <span class="material-icons text-sm">refresh</span>
-                                    Réinitialiser
-                                </button>
+
+                            <!-- Actions des filtres -->
+                            <div class="filters-actions">
+                                <div class="filters-actions-left">
+                                    <div class="filter-status">
+                                        <span class="material-icons">info</span>
+                                        <span id="filter-status-text">Aucun filtre appliqué</span>
+                                    </div>
+                                </div>
+                                <div class="filters-actions-right">
+                                    <button id="reset-pending-filters" type="button" class="btn-filter btn-filter-secondary">
+                                        <span class="material-icons">refresh</span>
+                                        <span>Réinitialiser</span>
+                                    </button>
+                                    <button id="apply-pending-filters" type="button" class="btn-filter btn-filter-primary">
+                                        <span class="material-icons">filter_alt</span>
+                                        <span>Appliquer les filtres</span>
+                                    </button>
+                                </div>
                             </div>
                         </div>
 
@@ -420,6 +518,7 @@ $pageConfig = [
     <script src="assets/js/DataTableManager.js"></script>
     <script src="assets/js/StatsManager.js"></script>
     <script src="assets/js/FinanceManager.js"></script>
+    <script src="assets/js/ModernFiltersManager.js"></script>
 
     <!-- Script d'initialisation -->
     <script>
